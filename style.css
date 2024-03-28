@@ -888,7 +888,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   border: 1px solid var(--SmartThemeBorderColor);
   border-radius: 10px;
   width: 30vw;
-  max-height: 60vh;
+  height: 60vh;
   overflow: auto;
   position: fixed;
   z-index: 10000;

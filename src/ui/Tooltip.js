@@ -108,9 +108,9 @@ export class Tooltip {
         x += 10;
         y += 10;
         if (x + w > window.innerWidth) {
-            x = x - w - 20;
+            x = x - w; - 20;
         }
-        y = Math.min(window.innerHeight - h - 10, y);
+        y = Math.min(window.innerHeight - h - 0, y);
         this.dom.style.left = `${x}px`;
         this.dom.style.top = `${y}px`;
     }
