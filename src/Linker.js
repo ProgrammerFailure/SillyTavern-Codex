@@ -1,4 +1,4 @@
-import { chat, messageFormatting, substituteParams } from '../../../../../script.js';
+import { addCopyToCodeBlocks, chat, messageFormatting, substituteParams } from '../../../../../script.js';
 import { uuidv4 } from '../../../../utils.js';
 
 // eslint-disable-next-line no-unused-vars
@@ -122,7 +122,9 @@ export class Linker {
                 'Codex',
                 false,
                 false,
+                null,
             );
+            addCopyToCodeBlocks(el);
         }
     }
 }
