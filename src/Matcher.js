@@ -40,6 +40,12 @@ export class Matcher {
         const found = [...alreadyFound];
         for (let i = 0; i < nodes.snapshotLength; i++) {
             const node = nodes.snapshotItem(i);
+            if (this.settings.skipCodeBlocks) {
+                const codeEl = node.parentElement.tagName == 'CODE' ? node.parentElement : node.parentElement.closest('code');
+                if (codeEl && codeEl.closest('pre')) {
+                    continue;
+                }
+            }
             const matches = this.findMatches(node.textContent, found);
             if (matches.length > 0) {
                 found.push(...matches.map(it=>it.entry));

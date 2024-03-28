@@ -15,6 +15,7 @@ export class Settings {
     /**@type {String}*/ color = 'rgba(0, 255, 255, 1)';
     /**@type {String}*/ icon = '🧾';
     /**@type {Boolean}*/ onlyFirst = false;
+    /**@type {Boolean}*/ skipCodeBlocks = true;
 
     /**@type {Boolean}*/ noTooltips = false;
     /**@type {Boolean}*/ fixedTooltips = false;
@@ -147,18 +148,26 @@ export class Settings {
             this.restartDebounced();
         });
         /**@type {HTMLInputElement} */
-        const requirePrefix = dom.querySelector('#stcdx--requirePrefix');
-        requirePrefix.checked = this.requirePrefix;
-        requirePrefix.addEventListener('click', () => {
-            this.requirePrefix = requirePrefix.checked;
-            this.save();
-            this.restartDebounced();
-        });
-        /**@type {HTMLInputElement} */
         const onlyFirst = dom.querySelector('#stcdx--onlyFirst');
         onlyFirst.checked = this.onlyFirst;
         onlyFirst.addEventListener('click', () => {
             this.onlyFirst = onlyFirst.checked;
+            this.save();
+            this.restartDebounced();
+        });
+        /**@type {HTMLInputElement} */
+        const skipCodeBlocks = dom.querySelector('#stcdx--skipCodeBlocks');
+        skipCodeBlocks.checked = this.skipCodeBlocks;
+        skipCodeBlocks.addEventListener('click', () => {
+            this.skipCodeBlocks = skipCodeBlocks.checked;
+            this.save();
+            this.restartDebounced();
+        });
+        /**@type {HTMLInputElement} */
+        const requirePrefix = dom.querySelector('#stcdx--requirePrefix');
+        requirePrefix.checked = this.requirePrefix;
+        requirePrefix.addEventListener('click', () => {
+            this.requirePrefix = requirePrefix.checked;
             this.save();
             this.restartDebounced();
         });
