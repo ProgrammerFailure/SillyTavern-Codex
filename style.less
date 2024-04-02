@@ -339,7 +339,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 		}
 	}
 }
-.stcdx--root {
+body .stcdx--root {
 	display: none;
 	grid-template-columns: 100%;
 	grid-template-rows: 0fr 1fr;
@@ -361,6 +361,10 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 		overflow: auto;
 		padding: 1em;
 		text-align: justify;
+		margin: 0;
+		background-color: transparent;
+		border-radius: 0;
+		border: none;
 
 		display: none;
 		opacity: 0;

@@ -23,8 +23,12 @@ export class CodexEntry extends CodexBaseEntry {
                 this.dom = dom;
                 dom.classList.add('stcdx--content');
                 dom.classList.add('stcdx--entry');
-                dom.classList.add('mes_text');
-                dom.append(...this.renderTemplate(this.entry));
+                dom.classList.add('mes');
+                const mesWrapper = document.createElement('div'); {
+                    mesWrapper.classList.add('mes_text');
+                    mesWrapper.append(...this.renderTemplate(this.entry));
+                    dom.append(mesWrapper);
+                }
                 const imgLoadList = [];
                 Array.from(dom.querySelectorAll('img')).forEach(img=>{
                     img.addEventListener('click', ()=>this.zoomImage(img));
