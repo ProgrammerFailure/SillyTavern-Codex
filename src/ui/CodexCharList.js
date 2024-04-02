@@ -153,11 +153,11 @@ export class CodexCharList extends CodexBaseEntry {
                     title.placeholder = 'Title / Memo';
                     title.title = 'Title / Memo';
                     title.value = this.entry.comment;
-                    title.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.comment = title.value;
-                        this.entry.saveDebounced();
-                    });
+                    // title.addEventListener('input', async()=>{
+                    //     if (!this.isEditing || this.isTogglingEditor) return;
+                    //     this.entry.comment = title.value;
+                    //     this.entry.saveDebounced();
+                    // });
                     wrapper.append(title);
                 }
                 const keywords = document.createElement('input'); {
@@ -166,22 +166,22 @@ export class CodexCharList extends CodexBaseEntry {
                     keywords.placeholder = 'Primary Keywords';
                     keywords.title = 'Primary Keywords';
                     keywords.value = this.entry.keyList.join(', ');
-                    keywords.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.keyList = keywords.value.split(/\s*,\s*/);
-                        this.entry.saveDebounced();
-                    });
+                    // keywords.addEventListener('input', async()=>{
+                    //     if (!this.isEditing || this.isTogglingEditor) return;
+                    //     this.entry.keyList = keywords.value.split(/\s*,\s*/);
+                    //     this.entry.saveDebounced();
+                    // });
                     wrapper.append(keywords);
                 }
                 editor = document.createElement('textarea'); {
                     editor.classList.add('text_pole');
                     editor.classList.add('stcdx--editor-content');
                     editor.value = this.entry.content;
-                    editor.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.content = editor.value;
-                        this.entry.saveDebounced();
-                    });
+                    // editor.addEventListener('input', async()=>{
+                    //     if (!this.isEditing || this.isTogglingEditor) return;
+                    //     this.entry.content = editor.value;
+                    //     this.entry.saveDebounced();
+                    // });
                     wrapper.append(editor);
                 }
                 this.dom.insertAdjacentElement('afterend', wrapper);

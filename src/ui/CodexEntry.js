@@ -114,7 +114,7 @@ export class CodexEntry extends CodexBaseEntry {
                     title.addEventListener('input', async()=>{
                         if (!this.isEditing || this.isTogglingEditor) return;
                         this.entry.comment = title.value;
-                        this.entry.saveDebounced();
+                        // this.entry.saveDebounced();
                     });
                     wrapper.append(title);
                 }
@@ -127,7 +127,7 @@ export class CodexEntry extends CodexBaseEntry {
                     keywords.addEventListener('input', async()=>{
                         if (!this.isEditing || this.isTogglingEditor) return;
                         this.entry.keyList = keywords.value.split(/\s*,\s*/);
-                        this.entry.saveDebounced();
+                        // this.entry.saveDebounced();
                     });
                     wrapper.append(keywords);
                 }
@@ -158,7 +158,7 @@ export class CodexEntry extends CodexBaseEntry {
                     editor.addEventListener('input', async()=>{
                         if (!this.isEditing || this.isTogglingEditor) return;
                         this.entry.content = editor.value;
-                        this.entry.saveDebounced();
+                        // this.entry.saveDebounced();
                     });
                     wrapper.append(editor);
                 }
