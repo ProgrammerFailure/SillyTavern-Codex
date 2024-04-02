@@ -1,3 +1,4 @@
+import { eventSource, event_types } from '../../../../../../script.js';
 import { dragElement } from '../../../../../RossAscends-mods.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
@@ -10,6 +11,7 @@ import { Match } from '../Match.js';
 import { Matcher } from '../Matcher.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from '../Settings.js';
+import { log } from '../lib/log.js';
 // eslint-disable-next-line no-unused-vars
 import { Book } from '../st/wi/Book.js';
 import { Entry } from '../st/wi/Entry.js';
@@ -46,7 +48,8 @@ export class Codex {
 
     /**@type {HTMLElement}*/ dom;
 
-    get isEditing() { return this.content?.isEditing ?? false; }
+    /**@type {Boolean}*/ isCreating = false;
+    get isEditing() { return this.isCreating || (this.content?.isEditing ?? false); }
 
 
 
@@ -212,14 +215,26 @@ export class Codex {
                             const typeKey = {
                                 'Map': ', codex-map:',
                                 'Character List': `, codex-chars:${qrs ?? ''}`,
+                                'Basic Text': '',
                             };
                             const typeContent = {
                                 'Map': '{}',
                                 'Character List': 'Alice\nBob',
                                 'Basic Text': 'YOUR CONTENT HERE',
                             };
-                            const uid = (await executeSlashCommands(`/createentry file="${book.name}" key="${key}${typeKey[type]}" ${typeContent[type]}`))?.pipe;
-                            this.show(new Match(book.name, Object.assign(new Entry(book.name), { uid, keyList:[], secondaryKeyList:[], secondaryKeyLogic:worldInfoLogic.AND_ANY, comment:'', content:'', isDisabled:false })));
+                            eventSource.on(event_types.WORLDINFO_UPDATED, (...args)=>log('WIUP', ...args));
+                            // const wiPromise = new Promise(resolve=>eventSource.once(event_types.WORLDINFO_UPDATED, resolve));
+
+                            const entry = Entry.from(book.name, { uid:null, key:[...`${key}${typeKey[type]}`.split(/\s*,\s*/)], keysecondary:[], selectiveLogic:worldInfoLogic.AND_ANY, comment:'', content:typeContent[type], disable:false });
+                            this.isCreating = true;
+                            executeSlashCommands(`/createentry file="${book.name}" key="${key}${typeKey[type]}" ${typeContent[type]}`).then(result=>{
+                                entry.uid = result?.pipe;
+                            });
+                            book.addEntry(entry);
+                            await this.show(new Match(book.name, entry));
+                            this.toggleEditor();
+                            // await wiPromise;
+                            this.isCreating = false;
                         });
                         li.append(name);
                     }

@@ -34,14 +34,18 @@ export class Book {
             const data = await result.json();
             for (const uid of Object.keys(data.entries)) {
                 const entry = Entry.from(this.name, data.entries[uid]);
-                entry.onSave = (_, changes)=>this.save(entry, changes);
-                this.entryList.push(entry);
+                this.addEntry(entry);
             }
         } else {
             toastr.warning(`Failed to load World Info book: ${this.name}`);
             warn(`Failed to load World Info book: ${this.name}`);
         }
         log('/BOOK.load', this);
+    }
+
+    addEntry(entry) {
+        entry.onSave = (_, changes)=>this.save(entry, changes);
+        this.entryList.push(entry);
     }
 
     async save(entry, changes) {
