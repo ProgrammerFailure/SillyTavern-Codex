@@ -59,18 +59,24 @@ export class CodexBaseEntry {
     }
 
 
+    getTemplate(entry, tplName = null) {
+        return this.settings.templateList.find(tpl=>tpl.name == (tplName ?? entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10)))?.content ?? this.settings.template;
+    }
     /**
      *
      * @param {Entry} entry
      */
-    renderTemplate(entry) {
-        let template = this.settings.templateList.find(tpl=>tpl.name == entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10))?.content ?? this.settings.template;
-        let messageText = this.subParams(entry.content);
+    renderTemplate(entry, tplName = null) {
+        let template = this.getTemplate(entry, tplName);
+        return this.renderTemplateText(entry, entry.content, template);
+    }
+    renderTemplateText(entry, text, template) {
+        let messageText = this.subParams(text);
         messageText = template
             .replace(/{{comment}}/g, entry.comment)
             .replace(/{{comment::url}}/g, encodeURIComponent(entry.comment))
-            .replace(/{{content}}/g, entry.content)
-            .replace(/{{content::url}}/g, encodeURIComponent(entry.content))
+            .replace(/{{content}}/g, text)
+            .replace(/{{content::url}}/g, encodeURIComponent(text))
             .replace(/{{key\[(\d+)\]}}/g, (_,idx)=>entry.keyList[idx])
             .replace(/{{key\[(\d+)\]::url}}/g, (_,idx)=>encodeURIComponent(entry.keyList[idx]))
             .replace(/{{title}}/g, entry.title)

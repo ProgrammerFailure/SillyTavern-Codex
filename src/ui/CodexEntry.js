@@ -9,13 +9,28 @@ import { CodexBaseEntry } from './CodexBaseEntry.js';
 export class CodexEntry extends CodexBaseEntry {
     /**@type {HTMLDivElement}*/ editor;
 
+    get tabParts() {
+        const levelRegex = new RegExp(`(?=${'#'.repeat(this.settings.tabsLevel)}\\s)`);
+        return this.entry.content
+            .split(levelRegex)
+            .map(it=>{
+                const [title, content] = it.split(/(?<=###.*)\n/);
+                return {
+                    title: content === undefined ? '' : title,
+                    content: content ?? title,
+                    tab: null,
+                };
+            })
+        ;
+    }
+
 
 
 
     async unrender() {
         super.unrender();
     }
-    async render(isUpdate = false) {
+    async render(isUpdate = false, noTabs = false) {
         let oldDom;
         if (isUpdate || !this.dom) {
             oldDom = this.dom;
@@ -24,10 +39,14 @@ export class CodexEntry extends CodexBaseEntry {
                 dom.classList.add('stcdx--content');
                 dom.classList.add('stcdx--entry');
                 dom.classList.add('mes');
-                const mesWrapper = document.createElement('div'); {
-                    mesWrapper.classList.add('mes_text');
-                    mesWrapper.append(...this.renderTemplate(this.entry));
-                    dom.append(mesWrapper);
+                if (!noTabs && this.settings.tabs && this.tabParts.find(it=>it.title.length > 0)) {
+                    dom.append(...this.renderTabs());
+                } else {
+                    const mesWrapper = document.createElement('div'); {
+                        mesWrapper.classList.add('mes_text');
+                        mesWrapper.append(...this.renderTemplate(this.entry));
+                        dom.append(mesWrapper);
+                    }
                 }
                 const imgLoadList = [];
                 Array.from(dom.querySelectorAll('img')).forEach(img=>{
@@ -45,6 +64,54 @@ export class CodexEntry extends CodexBaseEntry {
             oldDom.replaceWith(this.dom);
         }
         return this.dom;
+    }
+    renderTabs() {
+        const showTab = (part)=>{
+            Array.from(head.querySelectorAll('.stcdx--active')).forEach(it=>it.classList.remove('stcdx--active'));
+            part.tab.classList.add('stcdx--active');
+            body.innerHTML = '';
+            body.append(...this.renderTemplateText(
+                this.entry,
+                `${part.title}\n${part.content}`,
+                this.getTemplate(this.entry, 'tab-template'),
+            ));
+        };
+        const parts = this.tabParts;
+        let fixed;
+        if (parts[0].title == '') {
+            const fixedPart = parts.shift().content ?? '';
+            fixed = document.createElement('div'); {
+                fixed.classList.add('mes_text');
+                fixed.append(...this.renderTemplateText(this.entry, fixedPart, this.getTemplate(this.entry)));
+            }
+        }
+        let head;
+        let body;
+        const wrapper = document.createElement('div'); {
+            wrapper.classList.add('stcdx--tabs');
+            head = document.createElement('div'); {
+                head.classList.add('stcdx--head');
+                for (const part of parts) {
+                    const tab = document.createElement('div'); {
+                        part.tab = tab;
+                        tab.classList.add('stcdx--tab');
+                        tab.textContent = part.title.trim().replace(/^#+/, '');
+                        tab.addEventListener('click', ()=>{
+                            showTab(part);
+                        });
+                        head.append(tab);
+                    }
+                }
+                wrapper.append(head);
+            }
+            body = document.createElement('div'); {
+                body.classList.add('stcdx--body');
+                body.classList.add('mes_text');
+                wrapper.append(body);
+            }
+        }
+        showTab(parts[0]);
+        return [fixed, wrapper].filter(it=>it);
     }
 
 

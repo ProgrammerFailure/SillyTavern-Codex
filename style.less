@@ -400,6 +400,35 @@ body .stcdx--root {
 		}
 
 		&.stcdx--entry {
+			.stcdx--tabs {
+				> .stcdx--head {
+					display: flex;
+					flex-direction: row;
+					gap: 0.25em;
+					white-space: nowrap;
+					overflow: auto;
+					flex-wrap: wrap;
+					> .stcdx--tab {
+						flex: 0 0 auto;
+						text-align: center;
+						background: var(--grey30);
+						padding: 0 0.5em;
+						border: 1px solid var(--greyCAIbg);
+						border-bottom: none;
+						opacity: 0.5;
+						transition: 200ms;
+						cursor: pointer;
+						&.stcdx--active {
+							background-color: var(--greyCAIbg);
+							opacity: 1;
+						}
+					}
+				}
+				> .stcdx--body {
+					background: var(--greyCAIbg);
+					padding: 0.1em 0.5em;
+				}
+			}
 		}
 		&.stcdx--map {
 			display: flex;
