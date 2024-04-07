@@ -393,7 +393,7 @@ export class Codex {
      * @param {Match} match
      */
     async show(match = null, isHistory = false, isForced = false) {
-        if (this.isEditing) await this.toggleEditor();
+        if (this.isEditing && !this.isCreating) await this.toggleEditor();
         this.render().classList.add('stcdx--active');
         if (match) {
             /**@type {CodexBaseEntry}*/

@@ -1,6 +1,7 @@
 import { eventSource, event_types } from '../../../../../../../script.js';
 import { delay } from '../../../../../../utils.js';
 import { debounceAsync } from '../../lib/debounce.js';
+import { warn } from '../../lib/log.js';
 
 
 
@@ -40,6 +41,8 @@ export class Entry {
     /**@type {String}*/ originalKeyList;
     /**@type {String}*/ originalComment;
     /**@type {String}*/ originalContent;
+
+    /**@type {Boolean}*/ isOpeningWorldInfoPanel = false;
 
     /**@type {Function}*/ saveDebounced;
 
@@ -88,6 +91,8 @@ export class Entry {
 
 
     async showInWorldInfo() {
+        if (this.isOpeningWorldInfoPanel) return;
+        this.isOpeningWorldInfoPanel = true;
         const drawer = document.querySelector('#WorldInfo');
         if (!drawer.classList.contains('openDrawer')) {
             document.querySelector('#WI-SP-button > .drawer-toggle').click();
@@ -96,7 +101,20 @@ export class Entry {
         const bookIndex = Array.from(sel.children).find(it=>it.textContent.trim() == this.book)?.value;
         const afterBookLoaded = async()=>{
             const container = document.querySelector('#world_popup_entries_list');
-            const entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+            let entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+            if (!entry) {
+                while (!entry && !document.querySelector('#world_info_pagination .paginationjs-prev').classList.contains('disabled')) {
+                    document.querySelector('#world_info_pagination .paginationjs-prev').click();
+                    await delay(100);
+                    entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+                }
+                while (!entry && !document.querySelector('#world_info_pagination .paginationjs-next').classList.contains('disabled')) {
+                    document.querySelector('#world_info_pagination .paginationjs-next').click();
+                    await delay(100);
+                    entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+                }
+            }
+            if (!entry) return warn('Cannot find entry in WI panel', this);
             if (entry.querySelector('.inline-drawer-toggle .inline-drawer-icon.down')) {
                 entry.querySelector('.inline-drawer-toggle').click();
             }
@@ -104,9 +122,14 @@ export class Entry {
             entry.classList.add('stcdx--flash');
             await delay(510);
             entry.classList.remove('stcdx--flash');
+            this.isOpeningWorldInfoPanel = false;
         };
         if (sel.value != bookIndex) {
-            eventSource.once(event_types.WORLDINFO_UPDATED, async()=>afterBookLoaded());
+            const mo = new MutationObserver(()=>{
+                mo.disconnect();
+                afterBookLoaded();
+            });
+            mo.observe(document.querySelector('#world_popup_entries_list'), { childList:true });
             sel.value = bookIndex;
             sel.dispatchEvent(new Event('change'));
         } else {
