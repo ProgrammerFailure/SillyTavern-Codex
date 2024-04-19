@@ -28,9 +28,6 @@ export class Settings {
     /**@type {String}*/ mapTemplate = '## {{title}}\n\n{{map}}\n\n{{desription}}\n\n{{zones}}y';
     /**@type {Template[]}*/ templateList = [];
 
-    /**@type {Boolean}*/ tabs = false;
-    /**@type {Number}*/ tabsLevel = 3;
-
     /**@type {Boolean}*/ cycle = true;
     /**@type {Number}*/ cycleDelay = 1000;
 
@@ -88,9 +85,6 @@ export class Settings {
 
             template: this.template,
             templateList: this.templateList,
-
-            tabs: this.tabs,
-            tabsLevel: this.tabsLevel,
 
             cycle: this.cycle,
             cycleDelay: this.cycleDelay,
@@ -218,30 +212,6 @@ export class Settings {
             try {
                 this.zoomTime = parseInt(zoomTime.value);
                 document.body.style.setProperty('--stcdx--zoomTime', `${this.zoomTime}`);
-                this.save();
-            } catch { /* empty */ }
-        });
-        /**@type {HTMLInputElement} */
-        const tabs = dom.querySelector('#stcdx--tabs');
-        tabs.checked = this.tabs;
-        tabs.addEventListener('click', () => {
-            this.tabs = tabs.checked;
-            updateTabsLevelDisplay();
-            this.save();
-        });
-        /**@type {HTMLElement} */
-        const tabsLevelDisplay = dom.querySelector('#stcdx--tabsLevelDisplay');
-        const updateTabsLevelDisplay = ()=>{
-            tabsLevelDisplay.textContent = this.tabs ? `(${'#'.repeat(this.tabsLevel ?? 0)} Some Header)` : '';
-        };
-        updateTabsLevelDisplay();
-        /**@type {HTMLInputElement} */
-        const tabsLevel = dom.querySelector('#stcdx--tabsLevel');
-        tabsLevel.value = `${this.tabsLevel}`;
-        tabsLevel.addEventListener('input', () => {
-            try {
-                this.tabsLevel = parseInt(tabsLevel.value);
-                updateTabsLevelDisplay();
                 this.save();
             } catch { /* empty */ }
         });

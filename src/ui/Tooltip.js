@@ -124,7 +124,7 @@ export class Tooltip {
         this.isHidden = false;
         if (!this.content) {
             let content = CodexEntryFactory.create(this.entry, this.settings, this.matcher, this.linker);
-            this.dom.append(await content.render(false, true));
+            this.dom.append(await content.render());
             if (this.isHidden) return;
             this.content = content;
             content.dom.classList.add('stcdx--preactive');
