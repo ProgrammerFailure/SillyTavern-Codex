@@ -1,5 +1,4 @@
-import { sendSystemMessage } from '../../../../../script.js';
-import { getSlashCommandsHelp, registerSlashCommand } from '../../../../slash-commands.js';
+import { getCurrentChatId, sendSystemMessage } from '../../../../../script.js';
 import { SlashCommand } from '../../../../slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../../slash-commands/SlashCommandArgument.js';
 import { SlashCommandParser } from '../../../../slash-commands/SlashCommandParser.js';
@@ -125,6 +124,10 @@ export class SlashCommandHandler {
 
 
     async handleCodex(args, value) {
+        if (getCurrentChatId() == null) {
+            toastr.warning('Cannot open Codex outside of chat');
+            return;
+        }
         if (value && value.length > 0) {
             const matches = this.matcher.findMatches(value);
             if (matches.length > 0) {
