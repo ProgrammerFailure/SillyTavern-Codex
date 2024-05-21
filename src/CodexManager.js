@@ -130,6 +130,7 @@ export class CodexManager {
         document.body.style.setProperty('--stcdx--mapShadowColor', this.settings.mapShadowColor);
         document.body.style.setProperty('--stcdx--mapZoom', `${this.settings.mapZoom}`);
 
+        document.body.style.setProperty('--stcdx--bgColor', `${this.settings.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
         document.body.style.setProperty('--stcdx--headerFontSize', `${this.settings.headerFontSize}`);
 
         document.body.style.setProperty('--stcdx--transitionTime', `${this.settings.transitionTime}`);

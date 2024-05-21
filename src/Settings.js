@@ -46,7 +46,7 @@ export class Settings {
     /**@type {String}*/ mapShadowColor = 'rgba(0, 0, 0, 1)';
     /**@type {Number}*/ mapDesaturate = 50;
 
-    /**@type {Number}*/ headerFontSize = 2;
+    /**@type {boolean}*/ alternateBg = false;
 
     /**@type {Number}*/ transitionTime = 400;
     /**@type {Number}*/ zoomTime = 400;
@@ -111,6 +111,7 @@ export class Settings {
             mapShadowColor: this.mapShadowColor,
             mapDesaturate: this.mapDesaturate,
 
+            alternateBg: this.alternateBg,
             headerFontSize: this.headerFontSize,
 
             transitionTime: this.transitionTime,
@@ -303,6 +304,17 @@ export class Settings {
 
 
         // UI
+        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--alternateBg',
+            name: 'Alternate background color',
+            description: 'Use the SmartThemeBlurTintColor instead of SmartThemeBotMesBlurTintColor as Codex background.',
+            category: ['UI'],
+            initialValue: this.alternateBg,
+            onChange: (it)=>{
+                this.alternateBg = it.value;
+                document.body.style.setProperty('--stcdx--bgColor', `${this.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
+                this.save();
+            },
+        }));
         this.settingList.push(NumberSetting.fromProps({ id:'stcdx--headerFontSize',
             name: 'Header button scale',
             description: 'Size of the buttons in the Codex header, relative to font size.',
