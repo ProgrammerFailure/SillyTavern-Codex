@@ -217,8 +217,8 @@ export class Settings {
             initialValue: this.icon,
             onChange: (it)=>{
                 this.icon = it.value;
+                document.body.style.setProperty('--stcdx--icon', `"${this.icon}"`);
                 this.save();
-                this.restartDebounced();
             },
         }));
 
