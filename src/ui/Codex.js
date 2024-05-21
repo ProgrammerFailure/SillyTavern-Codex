@@ -206,7 +206,8 @@ export class Codex {
                         name.textContent = `${book.name} +`;
                         name.title = `Create entry in ${book.name}`;
                         name.addEventListener('click', async(evt)=>{
-                            const type = (await executeSlashCommands('/buttons labels=["Basic Text", "Map", "Character List"] Codex Entry Type'))?.pipe;
+                            const types = ['Basic Text', 'Map', 'Character List', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
+                            const type = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
                             const key = (await executeSlashCommands('/input Key'))?.pipe;
                             let qrs;
                             if (type == 'Character List') {
@@ -222,6 +223,15 @@ export class Codex {
                                 'Character List': 'Alice\nBob',
                                 'Basic Text': 'YOUR CONTENT HERE',
                             };
+                            for (const et of this.settings.entryTypeList) {
+                                typeKey[`Custom: ${et.name}`] = '';
+                                typeContent[`Custom: ${et.name}`] = [
+                                    et.prefix,
+                                    ...et.sectionList.map(it=>[it.prefix, it.suffix].filter(it=>it)).flat(),
+                                    et.suffix,
+                                    `{{//codex-type:${btoa(JSON.stringify(et))}}}`,
+                                ].filter(it=>it).join('\n');
+                            }
                             eventSource.on(event_types.WORLDINFO_UPDATED, (...args)=>log('WIUP', ...args));
                             // const wiPromise = new Promise(resolve=>eventSource.once(event_types.WORLDINFO_UPDATED, resolve));
 

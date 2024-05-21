@@ -135,17 +135,56 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
   padding-top: 1em;
   margin-top: 1em;
 }
-#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row,
-#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row {
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType:has(+ #stcdx--addEntryType),
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType:has(+ #stcdx--addEntryType) {
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType.stcdx--isCollapsed > .stcdx--content > .stcdx--row:nth-child(n+2),
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType.stcdx--isCollapsed > .stcdx--content > .stcdx--row:nth-child(n+2) {
+  display: none;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row {
   display: flex;
   gap: 1em;
 }
-#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row .stcdx--setting,
-#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row .stcdx--setting {
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id {
+  white-space: nowrap;
+  align-self: center;
+  font-size: smaller;
+  opacity: 0.5;
+  font-family: 'Courier New', Courier, monospace;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before {
+  content: 'ID: ';
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--setting,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--setting {
   flex: 1 1 auto;
   display: flex;
   align-items: baseline;
   gap: 0.5em;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--setting .stcdx--text,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--setting .stcdx--text {
+  white-space: nowrap;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections {
+  display: flex;
+  align-items: baseline;
+  flex-direction: row;
+  gap: 1em;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list {
+  flex: 1 1 auto;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list .stcdx--entrySection,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list .stcdx--entrySection {
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
 }
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
@@ -280,7 +319,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   transition: 200ms;
 }
 .stcdx--codex > .stcdx--header > .stcdx--action.fa-solid {
-  font-size: 1em;
+  font-size: calc(1em * var(--stcdx--headerFontSize) / 1.5);
 }
 .stcdx--codex > .stcdx--header > .stcdx--action:hover {
   opacity: 1;
@@ -382,11 +421,15 @@ body .stcdx--root {
   display: none;
   grid-template-columns: 100%;
   grid-template-rows: 0fr 1fr;
-  background-color: var(--SmartThemeBotMesBlurTintColor);
+  background-color: var(--stcdx--bgColor);
   container-type: inline-size;
 }
 body .stcdx--root.stcdx--active {
   display: grid;
+}
+body .stcdx--root:has(.stcdx--editor.stcdx--active) {
+  overflow: visible;
+  z-index: 10000;
 }
 body .stcdx--root > .stcdx--content,
 body .stcdx--root > .stcdx--editor {
@@ -395,7 +438,6 @@ body .stcdx--root > .stcdx--editor {
   z-index: -1;
   height: 100%;
   width: 100%;
-  overflow: auto;
   padding: 1em;
   text-align: justify;
   margin: 0;
@@ -416,6 +458,9 @@ body .stcdx--root > .stcdx--editor.stcdx--active {
   opacity: 1;
   pointer-events: all;
 }
+body .stcdx--root > .stcdx--content {
+  overflow: auto;
+}
 body .stcdx--root > .stcdx--content > br {
   display: none;
 }
@@ -435,6 +480,24 @@ body .stcdx--root > .stcdx--content img {
 }
 body .stcdx--root > .stcdx--content img:hover {
   filter: drop-shadow(0 0 6px rgba(0 0 0 / 1));
+}
+body .stcdx--root > .stcdx--content.stcdx--entry section {
+  position: relative;
+  transition: 200ms;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry section .custom-stcdx--editSection {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  transition: 200ms;
+  cursor: pointer;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry section:hover {
+  background-color: rgba(0, 0, 0, 0.125);
+}
+body .stcdx--root > .stcdx--content.stcdx--entry section:hover .custom-stcdx--editSection {
+  opacity: 1;
 }
 body .stcdx--root > .stcdx--content.stcdx--map {
   display: flex;
@@ -531,8 +594,53 @@ body .stcdx--root > .stcdx--editor > .stcdx--editor-actions {
 body .stcdx--root > .stcdx--editor > .stcdx--editor-actions > .menu_button {
   white-space: nowrap;
 }
-body .stcdx--root > .stcdx--editor > .stcdx--editor-content {
+body .stcdx--root > .stcdx--editor .stcdx--editor-content {
   flex: 1 1 auto;
+  position: relative;
+  z-index: 10;
+  resize: none;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding-left: 1em;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  align-items: flex-end;
+  padding-top: 1em;
+  gap: 0.5em;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab {
+  background-color: var(--SmartThemeBlurTintColor);
+  padding: 0.25em 0.5em;
+  filter: drop-shadow(-3px 4px 4px black);
+  opacity: 0.75;
+  position: relative;
+  left: 2em;
+  transition: 200ms;
+  cursor: pointer;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab:hover {
+  left: 0;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab.stcdx--isRemoved {
+  text-decoration: line-through;
+}
+body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab.stcdx--active {
+  scale: 1.1;
+  left: 0;
+  font-weight: bold;
+  opacity: 1;
 }
 .stcdx--blocker {
   position: fixed;

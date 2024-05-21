@@ -6,6 +6,8 @@ import { delay } from '../../../../utils.js';
 import { Template } from './Template.js';
 import { debounceAsync } from './lib/debounce.js';
 import { warn } from './lib/log.js';
+import { EntrySection } from './ui/EntrySection.js';
+import { EntryType } from './ui/EntryType.js';
 import { BaseSetting } from './ui/settings/BaseSetting.js';
 import { CheckboxSetting } from './ui/settings/CheckboxSetting.js';
 import { ColorSetting } from './ui/settings/ColorSetting.js';
@@ -19,42 +21,46 @@ import { TextSetting } from './ui/settings/TextSetting.js';
 
 
 export class Settings {
-    /**@type {Boolean}*/ isEnabled = true;
-    /**@type {Boolean}*/ isVerbose = true;
+    /**@type {boolean}*/ isEnabled = true;
+    /**@type {boolean}*/ isVerbose = true;
 
-    /**@type {String}*/ color = 'rgba(0, 255, 255, 1)';
-    /**@type {String}*/ icon = '🧾';
-    /**@type {Boolean}*/ onlyFirst = false;
-    /**@type {Boolean}*/ skipCodeBlocks = true;
+    /**@type {string}*/ color = 'rgba(0, 255, 255, 1)';
+    /**@type {string}*/ icon = '🧾';
+    /**@type {boolean}*/ onlyFirst = false;
+    /**@type {boolean}*/ skipCodeBlocks = true;
 
-    /**@type {Boolean}*/ noTooltips = false;
-    /**@type {Boolean}*/ fixedTooltips = false;
+    /**@type {boolean}*/ noTooltips = false;
+    /**@type {boolean}*/ fixedTooltips = false;
 
-    /**@type {Boolean}*/ requirePrefix = false;
+    /**@type {boolean}*/ requirePrefix = false;
 
-    /**@type {Boolean}*/ disableLinks = false;
+    /**@type {boolean}*/ disableLinks = false;
 
-    /**@type {String}*/ template = '## {{title}}\n\n{{content}}';
-    /**@type {String}*/ mapTemplate = '## {{title}}\n\n{{map}}\n\n{{desription}}\n\n{{zones}}y';
+    /**@type {string}*/ template = '## {{title}}\n\n{{content}}';
+    /**@type {string}*/ mapTemplate = '## {{title}}\n\n{{map}}\n\n{{desription}}\n\n{{zones}}y';
     /**@type {Template[]}*/ templateList = [];
 
-    /**@type {Boolean}*/ cycle = true;
-    /**@type {Number}*/ cycleDelay = 1000;
+    /**@type {boolean}*/ cycle = true;
+    /**@type {number}*/ cycleDelay = 1000;
 
-    /**@type {Number}*/ mapZoom = 10;
-    /**@type {Number}*/ mapShadow = 3;
-    /**@type {String}*/ mapShadowColor = 'rgba(0, 0, 0, 1)';
-    /**@type {Number}*/ mapDesaturate = 50;
+    /**@type {number}*/ mapZoom = 10;
+    /**@type {number}*/ mapShadow = 3;
+    /**@type {string}*/ mapShadowColor = 'rgba(0, 0, 0, 1)';
+    /**@type {number}*/ mapDesaturate = 50;
 
+    /**@type {number}*/ headerFontSize = 2;
     /**@type {boolean}*/ alternateBg = false;
 
-    /**@type {Number}*/ transitionTime = 400;
-    /**@type {Number}*/ zoomTime = 400;
-    /**@type {Number}*/ mapZoneZoomTime = 200;
+    /**@type {number}*/ transitionTime = 400;
+    /**@type {number}*/ zoomTime = 400;
+    /**@type {number}*/ mapZoneZoomTime = 200;
 
-    /**@type {Number}*/ historyLength = 10;
+    /**@type {number}*/ historyLength = 10;
 
-    /**@type {Boolean}*/ isParchment = false;
+    /**@type {boolean}*/ isParchment = false;
+
+    /**@type {EntryType[]}*/ entryTypeList = [];
+
 
     /**@type {BaseSetting[]}*/ settingList = [];
 
@@ -74,6 +80,7 @@ export class Settings {
     constructor(onRestartRequired, onRerenderRequired) {
         Object.assign(this, extension_settings.codex);
         this.templateList = this.templateList.map(it => Template.from(it));
+        this.entryTypeList = this.entryTypeList.map(it => EntryType.from(it));
         this.onRestartRequired = onRestartRequired;
         this.onRerenderRequired = onRerenderRequired;
 
@@ -121,6 +128,8 @@ export class Settings {
             historyLength: this.historyLength,
 
             isParchment: this.isParchment,
+
+            entryTypeList: this.entryTypeList,
         };
     }
 
@@ -329,6 +338,47 @@ export class Settings {
                 this.save();
             },
         }));
+
+        // Entry Types
+        {
+            /**@type {HTMLElement} */
+            let dom;
+            this.settingList.push(CustomSetting.fromProps({ id: 'stcdx--entryTypes',
+                name: 'Entry Types',
+                description: 'Define custom entry types with sections, prefixes and suffixes.',
+                category: ['Entries', 'Text'],
+                initialValue: this.entryTypeList,
+                getValueCallback: ()=>this.entryTypeList,
+                setValueCallback: (value)=>null,
+                renderCallback: ()=>{
+                    if (!dom) {
+                        const container = document.createElement('div'); {
+                            dom = container;
+                            container.classList.add('stcdx--entryTypesContainer');
+                            const add = document.createElement('div'); {
+                                add.id = 'stcdx--addEntryType';
+                                add.classList.add('menu_button');
+                                add.classList.add('fa-solid');
+                                add.classList.add('fa-plus');
+                                add.title = 'Add entry type';
+                                add.addEventListener('click', ()=>{
+                                    const item = new EntryType();
+                                    item.sectionList.push(new EntrySection());
+                                    this.entryTypeList.push(item);
+                                    this.save();
+                                    this.renderEntryType(item, add);
+                                });
+                                container.append(add);
+                            }
+                            for (const tpl of this.entryTypeList) {
+                                this.renderEntryType(tpl, add);
+                            }
+                        }
+                    }
+                    return dom;
+                },
+            }));
+        }
 
         // Templates
         {
@@ -643,6 +693,244 @@ export class Settings {
             dom.querySelector('.inline-drawer-content').append(btn);
         }
         document.querySelector('#extensions_settings').append(dom);
+    }
+
+
+    /**
+     *
+     * @param {EntryType} item
+     * @param {HTMLElement} add
+     */
+    renderEntryType(item, add) {
+        const wrap = document.createElement('div'); {
+            wrap.classList.add('stcdx--entryType');
+            wrap.classList.add('stcdx--isCollapsed');
+            const cont = document.createElement('div'); {
+                cont.classList.add('stcdx--content');
+                const head = document.createElement('div'); {
+                    head.classList.add('stcdx--row');
+                    head.classList.add('stcdx--head');
+                    // <div class="csss--collapse menu_button menu_button_icon fa-solid fa-angle-up" title="Collapse"></div>
+                    const collapseToggle = document.createElement('div'); {
+                        collapseToggle.classList.add('stcdx--collapse');
+                        collapseToggle.classList.add('menu_button');
+                        collapseToggle.classList.add('menu_button_icon');
+                        collapseToggle.classList.add('fa-solid');
+                        collapseToggle.classList.add('fa-angle-down');
+                        collapseToggle.title = 'Expand';
+                        collapseToggle.addEventListener('click', ()=>{
+                            const result = wrap.classList.toggle('stcdx--isCollapsed');
+                            collapseToggle.classList[result ? 'add' : 'remove']('fa-angle-down');
+                            collapseToggle.classList[!result ? 'add' : 'remove']('fa-angle-up');
+                        });
+                        head.append(collapseToggle);
+                    }
+                    const name = document.createElement('input'); {
+                        name.classList.add('stcdx--name');
+                        name.classList.add('text_pole');
+                        name.placeholder = 'name';
+                        name.value = item.name;
+                        name.addEventListener('input', () => {
+                            item.name = name.value;
+                            this.save();
+                            this.rerenderDebounced();
+                        });
+                        head.append(name);
+                    }
+                    const id = document.createElement('div'); {
+                        id.classList.add('stcdx--id');
+                        id.textContent = item.id;
+                        head.append(id);
+                    }
+                    const del = document.createElement('div'); {
+                        del.classList.add('stcdx--action');
+                        del.classList.add('menu_button');
+                        del.classList.add('menu_button_icon');
+                        del.classList.add('fa-solid');
+                        del.classList.add('fa-trash-can');
+                        del.classList.add('redWarningBG');
+                        del.title = 'Remove entry type';
+                        del.addEventListener('click', () => {
+                            wrap.remove();
+                            this.entryTypeList.splice(this.templateList.indexOf(item), 1);
+                            this.save();
+                            this.rerenderDebounced();
+                        });
+                        head.append(del);
+                    }
+                    cont.append(head);
+                }
+                const preSuff = document.createElement('div'); {
+                    preSuff.classList.add('stcdx--row');
+                    const prefix = document.createElement('label'); {
+                        prefix.classList.add('stcdx--setting');
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Entry Prefix:';
+                            prefix.append(text);
+                        }
+                        const inp = document.createElement('textarea'); {
+                            inp.classList.add('stcdx--input');
+                            inp.classList.add('text_pole');
+                            inp.value = item.prefix;
+                            inp.addEventListener('input', ()=>{
+                                item.prefix = inp.value;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            prefix.append(inp);
+                        }
+                        preSuff.append(prefix);
+                    }
+                    const suffix = document.createElement('label'); {
+                        suffix.classList.add('stcdx--setting');
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Entry Suffix:';
+                            suffix.append(text);
+                        }
+                        const inp = document.createElement('textarea'); {
+                            inp.classList.add('stcdx--input');
+                            inp.classList.add('text_pole');
+                            inp.value = item.suffix;
+                            inp.addEventListener('input', ()=>{
+                                item.suffix = inp.value;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            suffix.append(inp);
+                        }
+                        preSuff.append(suffix);
+                    }
+                    cont.append(preSuff);
+                }
+                const sections = document.createElement('div'); {
+                    sections.classList.add('stcdx--row');
+                    sections.classList.add('stcdx--sections');
+                    const lbl = document.createElement('div'); {
+                        lbl.textContent = 'Sections:';
+                        sections.append(lbl);
+                    }
+                    const list = document.createElement('div'); {
+                        list.classList.add('stcdx--list');
+                        const secAdd = document.createElement('div'); {
+                            secAdd.id = 'stcdx--addSection';
+                            secAdd.classList.add('menu_button');
+                            secAdd.classList.add('fa-solid');
+                            secAdd.classList.add('fa-plus');
+                            secAdd.title = 'Add section';
+                            secAdd.addEventListener('click', ()=>{
+                                const sec = new EntrySection();
+                                item.sectionList.push(sec);
+                                this.save();
+                                this.renderEntryTypeSection(item, sec, secAdd);
+                            });
+                            list.append(secAdd);
+                        }
+                        for (const section of item.sectionList) {
+                            this.renderEntryTypeSection(item, section, secAdd);
+                        }
+                        sections.append(list);
+                    }
+                    cont.append(sections);
+                }
+                wrap.append(cont);
+            }
+            add.insertAdjacentElement('beforebegin', wrap);
+        }
+    }
+    /**
+     *
+     * @param {EntryType} type
+     * @param {EntrySection} section
+     * @param {HTMLElement} add
+     */
+    renderEntryTypeSection(type, section, add) {
+        const wrap = document.createElement('div'); {
+            wrap.classList.add('stcdx--entrySection');
+            const cont = document.createElement('div'); {
+                cont.classList.add('stcdx--content');
+                const head = document.createElement('div'); {
+                    head.classList.add('stcdx--row');
+                    head.classList.add('stcdx--head');
+                    const name = document.createElement('input'); {
+                        name.classList.add('stcdx--name');
+                        name.classList.add('text_pole');
+                        name.placeholder = 'name';
+                        name.value = section.name;
+                        name.addEventListener('input', () => {
+                            section.name = name.value;
+                            this.save();
+                            this.rerenderDebounced();
+                        });
+                        head.append(name);
+                    }
+                    const del = document.createElement('div'); {
+                        del.classList.add('stcdx--action');
+                        del.classList.add('menu_button');
+                        del.classList.add('menu_button_icon');
+                        del.classList.add('fa-solid');
+                        del.classList.add('fa-trash-can');
+                        del.classList.add('redWarningBG');
+                        del.title = 'Remove entry type';
+                        del.addEventListener('click', () => {
+                            wrap.remove();
+                            type.sectionList.splice(type.sectionList.indexOf(section), 1);
+                            this.save();
+                            this.rerenderDebounced();
+                        });
+                        head.append(del);
+                    }
+                    cont.append(head);
+                }
+                const preSuff = document.createElement('div'); {
+                    preSuff.classList.add('stcdx--row');
+                    const prefix = document.createElement('label'); {
+                        prefix.classList.add('stcdx--setting');
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Section Prefix:';
+                            prefix.append(text);
+                        }
+                        const inp = document.createElement('textarea'); {
+                            inp.classList.add('stcdx--input');
+                            inp.classList.add('text_pole');
+                            inp.value = section.prefix;
+                            inp.addEventListener('input', ()=>{
+                                section.prefix = inp.value;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            prefix.append(inp);
+                        }
+                        preSuff.append(prefix);
+                    }
+                    const suffix = document.createElement('label'); {
+                        suffix.classList.add('stcdx--setting');
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Section Suffix:';
+                            suffix.append(text);
+                        }
+                        const inp = document.createElement('textarea'); {
+                            inp.classList.add('stcdx--input');
+                            inp.classList.add('text_pole');
+                            inp.value = section.suffix;
+                            inp.addEventListener('input', ()=>{
+                                section.suffix = inp.value;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            suffix.append(inp);
+                        }
+                        preSuff.append(suffix);
+                    }
+                    cont.append(preSuff);
+                }
+                wrap.append(cont);
+            }
+            add.insertAdjacentElement('beforebegin', wrap);
+        }
     }
     renderTemplate(template, add) {
         const wrap = document.createElement('div'); {

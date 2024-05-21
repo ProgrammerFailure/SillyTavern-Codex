@@ -1,7 +1,11 @@
+import { messageFormatting } from '../../../../../../script.js';
 import { delay } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
 import { waitForFrame } from '../lib/wait.js';
+import { Entry } from '../st/wi/Entry.js';
 import { CodexBaseEntry } from './CodexBaseEntry.js';
+import { EntrySection } from './EntrySection.js';
+import { EntryType } from './EntryType.js';
 
 
 
@@ -10,6 +14,151 @@ export class CodexEntry extends CodexBaseEntry {
     /**@type {HTMLDivElement}*/ editor;
 
 
+
+
+    getType() {
+        const typeRe = /{{\/\/codex-type:(.+?)}}/;
+        /**@type {EntryType} */
+        let type;
+        if (typeRe.test(this.entry.content)) {
+            type = EntryType.from(JSON.parse(atob(typeRe.exec(this.entry.content)[1])));
+            log('[TYPE]', type);
+            const current = this.settings.entryTypeList.find(it=>it.id == type.id);
+            if (!current) {
+                alert(`entry type does not exist anymore: ${type.name} (${type.id})`);
+            } else {
+                let isChanged = false;
+                // check type
+                if (type.name != current.name) {
+                    type.name = current.name;
+                    isChanged = true;
+                }
+                if (type.prefix != current.prefix) {
+                    type.prefix = current.prefix;
+                    isChanged = true;
+                }
+                if (type.suffix != current.suffix) {
+                    type.suffix = current.suffix;
+                    isChanged = true;
+                }
+                // check sections
+                const oldSections = [...type.sectionList];
+                while (type.sectionList.pop());
+                for (const sec of current.sectionList) {
+                    const idx = oldSections.findIndex(it=>it.id == sec.id);
+                    if (idx == -1) {
+                        type.sectionList.push(EntrySection.from(sec));
+                        isChanged = true;
+                    } else {
+                        const osec = oldSections[idx];
+                        if (osec.name != sec.name) {
+                            osec.name = sec.name;
+                            isChanged = true;
+                        }
+                        if (osec.prefix != sec.prefix) {
+                            osec.prefix = sec.prefix;
+                            isChanged = true;
+                        }
+                        if (osec.suffix != sec.suffix) {
+                            osec.suffix = sec.suffix;
+                            isChanged = true;
+                        }
+                        type.sectionList.push(osec);
+                        oldSections.splice(idx, 1);
+                    }
+                }
+                // these sections don't exist anymore
+                for (const osec of oldSections) {
+                    osec.isRemoved = true;
+                    type.sectionList.push(osec);
+                    isChanged = true;
+                }
+                if (isChanged) {
+                    this.entry.content = [
+                        type.prefix,
+                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                        type.suffix,
+                        `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                    ].filter(it=>it).join('\n');
+                }
+            }
+        }
+        return type;
+    }
+
+
+
+
+    /**
+     *
+     * @param {Entry} entry
+     */
+    renderTemplate(entry) {
+        let template = this.settings.templateList.find(tpl=>tpl.name == entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10))?.content ?? this.settings.template;
+        let messageText = this.subParams(entry.content);
+        messageText = template
+            .replace(/{{comment}}/g, entry.comment)
+            .replace(/{{comment::url}}/g, encodeURIComponent(entry.comment))
+            .replace(/{{content}}/g, this.renderContent())
+            .replace(/{{content::url}}/g, encodeURIComponent(entry.content))
+            .replace(/{{key\[(\d+)\]}}/g, (_,idx)=>entry.keyList[idx])
+            .replace(/{{key\[(\d+)\]::url}}/g, (_,idx)=>encodeURIComponent(entry.keyList[idx]))
+            .replace(/{{title}}/g, entry.title)
+            .replace(/{{title::url}}/g, encodeURIComponent(entry.title))
+        ;
+        messageText = messageFormatting(
+            messageText,
+            'Codex',
+            false,
+            false,
+            null,
+        );
+        const dom = document.createElement('div');
+        dom.innerHTML = messageText;
+        this.linker.addCodexLinks(dom, [this.entry]);
+        for (const section of [...dom.querySelectorAll('section:has(.custom-stcdx--editSection)')]) {
+            const btn = section.querySelector('.custom-stcdx--editSection');
+            btn.addEventListener('click', ()=>{
+                this.toggleEditor(section.id);
+            });
+        }
+        return Array.from(dom.children);
+    }
+    renderContent() {
+        const type = this.getType();
+        if (type) {
+            return [
+                type.prefix,
+                ...type.sectionList
+                    .filter(it=>it.content.length > 0)
+                    .map(it=>{
+                        const sec = document.createElement('section');
+                        sec.id = it.id;
+                        sec.setAttribute('data-name', it.name);
+                        sec.innerHTML = messageFormatting(
+                            [it.prefix, it.content, it.suffix].filter(it=>it).join('\n'),
+                            'Codex',
+                            false,
+                            false,
+                            null,
+                        );
+                        const btn = document.createElement('div'); {
+                            btn.classList.add('stcdx--editSection');
+                            btn.classList.add('menu_icon');
+                            btn.classList.add('fa-solid');
+                            btn.classList.add('fa-pencil');
+                            btn.title = `Edit section: ${it.name}`;
+                            sec.append(btn);
+                        }
+                        return sec.outerHTML;
+                    })
+                ,
+                type.suffix,
+            ].filter(it=>it).join('\n');
+        } else {
+            return this.entry.content;
+        }
+    }
 
 
     async unrender() {
@@ -83,7 +232,12 @@ export class CodexEntry extends CodexBaseEntry {
     }
 
 
-    async toggleEditor() {
+    /**
+     *
+     * @param {string} targetSection
+     * @returns
+     */
+    async toggleEditor(targetSection = null) {
         log('CodexEntry.toggleEditor');
         if (this.isTogglingEditor) return;
         this.isTogglingEditor = true;
@@ -151,16 +305,80 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     wrapper.append(actions);
                 }
-                editor = document.createElement('textarea'); {
-                    editor.classList.add('text_pole');
-                    editor.classList.add('stcdx--editor-content');
-                    editor.value = this.entry.content;
-                    editor.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.content = editor.value;
-                        // this.entry.saveDebounced();
-                    });
-                    wrapper.append(editor);
+                const type = this.getType();
+                if (type) {
+                    //TODO section editor
+                    let curSection;
+                    let curTab;
+                    const tabUi = document.createElement('div'); {
+                        tabUi.classList.add('stcdx--editor-tabUi');
+                        const tabs = document.createElement('div'); {
+                            tabs.classList.add('stcdx--tabs');
+                            for (const sec of type.sectionList) {
+                                const tab = document.createElement('div'); {
+                                    if ((targetSection && sec.id == targetSection) || (!targetSection && !curSection)) {
+                                        curSection = sec;
+                                        curTab = tab;
+                                        tab.classList.add('stcdx--active');
+                                    }
+                                    tab.classList.add('stcdx--tab');
+                                    if (sec.isRemoved) {
+                                        tab.classList.add('stcdx--isRemoved');
+                                        tab.title = `Section has been removed from Entry Type "${type.name}"\n---\nLeave content blank to remove from this entry.`;
+                                    }
+                                    tab.textContent = sec.name;
+                                    tab.addEventListener('click', ()=>{
+                                        curTab.classList.remove('stcdx--active');
+                                        curTab = tab;
+                                        tab.classList.add('stcdx--active');
+                                        curSection = sec;
+                                        editor.value = sec.content;
+                                        editor.focus();
+                                    });
+                                    tabs.append(tab);
+                                }
+                            }
+                            tabUi.append(tabs);
+                        }
+                        if (!curSection) {
+                            curSection = type.sectionList[0];
+                            curTab = tabs.children[0];
+                        }
+                        editor = document.createElement('textarea'); {
+                            editor.classList.add('text_pole');
+                            editor.classList.add('stcdx--editor-content');
+                            editor.value = curSection.content;
+                            editor.addEventListener('input', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                curSection.content = editor.value;
+                                if (curSection.isRemoved && curSection.content.length == 0) {
+                                    type.sectionList.splice(type.sectionList.indexOf(curSection), 1);
+                                } else if (curSection.isRemoved && curSection.content.length > 0 && !type.sectionList.includes(curSection)) {
+                                    type.sectionList.push(curSection);
+                                }
+                                this.entry.content = [
+                                    type.prefix,
+                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                    type.suffix,
+                                    `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                                ].filter(it=>it).join('\n');
+                            });
+                            tabUi.append(editor);
+                        }
+                        wrapper.append(tabUi);
+                    }
+                } else {
+                    editor = document.createElement('textarea'); {
+                        editor.classList.add('text_pole');
+                        editor.classList.add('stcdx--editor-content');
+                        editor.value = this.entry.content;
+                        editor.addEventListener('input', async()=>{
+                            if (!this.isEditing || this.isTogglingEditor) return;
+                            this.entry.content = editor.value;
+                            // this.entry.saveDebounced();
+                        });
+                        wrapper.append(editor);
+                    }
                 }
                 this.dom.insertAdjacentElement('afterend', wrapper);
             }
