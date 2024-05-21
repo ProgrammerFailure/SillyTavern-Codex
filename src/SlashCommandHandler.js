@@ -1,5 +1,8 @@
 import { sendSystemMessage } from '../../../../../script.js';
 import { getSlashCommandsHelp, registerSlashCommand } from '../../../../slash-commands.js';
+import { SlashCommand } from '../../../../slash-commands/SlashCommand.js';
+import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../../slash-commands/SlashCommandArgument.js';
+import { SlashCommandParser } from '../../../../slash-commands/SlashCommandParser.js';
 import { delay, isTrueBoolean } from '../../../../utils.js';
 // eslint-disable-next-line no-unused-vars
 import { CodexManager } from './CodexManager.js';
@@ -21,60 +24,89 @@ export class SlashCommandHandler {
     constructor(manager) {
         this.manager = manager;
 
-        registerSlashCommand(
-            'codex',
-            (args, value)=>this.handleCodex(args, value),
-            [],
-            '<span class="monospace">[optional state=show|hide] [optional silent=true] [optional zoom=number] (optional text / keys)</span> – Toggle codex. <code>state=show|hide</code> to explicitly show or hide codex. Provide text or keys to open a relevant entry (cycles through entries if multiple are found). <code>silent=true</code> to suppress warnings when no entries are found. <code>first=true</code> to prevent cycling and only show the first matching entry. <code>zoom=0|1|2|...</code> to zoom the n-th image of the opened codex entry (only works if a only single entry was found or first=true is set).',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex',
+            callback: (args, value)=>this.handleCodex(args, value),
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'state',
+                    description: 'show or hide instead of toggle',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    enumList: ['show', 'hide'],
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'silent',
+                    description: 'suppress warnings when no entries are found',
+                    typeList: [ARGUMENT_TYPE.BOOLEAN],
+                    enumList: ['true', 'false'],
+                    defaultValue: 'false'
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'first',
+                    description: 'only show the first entry if multiple are found',
+                    typeList: [ARGUMENT_TYPE.BOOLEAN],
+                    enumList: ['true', 'false'],
+                    defaultValue: 'false',
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'zoom',
+                    description: 'zoom the n-th image of the found entry (only works if exactly one match is found or first=true)',
+                    typeList: [ARGUMENT_TYPE.NUMBER]
+                }),
+            ],
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'text / keys',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                }),
+            ],
+            helpString: 'Toggle codex. Provide text or keys to open a relevant entry (cycles through entries if multiple are found).',
+        }));
 
-        registerSlashCommand(
-            'codex-map',
-            (args, value)=>this.handleCodexMap(args, value),
-            [],
-            '<span class="monospace">(text / keys)</span> – open a map in full screen',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map',
+            callback: (args, value)=>this.handleCodexMap(args, value),
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'text / keys',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                }),
+            ],
+            helpString: 'open a map in full screen',
+        }));
 
-        registerSlashCommand(
-            'codex-edit',
-            (args, value)=>this.handleCodexEdit(args, value),
-            [],
-            '<span class="monospace">(text / keys)</span> – open an entry editor',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-edit',
+            callback: (args, value)=>this.handleCodexEdit(args, value),
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'text / keys',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                }),
+            ],
+            helpString: 'open an entry editor',
+        }));
 
-        registerSlashCommand(
-            'codex-paint',
-            (args, value)=>this.handleCodexPaint(args, value),
-            [],
-            '<span class="monospace">(text / keys)</span> – open a map editor painter',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-paint',
+            callback: (args, value)=>this.handleCodexPaint(args, value),
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'text / keys',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                }),
+            ],
+            helpString: 'open a map editor painter',
+        }));
 
-        registerSlashCommand(
-            'codex-match',
-            (args, value)=>this.handleCodexMatch(args, value),
-            [],
-            '<span class="monospace">(text / keys)</span> – get an array of matching entries (basic entries only, no maps or character lists)',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-match',
+            callback: (args, value)=>this.handleCodexMatch(args, value),
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'text / keys',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                }),
+            ],
+            returns: 'matching entries',
+            helpString: 'get an array of matching entries (basic entries only, no maps or character lists)',
+        }));
 
 
-        registerSlashCommand(
-            'codex?',
-            ()=>this.showHelp(),
-            [],
-            '<span></span><span></span> – get help on how to use the Codex extension',
-            true,
-            true,
-        );
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex?',
+            callback: ()=>this.showHelp(),
+            helpString: 'get help on how to use the Codex extension',
+        }));
         window.addEventListener('click', async(evt)=>{
             if (evt.target.hasAttribute && evt.target.hasAttribute('data-stcdx--href')) {
                 const mes = evt.target.closest('.mes_text');
@@ -179,26 +211,24 @@ export class SlashCommandHandler {
             .map((match)=>`<li><a data-stcdx--href="${match[1]}">${match[2]}</a></li>`)
             .join('\n')
         ;
-        const slashHelp = document.createRange().createContextualFragment(getSlashCommandsHelp());
-        const slashList = Array.from(slashHelp.querySelector('ol').querySelectorAll(':scope > li'))
-            .filter(it=>it.querySelector('span').textContent.startsWith('/codex'))
+        const slashList = Object.keys(SlashCommandParser.commands)
+            .filter(it=>it.startsWith('codex'))
+            .map(it=>SlashCommandParser.commands[it])
             .map(it=>{
                 const li = document.createElement('li'); {
                     const code = document.createElement('code'); {
-                        const cmd = it.querySelector('span');
-                        cmd.remove();
-                        code.append(cmd.textContent);
+                        code.append(it.name);
                         code.append(' ');
                         const q = document.createElement('q'); {
-                            const args = it.querySelector('span');
-                            args.remove();
-                            q.append(args.textContent);
+                            q.append(it.namedArgumentList.map(arg=>`[${arg.name}=${arg.enumList.length ? arg.enumList.map(e=>e.value).join('|') : arg.typeList.join('|')}]`).join(' '));
+                            q.append(' ');
+                            q.append(it.unnamedArgumentList.map(arg=>`(${arg.description})`).join(' '));
                             code.append(q);
                         }
                         li.append(code);
                     }
                     const p = document.createElement('p'); {
-                        p.innerHTML = it.innerHTML;
+                        p.innerHTML = it.helpString;
                         li.append(p);
                     }
                 }
