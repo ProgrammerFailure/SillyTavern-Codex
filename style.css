@@ -1,3 +1,4 @@
+@import url('UserSettings.style.css');
 :root {
   --stcdx--color: #00ffff;
   --stcdx--icon: "🧾";
@@ -109,16 +110,41 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
   gap: 0.5em;
   justify-content: space-evenly;
 }
-#stcdx--settings .stcdx--templatesContainer {
+#stcdx--settings .stcdx--templatesContainer,
+#stcdx--settings-v2 .stcdx--templatesContainer {
   flex: 1 1 auto;
 }
-#stcdx--settings .stcdx--templatesContainer .stcdx--template {
+#stcdx--settings .stcdx--templatesContainer .stcdx--template,
+#stcdx--settings-v2 .stcdx--templatesContainer .stcdx--template {
   border-top: 1px solid var(--SmartThemeBorderColor);
   padding-top: 1em;
   margin-top: 1em;
 }
-#stcdx--settings .stcdx--templatesContainer .stcdx--template > .stcdx--content > .stcdx--row {
+#stcdx--settings .stcdx--templatesContainer .stcdx--template > .stcdx--content > .stcdx--row,
+#stcdx--settings-v2 .stcdx--templatesContainer .stcdx--template > .stcdx--content > .stcdx--row {
   display: flex;
+  gap: 0.5em;
+}
+#stcdx--settings .stcdx--entryTypesContainer,
+#stcdx--settings-v2 .stcdx--entryTypesContainer {
+  flex: 1 1 auto;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType {
+  border-top: 1px solid var(--SmartThemeBorderColor);
+  padding-top: 1em;
+  margin-top: 1em;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row {
+  display: flex;
+  gap: 1em;
+}
+#stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row .stcdx--setting,
+#stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType > .stcdx--content > .stcdx--row .stcdx--setting {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
   gap: 0.5em;
 }
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
@@ -207,8 +233,8 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   display: none;
 }
 .stcdx--codex.stcdx--maximized {
-  width: calc(100vw - var(--nav-bar-width, 0));
-  z-index: 1000;
+  width: calc(100vw - var(--nav-bar-width, 0px));
+  z-index: 10000;
 }
 .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--action,
 .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--search {
@@ -224,6 +250,17 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 }
 .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--editHeader {
   display: block;
+}
+@container (max-width: 500px) {
+  body .stcdx--codex > .stcdx--header {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 0;
+  }
+  body .stcdx--codex > .stcdx--header > .stcdx--search {
+    order: 99;
+    flex-basis: 100%;
+  }
 }
 .stcdx--codex > .stcdx--header {
   flex: 0 0 auto;
@@ -241,6 +278,9 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   padding: 0.2em;
   opacity: 0.5;
   transition: 200ms;
+}
+.stcdx--codex > .stcdx--header > .stcdx--action.fa-solid {
+  font-size: 1em;
 }
 .stcdx--codex > .stcdx--header > .stcdx--action:hover {
   opacity: 1;
@@ -343,6 +383,7 @@ body .stcdx--root {
   grid-template-columns: 100%;
   grid-template-rows: 0fr 1fr;
   background-color: var(--SmartThemeBotMesBlurTintColor);
+  container-type: inline-size;
 }
 body .stcdx--root.stcdx--active {
   display: grid;
@@ -965,4 +1006,20 @@ body .stcdx--root > .stcdx--editor > .stcdx--editor-content {
 #stcdx--help h4 > a[data-stcdx--href]:hover {
   filter: drop-shadow(0px 0px 3px orange);
   -webkit-text-stroke: 1px;
+}
+#stcdx--settings-v2 {
+  position: fixed;
+  z-index: 10000 !important;
+  display: none;
+}
+#stcdx--settings-v2.stcdx--active {
+  display: block;
+}
+#stcdx--settings-v2 .contentWrapper:after {
+  content: '';
+  display: block;
+  height: 100%;
+}
+body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
+  max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
 }

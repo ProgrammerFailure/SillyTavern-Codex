@@ -1,3 +1,5 @@
+@import url('./UserSettings.style.css');
+
 :root {
 	--stcdx--color: rgb(0, 255, 255);
 	--stcdx--icon: "🧾";
@@ -61,7 +63,7 @@
 }
 
 
-#stcdx--settings {
+#stcdx--settings, #stcdx--settings-v2 {
 	.stcdx--templatesContainer {
 		flex: 1 1 auto;
 		.stcdx--template {
@@ -73,6 +75,27 @@
 				>.stcdx--row {
 					display: flex;
 					gap: 0.5em;
+				}
+			}
+		}
+	}
+	.stcdx--entryTypesContainer {
+		flex: 1 1 auto;
+		.stcdx--entryType {
+			border-top: 1px solid var(--SmartThemeBorderColor);
+			padding-top: 1em;
+			margin-top: 1em;
+
+			> .stcdx--content {
+				> .stcdx--row {
+					display: flex;
+					gap: 1em;
+					.stcdx--setting {
+						flex: 1 1 auto;
+						display: flex;
+						align-items: baseline;
+						gap: 0.5em;
+					}
 				}
 			}
 		}
@@ -193,8 +216,8 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 	}
 
 	&.stcdx--maximized {
-		width: calc(100vw - var(--nav-bar-width, 0));
-		z-index: 1000;
+		width: calc(100vw - var(--nav-bar-width, 0px));
+		z-index: 10000;
 	}
 
 	&.stcdx--isEditing {
@@ -211,6 +234,17 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 		}
 	}
 
+	@container (max-width: 500px) {
+		body .stcdx--codex > .stcdx--header {
+			flex-wrap: wrap;
+			height: auto;
+			row-gap: 0;
+			> .stcdx--search {
+				order: 99;
+				flex-basis: 100%;
+			}
+		}
+	}
 	> .stcdx--header {
 		flex: 0 0 auto;
 
@@ -226,6 +260,9 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 		> .stcdx--action {
 			cursor: pointer;
 			font-size: calc(1em * var(--stcdx--headerFontSize));
+			&.fa-solid {
+				font-size: 1em;
+			}
 			padding: 0.2em;
 			opacity: 0.5;
 			transition: 200ms;
@@ -345,6 +382,8 @@ body .stcdx--root {
 	grid-template-rows: 0fr 1fr;
 
 	background-color: var(--SmartThemeBotMesBlurTintColor);
+
+	container-type: inline-size;
 
 	&.stcdx--active {
 		display: grid;
@@ -955,4 +994,22 @@ body .stcdx--root {
 			}
 		}
 	}
+}
+
+
+#stcdx--settings-v2 {
+	position: fixed;
+	z-index: 10000 !important;
+	display: none;
+	&.stcdx--active {
+		display: block;
+	}
+	.contentWrapper:after {
+		content: '';
+		display: block;
+		height: 100%;
+	}
+}
+body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
+	max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
 }

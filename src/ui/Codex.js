@@ -285,6 +285,16 @@ export class Codex {
                         this.renderMenu();
                         head.append(menuTrigger);
                     }
+                    const settingsTrigger = document.createElement('div'); {
+                        settingsTrigger.classList.add('stcdx--action');
+                        settingsTrigger.classList.add('fa-solid');
+                        settingsTrigger.classList.add('fa-cog');
+                        settingsTrigger.title = 'Codex Settings';
+                        settingsTrigger.addEventListener('click', ()=>{
+                            this.settings.toggle();
+                        });
+                        head.append(settingsTrigger);
+                    }
                     const back = document.createElement('div'); {
                         this.historyBack = back;
                         back.classList.add('stcdx--action');
