@@ -564,7 +564,7 @@ export class Settings {
         };
         render(catRoot, contRoot, tree);
         document.body.append(this.dom);
-        this.show();
+        // this.show();
         this.init_OLD();
     }
 
