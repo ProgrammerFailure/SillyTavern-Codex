@@ -125,6 +125,8 @@ export class CodexManager {
         document.body.style.setProperty('--stcdx--color', this.settings.color);
         document.body.style.setProperty('--stcdx--icon', `"${this.settings.icon}"`);
 
+        document.body.style.setProperty('--stcdx--cycleDelay', `${this.settings.cycleDelay}`);
+
         document.body.style.setProperty('--stcdx--mapDesaturate', `${this.settings.mapDesaturate}`);
         document.body.style.setProperty('--stcdx--mapShadow', `${this.settings.mapShadow}`);
         document.body.style.setProperty('--stcdx--mapShadowColor', this.settings.mapShadowColor);
