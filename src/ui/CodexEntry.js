@@ -1,4 +1,5 @@
 import { messageFormatting } from '../../../../../../script.js';
+import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
 import { waitForFrame } from '../lib/wait.js';
@@ -50,11 +51,14 @@ export class CodexEntry extends CodexBaseEntry {
                 }
                 // check sections
                 const oldSections = [...type.sectionList];
+                const addedSections = [];
                 while (type.sectionList.pop());
                 for (const sec of current.sectionList) {
                     const idx = oldSections.findIndex(it=>it.id == sec.id);
                     if (idx == -1) {
-                        type.sectionList.push(EntrySection.from(sec));
+                        const nsec = EntrySection.from(sec);
+                        type.sectionList.push(nsec);
+                        addedSections.push(nsec);
                         isChanged = true;
                     } else {
                         const osec = oldSections[idx];
@@ -77,8 +81,15 @@ export class CodexEntry extends CodexBaseEntry {
                 }
                 // these sections don't exist anymore
                 for (const osec of oldSections) {
-                    osec.isRemoved = true;
-                    type.sectionList.push(osec);
+                    if (osec.content.length > 0) {
+                        const nsec = addedSections.find(it=>it.name.toLowerCase() == osec.name.toLowerCase());
+                        if (nsec) {
+                            nsec.content = osec.content;
+                        } else {
+                            osec.isRemoved = true;
+                            type.sectionList.push(osec);
+                        }
+                    }
                     isChanged = true;
                 }
                 if (isChanged) {
@@ -263,45 +274,99 @@ export class CodexEntry extends CodexBaseEntry {
             this.isEditing = false;
         } else {
             this.isEditing = true;
+            const type = this.getType();
             let editor;
             const wrapper = document.createElement('div'); {
                 this.editor = wrapper;
                 wrapper.classList.add('stcdx--editor');
-                const title = document.createElement('input'); {
-                    title.classList.add('text_pole');
-                    title.classList.add('stcdx--editor-title');
-                    title.placeholder = 'Title / Memo';
-                    title.title = 'Title / Memo';
-                    title.value = this.entry.comment;
-                    title.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.comment = title.value;
-                        // this.entry.saveDebounced();
-                    });
-                    wrapper.append(title);
-                }
-                const keywords = document.createElement('input'); {
-                    keywords.classList.add('text_pole');
-                    keywords.classList.add('stcdx--editor-tags');
-                    keywords.placeholder = 'Primary Keywords';
-                    keywords.title = 'Primary Keywords';
-                    keywords.value = this.entry.keyList.join(', ');
-                    keywords.addEventListener('input', async()=>{
-                        if (!this.isEditing || this.isTogglingEditor) return;
-                        this.entry.keyList = keywords.value.split(/\s*,\s*/);
-                        // this.entry.saveDebounced();
-                    });
-                    wrapper.append(keywords);
+                const props = document.createElement('div'); {
+                    props.classList.add('stcdx--properties');
+                    const title = document.createElement('label'); {
+                        title.append('Title / Memo: ');
+                        const inp = document.createElement('input'); {
+                            inp.classList.add('text_pole');
+                            inp.classList.add('stcdx--editor-title');
+                            inp.placeholder = 'Title / Memo';
+                            inp.title = 'Title / Memo';
+                            inp.value = this.entry.comment;
+                            inp.addEventListener('input', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                this.entry.comment = inp.value;
+                            });
+                            title.append(inp);
+                        }
+                        props.append(title);
+                    }
+                    const keys = document.createElement('label'); {
+                        keys.append('Primary Keywords: ');
+                        const inp = document.createElement('input'); {
+                            inp.classList.add('text_pole');
+                            inp.classList.add('stcdx--editor-tags');
+                            inp.placeholder = 'Primary Keywords';
+                            inp.title = 'Primary Keywords';
+                            inp.value = this.entry.keyList.join(', ');
+                            inp.addEventListener('input', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                this.entry.keyList = inp.value.split(/\s*,\s*/);
+                            });
+                            keys.append(inp);
+                        }
+                        props.append(keys);
+                    }
+                    wrapper.append(props);
                 }
                 const actions = document.createElement('div'); {
                     actions.classList.add('stcdx--editor-actions');
+                    if (type) {
+                        const changeType = document.createElement('div'); {
+                            changeType.classList.add('menu_button');
+                            changeType.classList.add('menu_button_icon');
+                            changeType.addEventListener('click', async()=>{
+                                const types = this.settings.entryTypeList.map(it=>`Custom: ${it.name}`);
+                                const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe?.slice(8);
+                                if (!type.name || type.name == newTypeName) {
+                                    toastr.info('no type change');
+                                    return;
+                                }
+                                const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName);
+                                type.id = newType.id;
+                                this.entry.content = [
+                                    type.prefix,
+                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                    type.suffix,
+                                    `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                                ].filter(it=>it).join('\n');
+                                await this.toggleEditor();
+                                await this.toggleEditor();
+                            });
+                            const i = document.createElement('i'); {
+                                i.classList.add('fa-solid');
+                                i.classList.add('fa-fingerprint');
+                                changeType.append(i);
+                            }
+                            const text = document.createElement('span'); {
+                                text.textContent = 'Change Entry Type';
+                                changeType.append(text);
+                            }
+                            actions.append(changeType);
+                        }
+                    }
                     const wi = document.createElement('div'); {
                         wi.classList.add('menu_button');
-                        wi.textContent = 'Open in WI Panel';
+                        wi.classList.add('menu_button_icon');
                         wi.addEventListener('click', ()=>{
                             this.toggleEditor();
                             this.entry.showInWorldInfo();
                         });
+                        const i = document.createElement('i'); {
+                            i.classList.add('fa-solid');
+                            i.classList.add('fa-book-atlas');
+                            wi.append(i);
+                        }
+                        const text = document.createElement('span'); {
+                            text.textContent = 'Open in WI Panel';
+                            wi.append(text);
+                        }
                         actions.append(wi);
                     }
                     const del = document.createElement('div'); {
@@ -313,9 +378,7 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     wrapper.append(actions);
                 }
-                const type = this.getType();
                 if (type) {
-                    //TODO section editor
                     let curSection;
                     let curTab;
                     const tabUi = document.createElement('div'); {

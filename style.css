@@ -154,7 +154,7 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
   align-self: center;
   font-size: smaller;
   opacity: 0.5;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: var(--monoFontFamily);
 }
 #stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before,
 #stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before {
@@ -188,6 +188,12 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
 }
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
+}
+body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) #top-bar {
+  z-index: 899;
+}
+body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) #top-settings-holder {
+  z-index: 900;
 }
 #WorldInfo .stcdx--wiButton {
   white-space: nowrap;
@@ -273,7 +279,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 }
 .stcdx--codex.stcdx--maximized {
   width: calc(100vw - var(--nav-bar-width, 0px));
-  z-index: 10000;
+  z-index: 1000;
 }
 .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--action,
 .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--search {
@@ -429,7 +435,7 @@ body .stcdx--root.stcdx--active {
 }
 body .stcdx--root:has(.stcdx--editor.stcdx--active) {
   overflow: visible;
-  z-index: 10000;
+  z-index: 1000;
 }
 body .stcdx--root > .stcdx--content,
 body .stcdx--root > .stcdx--editor {
@@ -585,6 +591,16 @@ body .stcdx--root > .stcdx--editor {
 body .stcdx--root > .stcdx--editor.stcdx--preactive {
   display: flex;
 }
+body .stcdx--root > .stcdx--editor .stcdx--properties {
+  display: grid;
+  grid-template-columns: 0fr 1fr;
+  gap: 0.5em;
+  align-items: baseline;
+  white-space: nowrap;
+}
+body .stcdx--root > .stcdx--editor .stcdx--properties > label {
+  display: contents;
+}
 body .stcdx--root > .stcdx--editor > .stcdx--editor-actions {
   display: flex;
   flex-direction: row;
@@ -619,6 +635,7 @@ body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs {
   align-items: flex-end;
   padding-top: 1em;
   gap: 0.5em;
+  pointer-events: none;
 }
 body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab {
   background-color: var(--SmartThemeBlurTintColor);
@@ -629,6 +646,7 @@ body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab
   left: 2em;
   transition: 200ms;
   cursor: pointer;
+  pointer-events: all;
 }
 body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab:hover {
   left: 0;
@@ -1117,7 +1135,7 @@ body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab
 }
 #stcdx--settings-v2 {
   position: fixed;
-  z-index: 10000 !important;
+  z-index: 800 !important;
   display: none;
 }
 #stcdx--settings-v2.stcdx--active {
