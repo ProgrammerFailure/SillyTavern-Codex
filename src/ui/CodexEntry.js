@@ -58,6 +58,7 @@ export class CodexEntry extends CodexBaseEntry {
                         isChanged = true;
                     } else {
                         const osec = oldSections[idx];
+                        osec.isRemoved = false;
                         if (osec.name != sec.name) {
                             osec.name = sec.name;
                             isChanged = true;
