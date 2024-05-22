@@ -106,7 +106,7 @@
 						align-self: center;
 						font-size: smaller;
 						opacity: 0.5;
-						font-family: 'Courier New', Courier, monospace;
+						font-family: var(--monoFontFamily);
 					}
 					.stcdx--setting {
 						flex: 1 1 auto;
@@ -139,6 +139,14 @@
 
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 	max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
+}
+body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
+	#top-bar {
+		z-index: 899;
+	}
+	#top-settings-holder {
+		z-index: 900;
+	}
 }
 #WorldInfo .stcdx--wiButton {
 	white-space: nowrap;
@@ -251,7 +259,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
 
 	&.stcdx--maximized {
 		width: calc(100vw - var(--nav-bar-width, 0px));
-		z-index: 10000;
+		z-index: 1000;
 	}
 
 	&.stcdx--isEditing {
@@ -424,7 +432,7 @@ body .stcdx--root {
 	}
 	&:has(.stcdx--editor.stcdx--active) {
 		overflow: visible;
-		z-index: 10000;
+		z-index: 1000;
 	}
 
 	> .stcdx--content, > .stcdx--editor {
@@ -583,6 +591,16 @@ body .stcdx--root {
 		&.stcdx--preactive {
 			display: flex;
 		}
+		.stcdx--properties {
+			display: grid;
+			grid-template-columns: 0fr 1fr;
+			gap: 0.5em;
+			align-items: baseline;
+			white-space: nowrap;
+			> label {
+				display: contents;
+			}
+		}
 		> .stcdx--editor-actions {
 			display: flex;
 			flex-direction: row;
@@ -617,6 +635,7 @@ body .stcdx--root {
 				align-items: flex-end;
 				padding-top: 1em;
 				gap: 0.5em;
+				pointer-events: none;
 
 				.stcdx--tab {
 					background-color: var(--SmartThemeBlurTintColor);
@@ -627,6 +646,7 @@ body .stcdx--root {
 					left: 2em;
 					transition: 200ms;
 					cursor: pointer;
+					pointer-events: all;
 					&:hover {
 						left: 0;
 					}
@@ -1102,7 +1122,7 @@ body .stcdx--root {
 
 #stcdx--settings-v2 {
 	position: fixed;
-	z-index: 10000 !important;
+	z-index: 800 !important;
 	display: none;
 	&.stcdx--active {
 		display: block;
