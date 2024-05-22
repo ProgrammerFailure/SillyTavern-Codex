@@ -14,6 +14,7 @@ import { ColorSetting } from './ui/settings/ColorSetting.js';
 import { CustomSetting } from './ui/settings/CustomSetting.js';
 import { MultilineTextSetting } from './ui/settings/MultiLineTextSetting.js';
 import { NumberSetting } from './ui/settings/NumberSetting.js';
+import { SettingAction } from './ui/settings/SettingAction.js';
 import { SETTING_ICON, SettingIcon } from './ui/settings/SettingIcon.js';
 import { TextSetting } from './ui/settings/TextSetting.js';
 
@@ -348,6 +349,22 @@ export class Settings {
                 description: 'Define custom entry types with sections, prefixes and suffixes.',
                 category: ['Entries', 'Text'],
                 initialValue: this.entryTypeList,
+                actionList: [
+                    SettingAction.fromProps({
+                        label: 'Apply changes',
+                        icon: 'fa-notes-medical',
+                        tooltip: 'Apply changes to all entries using any of the Entry Types',
+                        action: async()=>{
+                            //TODO show spinner / progress
+                            toastr.info('applying Event Type changes...');
+                            for (const type of this.entryTypeList) {
+                                await type.applyChanges();
+                            }
+                            toastr.success('finished applying Event Type changes');
+                        },
+                    }),
+                ],
+                actionsFirst: true,
                 getValueCallback: ()=>this.entryTypeList,
                 setValueCallback: (value)=>null,
                 renderCallback: ()=>{
@@ -741,6 +758,21 @@ export class Settings {
                         id.classList.add('stcdx--id');
                         id.textContent = item.id;
                         head.append(id);
+                    }
+                    const apply = document.createElement('div'); {
+                        apply.classList.add('stcdx--action');
+                        apply.classList.add('menu_button');
+                        apply.classList.add('menu_button_icon');
+                        apply.classList.add('fa-solid');
+                        apply.classList.add('fa-notes-medical');
+                        apply.title = 'Apply changes to all entries using this Entry Type';
+                        apply.addEventListener('click', async() => {
+                            //TODO show spinner?
+                            toastr.info('applying Event Type changes...');
+                            await item.applyChanges();
+                            toastr.success('finished applying Event Type changes');
+                        });
+                        head.append(apply);
                     }
                     const del = document.createElement('div'); {
                         del.classList.add('stcdx--action');

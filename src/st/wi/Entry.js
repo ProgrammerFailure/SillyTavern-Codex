@@ -44,7 +44,7 @@ export class Entry {
 
     /**@type {Boolean}*/ isOpeningWorldInfoPanel = false;
 
-    /**@type {Function}*/ saveDebounced;
+    /**@type {()=>Promise}*/ saveDebounced;
 
     /**@type {Function}*/ onSave;
 

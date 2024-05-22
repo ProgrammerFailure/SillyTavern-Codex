@@ -10,6 +10,7 @@ export class CustomSetting extends BaseSetting {
      * @param {string} props.description
      * @param {*} props.initialValue
      * @param {string[]} props.category
+     * @param {boolean} [props.actionsFirst]
      * @param {()=>HTMLElement} props.renderCallback
      * @param {()=>*} props.getValueCallback
      * @param {(value:*)=>void} props.setValueCallback
@@ -24,6 +25,7 @@ export class CustomSetting extends BaseSetting {
 
 
 
+    /**@type {boolean} */ actionsFirst = false;
     /**@type {()=>HTMLElement} */ renderCallback;
     /**@type {()=>*} */ getValueCallback;
     /**@type {(value:*)=>void} */ setValueCallback;
@@ -67,18 +69,24 @@ export class CustomSetting extends BaseSetting {
                     desc.innerHTML = this.description;
                     item.append(desc);
                 }
+                if (this.actionsFirst) item.append(...this.renderActions());
                 const inp = this.renderCallback(); {
                     item.append(inp);
                 }
-                // if (this.actionList?.length) {
-                //     const actions = document.createElement('div'); {
-                //         actions.classList.add('actions');
-                //         actions.append(...this.actionList.map(it=>it.render()));
-                //         item.append(actions);
-                //     }
-                // }
+                if (!this.actionsFirst) item.append(...this.renderActions());
             }
         }
         return this.dom;
+    }
+
+    renderActions() {
+        if (this.actionList?.length) {
+            const actions = document.createElement('div'); {
+                actions.classList.add('actions');
+                actions.append(...this.actionList.map(it=>it.render()));
+            }
+            return [actions];
+        }
+        return [];
     }
 }

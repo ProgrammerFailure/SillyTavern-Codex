@@ -16,16 +16,23 @@ export class CodexEntry extends CodexBaseEntry {
 
 
 
-    getType() {
+    /**
+     *
+     * @param {EntryType} current
+     * @returns
+     */
+    getType(current = null) {
         const typeRe = /{{\/\/codex-type:(.+?)}}/;
         /**@type {EntryType} */
         let type;
         if (typeRe.test(this.entry.content)) {
             type = EntryType.from(JSON.parse(atob(typeRe.exec(this.entry.content)[1])));
             log('[TYPE]', type);
-            const current = this.settings.entryTypeList.find(it=>it.id == type.id);
+            current = current ?? this.settings.entryTypeList.find(it=>it.id == type.id);
             if (!current) {
                 alert(`entry type does not exist anymore: ${type.name} (${type.id})`);
+            } else if (current.id != type.id) {
+                // IDs don't match
             } else {
                 let isChanged = false;
                 // check type
