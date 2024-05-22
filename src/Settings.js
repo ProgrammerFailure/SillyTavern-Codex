@@ -560,10 +560,13 @@ export class Settings {
         dom.querySelector('.contentWrapper').addEventListener('scroll', ()=>this.updateCategory());
         window.addEventListener('keydown', (evt)=>{
             if (!this.dom.classList.contains('stcdx--active')) return;
+            const query = this.dom.querySelector('.search');
+            const rect = query.getBoundingClientRect();
+            if (document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) != query) return;
             if (evt.ctrlKey && evt.key == 'f') {
                 evt.preventDefault();
                 evt.stopPropagation();
-                this.dom.querySelector('.search').select();
+                query.select();
             }
         });
 
