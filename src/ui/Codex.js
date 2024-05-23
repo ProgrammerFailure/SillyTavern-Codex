@@ -462,6 +462,9 @@ export class Codex {
     }
 
     async hide() {
+        if (this.isEditing) {
+            await this.content?.toggleEditor();
+        }
         this.dom?.classList?.remove('stcdx--active');
         await delay(this.settings.transitionTime + 10);
     }
