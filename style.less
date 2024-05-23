@@ -322,7 +322,7 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 			&.stcdx--menu {
 				> .stcdx--books {
 					display: none;
-					background-color: var(--SmartThemeBotMesBlurTintColor);
+					background-color: var(--stcdx--bgColor);
 					border: 1px solid var(--SmartThemeBorderColor);
 					backdrop-filter: blur(var(--SmartThemeBlurStrength));
 					border-radius: 10px;
@@ -1043,9 +1043,9 @@ body .stcdx--root {
 
 
 
-.stcdx--tooltip {
+body .stcdx--tooltip {
 	pointer-events: none;
-	background-color: var(--SmartThemeBotMesBlurTintColor);
+	background-color: var(--stcdx--bgColor);
 	backdrop-filter: blur(var(--SmartThemeBlurStrength));
 	filter: drop-shadow(1px 1px 2px var(--black50a));
 	border: 1px solid var(--SmartThemeBorderColor);
@@ -1054,7 +1054,7 @@ body .stcdx--root {
 	height: 60vh;
 	overflow: auto;
 	position: fixed;
-	z-index: 10000;
+	z-index: 20000;
 	padding: 5px;
 	text-align: justify;
 
@@ -1072,6 +1072,7 @@ body .stcdx--root {
 		top: calc(2em);
 		max-height: unset;
 		max-width: unset;
+		height: unset;
 		width: calc((100vw - var(--sheldWidth)) / 2);
 		transition: calc(1ms * var(--stcdx--transitionTime));
 	}

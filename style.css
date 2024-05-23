@@ -339,7 +339,7 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) #top-settings-h
 }
 .stcdx--codex > .stcdx--header > .stcdx--action.stcdx--menu > .stcdx--books {
   display: none;
-  background-color: var(--SmartThemeBotMesBlurTintColor);
+  background-color: var(--stcdx--bgColor);
   border: 1px solid var(--SmartThemeBorderColor);
   backdrop-filter: blur(var(--SmartThemeBlurStrength));
   border-radius: 10px;
@@ -1061,9 +1061,9 @@ body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab
 .stcdx--mapEditor > .stcdx--mapContainer > .stcdx--painter-inputCanvas.stcdx--painter-layer.stcdx--painter-isHidden {
   display: none;
 }
-.stcdx--tooltip {
+body .stcdx--tooltip {
   pointer-events: none;
-  background-color: var(--SmartThemeBotMesBlurTintColor);
+  background-color: var(--stcdx--bgColor);
   backdrop-filter: blur(var(--SmartThemeBlurStrength));
   filter: drop-shadow(1px 1px 2px var(--black50a));
   border: 1px solid var(--SmartThemeBorderColor);
@@ -1072,26 +1072,27 @@ body .stcdx--root > .stcdx--editor .stcdx--editor-tabUi .stcdx--tabs .stcdx--tab
   height: 60vh;
   overflow: auto;
   position: fixed;
-  z-index: 10000;
+  z-index: 20000;
   padding: 5px;
   text-align: justify;
 }
-.stcdx--tooltip .stcdx--mapContainer > .stcdx--map,
-.stcdx--tooltip .stcdx--mapContainer > .stcdx--hover,
-.stcdx--tooltip img {
+body .stcdx--tooltip .stcdx--mapContainer > .stcdx--map,
+body .stcdx--tooltip .stcdx--mapContainer > .stcdx--hover,
+body .stcdx--tooltip img {
   max-height: 30vh;
 }
-.stcdx--tooltip.stcdx--fixed {
+body .stcdx--tooltip.stcdx--fixed {
   position: absolute;
   bottom: 0;
   right: 0;
   top: calc(2em);
   max-height: unset;
   max-width: unset;
+  height: unset;
   width: calc((100vw - var(--sheldWidth)) / 2);
   transition: calc(1ms * var(--stcdx--transitionTime));
 }
-.stcdx--tooltip > .stcdx--content.stcdx--active {
+body .stcdx--tooltip > .stcdx--content.stcdx--active {
   pointer-events: none;
 }
 @keyframes stcdx--flash {
