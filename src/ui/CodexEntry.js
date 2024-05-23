@@ -423,7 +423,7 @@ export class CodexEntry extends CodexBaseEntry {
                             changeType.addEventListener('click', async()=>{
                                 const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
                                 const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
-                                if (!newTypeName || type?.name == newTypeName || (!type && newTypeName == 'Basic Text')) {
+                                if (!newTypeName || type?.name == newTypeName.slice(8) || (!type && newTypeName == 'Basic Text')) {
                                     toastr.info('no type change');
                                     return;
                                 }
