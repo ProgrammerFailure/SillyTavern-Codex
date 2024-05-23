@@ -180,7 +180,7 @@ export class SlashCommandHandler {
         const matches = this.matcher.findMatches(value);
         if (matches.length > 0) {
             await this.manager.showCodex(matches[0]);
-            this.manager.codex.content.toggleEditor();
+            this.manager.codex.toggleEditor();
         }
     }
 
