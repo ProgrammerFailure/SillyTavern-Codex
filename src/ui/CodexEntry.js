@@ -27,7 +27,7 @@ export class CodexEntry extends CodexBaseEntry {
         /**@type {EntryType} */
         let type;
         if (typeRe.test(this.entry.content)) {
-            type = EntryType.from(JSON.parse(atob(typeRe.exec(this.entry.content)[1])));
+            type = EntryType.from(JSON.parse(decodeURIComponent(atob(typeRe.exec(this.entry.content)[1]))));
             log('[TYPE]', type);
             current = current ?? this.settings.entryTypeList.find(it=>it.id == type.id);
             if (!current) {
@@ -97,7 +97,7 @@ export class CodexEntry extends CodexBaseEntry {
                         type.prefix,
                         ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
                         type.suffix,
-                        `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                        `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
                     ].filter(it=>it).join('\n');
                 }
             }
@@ -440,7 +440,7 @@ export class CodexEntry extends CodexBaseEntry {
                                         type.prefix,
                                         ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
                                         type.suffix,
-                                        `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                                        `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
                                     ].filter(it=>it).join('\n');
                                 } else {
                                     // switching to basic text
@@ -546,7 +546,7 @@ export class CodexEntry extends CodexBaseEntry {
                                     type.prefix,
                                     ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
                                     type.suffix,
-                                    `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                                    `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
                                 ].filter(it=>it).join('\n');
                             });
                             tabUi.append(editor);
