@@ -274,7 +274,7 @@ export class CodexEntry extends CodexBaseEntry {
             this.isEditing = false;
         } else {
             this.isEditing = true;
-            const type = this.getType();
+            let type = this.getType();
             let editor;
             const wrapper = document.createElement('div'); {
                 this.editor = wrapper;
@@ -317,18 +317,24 @@ export class CodexEntry extends CodexBaseEntry {
                 }
                 const actions = document.createElement('div'); {
                     actions.classList.add('stcdx--editor-actions');
-                    if (type) {
-                        const changeType = document.createElement('div'); {
-                            changeType.classList.add('menu_button');
-                            changeType.classList.add('menu_button_icon');
-                            changeType.addEventListener('click', async()=>{
-                                const types = this.settings.entryTypeList.map(it=>`Custom: ${it.name}`);
-                                const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe?.slice(8);
-                                if (!type.name || type.name == newTypeName) {
-                                    toastr.info('no type change');
-                                    return;
+                    const changeType = document.createElement('div'); {
+                        changeType.classList.add('menu_button');
+                        changeType.classList.add('menu_button_icon');
+                        changeType.addEventListener('click', async()=>{
+                            const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
+                            const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
+                            if (!newTypeName || type?.name == newTypeName || (!type && newTypeName == 'Basic Text')) {
+                                toastr.info('no type change');
+                                return;
+                            }
+                            if (newTypeName.startsWith('Custom: ')) {
+                                // switching to a different custom type
+                                if (!type) {
+                                    // ... from basic text without type
+                                    type = new EntryType();
+                                    type.sectionList.push(EntrySection.from({ name:'NO SECTION', content:this.entry.content }));
                                 }
-                                const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName);
+                                const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName.slice(8));
                                 type.id = newType.id;
                                 this.entry.content = [
                                     type.prefix,
@@ -336,20 +342,27 @@ export class CodexEntry extends CodexBaseEntry {
                                     type.suffix,
                                     `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
                                 ].filter(it=>it).join('\n');
-                                await this.toggleEditor();
-                                await this.toggleEditor();
-                            });
-                            const i = document.createElement('i'); {
-                                i.classList.add('fa-solid');
-                                i.classList.add('fa-fingerprint');
-                                changeType.append(i);
+                            } else {
+                                // switching to basic text
+                                this.entry.content = [
+                                    type.prefix,
+                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                    type.suffix,
+                                ].filter(it=>it).join('\n');
                             }
-                            const text = document.createElement('span'); {
-                                text.textContent = 'Change Entry Type';
-                                changeType.append(text);
-                            }
-                            actions.append(changeType);
+                            await this.toggleEditor();
+                            await this.toggleEditor();
+                        });
+                        const i = document.createElement('i'); {
+                            i.classList.add('fa-solid');
+                            i.classList.add('fa-fingerprint');
+                            changeType.append(i);
                         }
+                        const text = document.createElement('span'); {
+                            text.textContent = 'Change Entry Type';
+                            changeType.append(text);
+                        }
+                        actions.append(changeType);
                     }
                     const wi = document.createElement('div'); {
                         wi.classList.add('menu_button');
