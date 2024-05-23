@@ -154,7 +154,7 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
   align-self: center;
   font-size: smaller;
   opacity: 0.5;
-  font-family: var(--monoFontFamily);
+  font-family: var(--monoFontFamily, monospace);
 }
 #stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before,
 #stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row .stcdx--id:before {
