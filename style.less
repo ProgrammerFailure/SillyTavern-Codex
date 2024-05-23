@@ -419,6 +419,19 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 	}
 }
 body .stcdx--root {
+	// styles from .draggable
+	min-width: 100px;
+    min-height: 100px;
+    filter: drop-shadow(1px 1px 2px var(--black50a));
+    z-index: 29;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    aspect-ratio: unset;
+    backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    padding: 5px;
+	// end of: styles from draggable
+
 	display: none;
 	grid-template-columns: 100%;
 	grid-template-rows: 0fr 1fr;

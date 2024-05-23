@@ -280,7 +280,7 @@ export class Codex {
                 root.id = 'stcdx--codex';
                 root.classList.add('stcdx--root');
                 root.classList.add('stcdx--codex');
-                root.classList.add('draggable');
+                // root.classList.add('draggable');
                 const head = document.createElement('div'); {
                     head.classList.add('stcdx--header');
                     const menuTrigger = document.createElement('div'); {
