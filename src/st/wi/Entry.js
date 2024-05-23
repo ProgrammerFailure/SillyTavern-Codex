@@ -152,6 +152,9 @@ export class Entry {
             const changes = this.getChanges();
             if (changes.length > 0) {
                 await this.onSave(this, changes);
+                this.originalComment = this.comment;
+                this.originalContent = this.content;
+                this.originalKeyList = this.keyList.join(', ');
             }
         }
     }
