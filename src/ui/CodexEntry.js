@@ -335,6 +335,21 @@ export class CodexEntry extends CodexBaseEntry {
                         }
                         props.append(keys);
                     }
+                    const isEnabled = document.createElement('label'); {
+                        isEnabled.append('Enabled: ');
+                        const inp = document.createElement('input'); {
+                            inp.type = 'checkbox';
+                            inp.classList.add('stcdx--editor-isEnabled');
+                            inp.title = 'Enabled';
+                            inp.checked = !this.entry.isDisabled;
+                            inp.addEventListener('input', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                this.entry.isDisabled = !inp.checked;
+                            });
+                            isEnabled.append(inp);
+                        }
+                        props.append(isEnabled);
+                    }
                     const codexTitle = document.createElement('label'); {
                         codexTitle.append('Codex Title: ');
                         const inp = document.createElement('select'); {

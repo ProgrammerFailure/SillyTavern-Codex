@@ -53,6 +53,7 @@ export class Book {
             !changes.includes('content') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=content ${entry.content.replace(/([{}|])/g, '\\$1')}`,
             !changes.includes('key') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=key ${entry.keyList.map(it=>it.replace(/([{}|])/g, '\\$1')).join(', ')}`,
             !changes.includes('comment') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=comment ${entry.comment.replace(/([{}|])/g, '\\$1')}`,
+            !changes.includes('disable') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=disable ${entry.isDisabled.toString()}`,
         ];
         await executeSlashCommands(commands.filter(it=>it).join(' | '));
     }

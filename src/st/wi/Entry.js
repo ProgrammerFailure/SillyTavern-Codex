@@ -27,26 +27,27 @@ export class Entry {
 
 
 
-    /**@type {String}*/ book;
-    /**@type {Number}*/ uid;
-    /**@type {String[]}*/ keyList;
-    /**@type {String[]}*/ secondaryKeyList;
-    /**@type {Number}*/ secondaryKeyLogic;
-    /**@type {String}*/ comment;
-    /**@type {String}*/ content;
-    /**@type {Boolean}*/ isDisabled;
-    /**@type {Boolean}*/ isCaseSensitive;
-    /**@type {Boolean}*/ isMatchingWholeWords;
+    /**@type {string}*/ book;
+    /**@type {number}*/ uid;
+    /**@type {string[]}*/ keyList;
+    /**@type {string[]}*/ secondaryKeyList;
+    /**@type {number}*/ secondaryKeyLogic;
+    /**@type {string}*/ comment;
+    /**@type {string}*/ content;
+    /**@type {boolean}*/ isDisabled;
+    /**@type {boolean}*/ isCaseSensitive;
+    /**@type {boolean}*/ isMatchingWholeWords;
 
-    /**@type {String}*/ originalKeyList;
-    /**@type {String}*/ originalComment;
-    /**@type {String}*/ originalContent;
+    /**@type {string}*/ originalKeyList;
+    /**@type {string}*/ originalComment;
+    /**@type {string}*/ originalContent;
+    /**@type {boolean}*/ originalIsDisabled;
 
-    /**@type {Boolean}*/ isOpeningWorldInfoPanel = false;
+    /**@type {boolean}*/ isOpeningWorldInfoPanel = false;
 
     /**@type {()=>Promise}*/ saveDebounced;
 
-    /**@type {Function}*/ onSave;
+    /**@type {function}*/ onSave;
 
     get isMap() { return this.keyList.includes('codex-map:'); }
     get isCharList() { return this.keyList.find(it=>it.startsWith('codex-chars:')); }
@@ -145,6 +146,7 @@ export class Entry {
         if (this.originalComment != this.comment) changes.push('comment');
         if (this.originalContent != this.content) changes.push('content');
         if (this.originalKeyList != this.keyList.join(', ')) changes.push('key');
+        if (this.originalIsDisabled != this.isDisabled) changes.push('disable');
         return changes;
     }
     async save() {
@@ -155,6 +157,7 @@ export class Entry {
                 this.originalComment = this.comment;
                 this.originalContent = this.content;
                 this.originalKeyList = this.keyList.join(', ');
+                this.originalIsDisabled = this.isDisabled;
             }
         }
     }
