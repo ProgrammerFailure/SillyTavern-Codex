@@ -405,13 +405,17 @@ export class CodexEntry extends CodexBaseEntry {
                         collapseToggle.classList.add('menu_button');
                         collapseToggle.classList.add('fa-solid');
                         collapseToggle.classList.add('fa-angle-up');
-                        collapseToggle.title = 'Collapse';
+                        collapseToggle.title = 'Collapse properties';
                         collapseToggle.addEventListener('click', ()=>{
                             const result = props.classList.toggle('stcdx--isCollapsed');
                             collapseToggle.classList[result ? 'add' : 'remove']('fa-angle-down');
                             collapseToggle.classList[!result ? 'add' : 'remove']('fa-angle-up');
-                            collapseToggle.title = result ? 'Expand' : 'Collapse';
+                            localStorage.setItem('stcdx--collapseProps', JSON.stringify(result));
+                            collapseToggle.title = result ? 'Expand properties' : 'Collapse properties';
                         });
+                        if (JSON.parse(localStorage.getItem('stcdx--collapseProps') ?? 'false')) {
+                            collapseToggle.click();
+                        }
                         actionsRow.append(collapseToggle);
                     }
                     const actions = document.createElement('div'); {
