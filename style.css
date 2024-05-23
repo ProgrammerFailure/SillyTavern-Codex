@@ -608,16 +608,24 @@ body .stcdx--root > .stcdx--editor .stcdx--properties {
   align-items: baseline;
   white-space: nowrap;
 }
+body .stcdx--root > .stcdx--editor .stcdx--properties.stcdx--isCollapsed {
+  display: none;
+}
 body .stcdx--root > .stcdx--editor .stcdx--properties > label {
   display: contents;
 }
-body .stcdx--root > .stcdx--editor > .stcdx--editor-actions {
+body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow {
   display: flex;
   flex-direction: row;
   gap: 1em;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
-body .stcdx--root > .stcdx--editor > .stcdx--editor-actions > .menu_button {
+body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .stcdx--editor-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .menu_button {
   white-space: nowrap;
 }
 body .stcdx--root > .stcdx--editor .stcdx--editor-content {

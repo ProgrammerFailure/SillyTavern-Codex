@@ -384,82 +384,99 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     wrapper.append(props);
                 }
-                const actions = document.createElement('div'); {
-                    actions.classList.add('stcdx--editor-actions');
-                    const changeType = document.createElement('div'); {
-                        changeType.classList.add('menu_button');
-                        changeType.classList.add('menu_button_icon');
-                        changeType.title = `Current type: ${type?.name ?? 'Basic Text'}`;
-                        changeType.addEventListener('click', async()=>{
-                            const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
-                            const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
-                            if (!newTypeName || type?.name == newTypeName || (!type && newTypeName == 'Basic Text')) {
-                                toastr.info('no type change');
-                                return;
-                            }
-                            if (newTypeName.startsWith('Custom: ')) {
-                                // switching to a different custom type
-                                if (!type) {
-                                    // ... from basic text without type
-                                    type = new EntryType();
-                                    type.sectionList.push(EntrySection.from({ name:'NO SECTION', content:this.entry.content }));
+                const actionsRow = document.createElement('div'); {
+                    actionsRow.classList.add('stcdx--editor-actionsRow');
+                    const collapseToggle = document.createElement('div'); {
+                        collapseToggle.classList.add('menu_button');
+                        collapseToggle.classList.add('fa-solid');
+                        collapseToggle.classList.add('fa-angle-up');
+                        collapseToggle.title = 'Collapse';
+                        collapseToggle.addEventListener('click', ()=>{
+                            const result = props.classList.toggle('stcdx--isCollapsed');
+                            collapseToggle.classList[result ? 'add' : 'remove']('fa-angle-down');
+                            collapseToggle.classList[!result ? 'add' : 'remove']('fa-angle-up');
+                            collapseToggle.title = result ? 'Expand' : 'Collapse';
+                        });
+                        actionsRow.append(collapseToggle);
+                    }
+                    const actions = document.createElement('div'); {
+                        actions.classList.add('stcdx--editor-actions');
+                        const changeType = document.createElement('div'); {
+                            changeType.classList.add('menu_button');
+                            changeType.classList.add('menu_button_icon');
+                            changeType.title = `Current type: ${type?.name ?? 'Basic Text'}`;
+                            changeType.addEventListener('click', async()=>{
+                                const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
+                                const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
+                                if (!newTypeName || type?.name == newTypeName || (!type && newTypeName == 'Basic Text')) {
+                                    toastr.info('no type change');
+                                    return;
                                 }
-                                const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName.slice(8));
-                                type.id = newType.id;
-                                this.entry.content = [
-                                    type.prefix,
-                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                    type.suffix,
-                                    `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
-                                ].filter(it=>it).join('\n');
-                            } else {
-                                // switching to basic text
-                                this.entry.content = [
-                                    type.prefix,
-                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                    type.suffix,
-                                ].filter(it=>it).join('\n');
+                                if (newTypeName.startsWith('Custom: ')) {
+                                    // switching to a different custom type
+                                    if (!type) {
+                                        // ... from basic text without type
+                                        type = new EntryType();
+                                        type.sectionList.push(EntrySection.from({ name:'NO SECTION', content:this.entry.content }));
+                                    }
+                                    const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName.slice(8));
+                                    type.id = newType.id;
+                                    this.entry.content = [
+                                        type.prefix,
+                                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                        type.suffix,
+                                        `{{//codex-type:${btoa(JSON.stringify(type))}}}`,
+                                    ].filter(it=>it).join('\n');
+                                } else {
+                                    // switching to basic text
+                                    this.entry.content = [
+                                        type.prefix,
+                                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                        type.suffix,
+                                    ].filter(it=>it).join('\n');
+                                }
+                                await this.toggleEditor();
+                                await this.toggleEditor();
+                            });
+                            const i = document.createElement('i'); {
+                                i.classList.add('fa-solid');
+                                i.classList.add('fa-fingerprint');
+                                changeType.append(i);
                             }
-                            await this.toggleEditor();
-                            await this.toggleEditor();
-                        });
-                        const i = document.createElement('i'); {
-                            i.classList.add('fa-solid');
-                            i.classList.add('fa-fingerprint');
-                            changeType.append(i);
+                            const text = document.createElement('span'); {
+                                text.textContent = 'Change Entry Type';
+                                changeType.append(text);
+                            }
+                            actions.append(changeType);
                         }
-                        const text = document.createElement('span'); {
-                            text.textContent = 'Change Entry Type';
-                            changeType.append(text);
+                        const wi = document.createElement('div'); {
+                            wi.classList.add('menu_button');
+                            wi.classList.add('menu_button_icon');
+                            wi.addEventListener('click', ()=>{
+                                this.toggleEditor();
+                                this.entry.showInWorldInfo();
+                            });
+                            const i = document.createElement('i'); {
+                                i.classList.add('fa-solid');
+                                i.classList.add('fa-book-atlas');
+                                wi.append(i);
+                            }
+                            const text = document.createElement('span'); {
+                                text.textContent = 'Open in WI Panel';
+                                wi.append(text);
+                            }
+                            actions.append(wi);
                         }
-                        actions.append(changeType);
+                        const del = document.createElement('div'); {
+                            del.classList.add('menu_button');
+                            del.classList.add('redWarningBG');
+                            del.textContent = 'Delete';
+                            //TODO no exported function or slash command to delete WI entries
+                            // actions.append(del);
+                        }
+                        actionsRow.append(actions);
                     }
-                    const wi = document.createElement('div'); {
-                        wi.classList.add('menu_button');
-                        wi.classList.add('menu_button_icon');
-                        wi.addEventListener('click', ()=>{
-                            this.toggleEditor();
-                            this.entry.showInWorldInfo();
-                        });
-                        const i = document.createElement('i'); {
-                            i.classList.add('fa-solid');
-                            i.classList.add('fa-book-atlas');
-                            wi.append(i);
-                        }
-                        const text = document.createElement('span'); {
-                            text.textContent = 'Open in WI Panel';
-                            wi.append(text);
-                        }
-                        actions.append(wi);
-                    }
-                    const del = document.createElement('div'); {
-                        del.classList.add('menu_button');
-                        del.classList.add('redWarningBG');
-                        del.textContent = 'Delete';
-                        //TODO no exported function or slash command to delete WI entries
-                        // actions.append(del);
-                    }
-                    wrapper.append(actions);
+                    wrapper.append(actionsRow);
                 }
                 if (type) {
                     let curSection;
