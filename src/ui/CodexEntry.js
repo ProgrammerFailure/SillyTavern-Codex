@@ -276,6 +276,26 @@ export class CodexEntry extends CodexBaseEntry {
             this.isEditing = true;
             let type = this.getType();
             let editor;
+            /**@type {HTMLInputElement} */
+            let keysInput;
+            /**@type {HTMLSelectElement} */
+            let codexTitleInput;
+            const updateCodexTitleInput = ()=>{
+                codexTitleInput.innerHTML = '';
+                const defaultOpt = document.createElement('option'); {
+                    defaultOpt.value = '';
+                    defaultOpt.textContent = 'Default (comment / keys)';
+                    codexTitleInput.append(defaultOpt);
+                }
+                ['comment', ...this.entry.keyList.map((it,idx)=>`key[${idx}]`)].forEach(it=>{
+                    const opt = document.createElement('option'); {
+                        opt.value = it;
+                        opt.textContent = it;
+                        codexTitleInput.append(opt);
+                    }
+                });
+                codexTitleInput.value = this.titleField;
+            };
             const wrapper = document.createElement('div'); {
                 this.editor = wrapper;
                 wrapper.classList.add('stcdx--editor');
@@ -285,7 +305,7 @@ export class CodexEntry extends CodexBaseEntry {
                         title.append('Title / Memo: ');
                         const inp = document.createElement('input'); {
                             inp.classList.add('text_pole');
-                            inp.classList.add('stcdx--editor-title');
+                            inp.classList.add('stcdx--editor-comment');
                             inp.placeholder = 'Title / Memo';
                             inp.title = 'Title / Memo';
                             inp.value = this.entry.comment;
@@ -300,6 +320,7 @@ export class CodexEntry extends CodexBaseEntry {
                     const keys = document.createElement('label'); {
                         keys.append('Primary Keywords: ');
                         const inp = document.createElement('input'); {
+                            keysInput = inp;
                             inp.classList.add('text_pole');
                             inp.classList.add('stcdx--editor-tags');
                             inp.placeholder = 'Primary Keywords';
@@ -308,10 +329,58 @@ export class CodexEntry extends CodexBaseEntry {
                             inp.addEventListener('input', async()=>{
                                 if (!this.isEditing || this.isTogglingEditor) return;
                                 this.entry.keyList = inp.value.split(/\s*,\s*/);
+                                updateCodexTitleInput();
                             });
                             keys.append(inp);
                         }
                         props.append(keys);
+                    }
+                    const codexTitle = document.createElement('label'); {
+                        codexTitle.append('Codex Title: ');
+                        const inp = document.createElement('select'); {
+                            codexTitleInput = inp;
+                            inp.classList.add('text_pole');
+                            inp.classList.add('stcdx--editor-codexTitle');
+                            inp.title = 'Codex Title';
+                            inp.addEventListener('change', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                this.entry.keyList = this.entry.keyList.filter(it=>!it.startsWith('codex-title:'));
+                                if (inp.value != '') this.entry.keyList.push(`codex-title:${inp.value}`);
+                                keysInput.value = this.entry.keyList.join(', ');
+                            });
+                            updateCodexTitleInput();
+                            codexTitle.append(inp);
+                        }
+                        props.append(codexTitle);
+                    }
+                    const codexTemplate = document.createElement('label'); {
+                        codexTemplate.append('Codex Template: ');
+                        const inp = document.createElement('select'); {
+                            inp.classList.add('text_pole');
+                            inp.classList.add('stcdx--editor-codexTemplate');
+                            inp.title = 'Codex Template';
+                            inp.addEventListener('change', async()=>{
+                                if (!this.isEditing || this.isTogglingEditor) return;
+                                this.entry.keyList = this.entry.keyList.filter(it=>!it.startsWith('codex-tpl:'));
+                                if (inp.value != '') this.entry.keyList.push(`codex-tpl:${inp.value}`);
+                                keysInput.value = this.entry.keyList.join(', ');
+                            });
+                            const defaultOpt = document.createElement('option'); {
+                                defaultOpt.value = '';
+                                defaultOpt.textContent = 'Default Template';
+                                inp.append(defaultOpt);
+                            }
+                            this.settings.templateList.forEach(it=>{
+                                const opt = document.createElement('option'); {
+                                    opt.value = it.name;
+                                    opt.textContent = it.name;
+                                    inp.append(opt);
+                                }
+                            });
+                            inp.value = this.templateName;
+                            codexTemplate.append(inp);
+                        }
+                        props.append(codexTemplate);
                     }
                     wrapper.append(props);
                 }
@@ -320,6 +389,7 @@ export class CodexEntry extends CodexBaseEntry {
                     const changeType = document.createElement('div'); {
                         changeType.classList.add('menu_button');
                         changeType.classList.add('menu_button_icon');
+                        changeType.title = `Current type: ${type?.name ?? 'Basic Text'}`;
                         changeType.addEventListener('click', async()=>{
                             const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
                             const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;

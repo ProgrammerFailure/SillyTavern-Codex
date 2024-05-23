@@ -27,6 +27,14 @@ export class CodexBaseEntry {
 
     /**@type {Function}*/ onSave;
 
+    get titleField() {
+        return this.entry.keyList.find(it=>it.startsWith('codex-title:'))?.substring(12) ?? '';
+    }
+
+    get templateName() {
+        return this.entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10) ?? '';
+    }
+
 
 
 
