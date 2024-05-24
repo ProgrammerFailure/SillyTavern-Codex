@@ -180,7 +180,7 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 		.stcdx--codex {
 			top: var(--topBarBlockSize);
 			width: calc(100vw - var(--nav-bar-width, 0));
-			z-index: 1000;
+			z-index: 4000;
 		}
 		.stcdx--tooltip.stcdx--root.stcdx--active {
 			display: none;
@@ -240,7 +240,7 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 		}
 	}
 }
-.stcdx--codex {
+body .stcdx--codex {
 	position: absolute;
 	bottom: 0;
 	right: 0;
@@ -259,7 +259,17 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 
 	&.stcdx--maximized {
 		width: calc(100vw - var(--nav-bar-width, 0px));
-		z-index: 1000;
+		z-index: 4000;
+		> .stcdx--editor > .stcdx--editor-tabUi {
+			flex-direction: row;
+			.stcdx--tabs {
+				position: relative;
+				right: 0;
+			}
+			.stcdx--editor-content {
+				height: 100%;
+			}
+		}
 	}
 
 	&.stcdx--isEditing {
@@ -276,17 +286,6 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 		}
 	}
 
-	@container (max-width: 500px) {
-		body .stcdx--codex > .stcdx--header {
-			flex-wrap: wrap;
-			height: auto;
-			row-gap: 0;
-			> .stcdx--search {
-				order: 99;
-				flex-basis: 100%;
-			}
-		}
-	}
 	> .stcdx--header {
 		flex: 0 0 auto;
 
@@ -417,6 +416,18 @@ body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) {
 			}
 		}
 	}
+
+	@container (max-width: 500px) {
+		body .stcdx--codex > .stcdx--header {
+			flex-wrap: wrap;
+			height: auto;
+			row-gap: 0;
+			> .stcdx--search {
+				order: 99;
+				flex-basis: 100%;
+			}
+		}
+	}
 }
 body .stcdx--root {
 	// styles from .draggable
@@ -445,7 +456,7 @@ body .stcdx--root {
 	}
 	&:has(.stcdx--editor.stcdx--active) {
 		overflow: visible;
-		z-index: 1000;
+		z-index: 4000;
 	}
 
 	> .stcdx--content, > .stcdx--editor {
@@ -678,7 +689,6 @@ body .stcdx--root {
 					&.stcdx--active {
 						scale: 1.1;
 						left: 0;
-						font-weight: bold;
 						opacity: 1;
 					}
 				}
