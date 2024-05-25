@@ -22,9 +22,9 @@ export class CodexEntryFactory {
      */
     static create(entry, settings, matcher, linker) {
         let content;
-        if (entry.isMap) {
+        if (CodexMap.test(entry)) {
             content = new CodexMap(entry, settings, matcher, linker);
-        } else if (entry.isCharList) {
+        } else if (CodexCharList.test(entry)) {
             content = new CodexCharList(entry, settings, matcher, linker);
         } else {
             content = new CodexEntry(entry, settings, matcher, linker);

@@ -521,7 +521,7 @@ export class MapEditor extends MapBase {
         }
     }
     async save() {
-        await this.codexMap.save();
+        // await this.codexMap.save();
     }
 
 

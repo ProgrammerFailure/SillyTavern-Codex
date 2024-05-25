@@ -12,6 +12,13 @@ import { CharListContextMenu } from './contextmenu/CharListContextMenu.js';
 
 
 export class CodexCharList extends CodexBaseEntry {
+    static test(entry) {
+        return entry.keyList.find(it=>it.startsWith('codex-chars:'));
+    }
+
+
+
+
     /**@type {Character[]}*/ charList = [];
     /**@type {QuickReplySet}*/ quickReplySet;
 

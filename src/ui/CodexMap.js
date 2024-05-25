@@ -15,12 +15,23 @@ import { Zone } from './map/Zone.js';
 
 
 export class CodexMap extends CodexBaseEntry {
+    /**@type {RegExp}*/ static dataRegex = /\n?{{\/\/codex-map:(.+?)}}/s;
+    static test(entry) {
+        return this.dataRegex.test(entry.content)
+            || entry.keyList.includes('codex-map:')
+        ;
+    }
+
+
+
     /**@type {String}*/ url;
     /**@type {PaintLayer[]}*/ paintList = [];
     /**@type {String}*/ description;
     /**@type {String}*/ command;
     /**@type {String}*/ qrSet;
     /**@type {Zone[]}*/ zoneList;
+    /**@type {string}*/ _titleField;
+    get titleField() { return this._titleField; }
 
     /**@type {HTMLImageElement}*/ image;
     /**@type {CanvasRenderingContext2D}*/ mapContext;
@@ -39,7 +50,39 @@ export class CodexMap extends CodexBaseEntry {
 
     constructor(entry, settings, matcher, linker) {
         super(entry, settings, matcher, linker);
-        const data = JSON.parse(entry.content || '{}');
+        const re = CodexMap.dataRegex;
+        if (re.test(entry.content)) {
+            this.loadNewFormat(re.exec(entry.content)[1]);
+        } else {
+            this.loadOldFormat(entry.content || '{}');
+        }
+        // remove "codex-map:" key
+        const mapKeyIdx = this.entry.keyList.findIndex(it=>it.startsWith('codex-map:'));
+        if (mapKeyIdx > -1) {
+            this.entry.keyList.splice(mapKeyIdx, 1);
+        }
+        const titleKeyIdx = this.entry.keyList.findIndex(it=>it.startsWith('codex-title:'));
+        if (titleKeyIdx > -1) {
+            this.entry.keyList.splice(titleKeyIdx, 1);
+        }
+    }
+
+    loadNewFormat(content) {
+        const data = JSON.parse(decodeURIComponent(atob(content)));
+        this.url = data.url ?? '';
+        this.paintList = (data.paintList ?? []).map(it=>{
+            if (typeof it == 'string') return PaintLayer.from({ paint:it });
+            return PaintLayer.from(it);
+        });
+        this.description = data.description;
+        this.command = data.command;
+        this.qrSet = data.qrSet;
+        this.zoneList = (data.zoneList ?? []).map(it=>Zone.from(it));
+        this._titleField = data.titleField;
+    }
+
+    loadOldFormat(content) {
+        const data = JSON.parse(content);
         this.url = tryDecodeBase64(data.url);
         this.paintList = (data.paintList ?? []).map(it=>{
             if (typeof it == 'string') return PaintLayer.from({ paint:it });
@@ -49,18 +92,20 @@ export class CodexMap extends CodexBaseEntry {
         this.command = tryDecodeBase64(data.command);
         this.qrSet = tryDecodeBase64(data.qrSet);
         this.zoneList = (data.zoneList ?? []).map(it=>Zone.from(it));
+        this.save();
     }
 
 
     async save() {
-        this.entry.content = JSON.stringify({
-            url: btoa(this.url ?? ''),
+        this.entry.content = `{{//codex-map:${btoa(encodeURIComponent(JSON.stringify({
+            url: this.url ?? '',
             paintList: this.paintList,
-            description: btoa(this.description ?? ''),
-            command: btoa(this.command ?? ''),
-            qrSet: btoa(this.qrSet ?? ''),
+            description: this.description ?? '',
+            command: this.command ?? '',
+            qrSet: this.qrSet ?? '',
             zoneList: this.zoneList,
-        });
+            titleField: this.titleField,
+        })))}}}`;
         await this.entry.saveDebounced();
     }
 
@@ -238,6 +283,7 @@ export class CodexMap extends CodexBaseEntry {
             const editor = new MapEditor(this);
             this.editor = editor;
             await editor.show(this.map.mapCanvas.getBoundingClientRect());
+            await this.save();
             this.editor = null;
             await this.renderContent();
         }

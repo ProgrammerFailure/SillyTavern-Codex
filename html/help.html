@@ -31,24 +31,8 @@
 			<p>Prefixed regex keyword. Only neccessary if <em>Only create links with codex: prefix</em> is enabled. Uses the provided regular expression to match the WI entry against text.</p>
 		</li>
 		<li>
-			<code><q>/regex/flags</q></code>
-			<p>Regex keyword. Uses the provided regular expression to match the WI entry against text.</p>
-		</li>
-		<li>
-			<code>codex-tpl:<q>templateName</q></code>
-			<p>Assigns a custom <a data-stcdx--href="templates">template</a> to a WI entry.</p>
-		</li>
-		<li>
-			<code>codex-title:<q>comment|key[0]|key[1]|...</q></code>
-			<p>Assigns which field of the WI entry to use as its title.</p>
-		</li>
-		<li>
 			<code>codex-skip:</code>
 			<p>WI entries with this key will be excluded from Codex.</p>
-		</li>
-		<li>
-			<code>codex-map:</code>
-			<p>WI entries with this key will be treated as a <a data-stcdx--href="maps">map</a>.</p>
 		</li>
 		<li>
 			<code>codex-chars:<q>qrSetName</q></code>
@@ -73,7 +57,7 @@
 		Templates
 	</h2>
 	<p>...</p>
-	<p><small>default template, named templates (codex-tpl:name)</small></p>
+	<p><small>default template, named templates</small></p>
 	<h3>Macros</h3>
 	<ul>
 		<li>
@@ -117,8 +101,10 @@
 		Maps
 	</h2>
 	<p>
-		Add the key <code>codex-map:</code> to an empty WI entry.<br>
-		Then open the entry in Codex and click on the edit button.
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on the name of the book you want to add the map to.
+		Pick "Map" from the list of entry types.
 	</p>
 	<h3>Zones</h3>
 	<p>...</p>
@@ -147,7 +133,10 @@
 		Character Lists
 	</h2>
 	<p>
-		Add the key <code>codex-chars:<q>qrSetName</q></code> to the WI entry.<br>
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on the name of the book you want to add the map to.
+		Pick "Character List" from the list of entry types.
 		Put a list of names in the WI entry's content. Separate the names either with a comma or write one name per line.
 	</p>
 	<h3>Actions</h3>

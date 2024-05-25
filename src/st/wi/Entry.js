@@ -1,4 +1,3 @@
-import { eventSource, event_types } from '../../../../../../../script.js';
 import { delay } from '../../../../../../utils.js';
 import { debounceAsync } from '../../lib/debounce.js';
 import { warn } from '../../lib/log.js';
@@ -48,9 +47,6 @@ export class Entry {
     /**@type {()=>Promise}*/ saveDebounced;
 
     /**@type {function}*/ onSave;
-
-    get isMap() { return this.keyList.includes('codex-map:'); }
-    get isCharList() { return this.keyList.find(it=>it.startsWith('codex-chars:')); }
 
     get title() {
         const key = this.keyList.find(it=>it.startsWith('codex-title:'))?.substring(12);
