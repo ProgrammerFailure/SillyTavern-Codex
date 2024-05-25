@@ -105,7 +105,7 @@ export class CodexMap extends CodexBaseEntry {
         this.dom.innerHTML = '';
         const title = document.createElement('h2'); {
             title.classList.add('stcdx--title');
-            title.textContent = this.entry.title;
+            title.textContent = this.title;
             title.addEventListener('click', async()=>{
                 await this.renderZoom();
             });
@@ -251,10 +251,10 @@ export class CodexMap extends CodexBaseEntry {
         let cmd = zone.command || this.command;
         if (cmd) {
             cmd = cmd
-                .replace(/{{map}}/gi, this.entry.title)
+                .replace(/{{map}}/gi, this.title)
                 .replace(/{{zone}}/gi, zone.label)
                 .replace(/{{zoom}}/g, JSON.stringify(isZoomed))
-            ,
+            ;
             await executeSlashCommands(cmd);
         }
     }

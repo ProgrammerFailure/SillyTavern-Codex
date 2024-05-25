@@ -258,15 +258,15 @@ export class CodexManager {
     async handleBookUpdate(book, entries) {
         if (this.codex?.isEditing) return;
         if (JSON.stringify(this.bookList.find(it=>it.name == book)?.entryList ?? null) == JSON.stringify(entries.map(it=>Entry.from(book, it)))) {
-            log('BOOK_UPDAtED', '--> same');
+            log('BOOK_UPDATED', '--> same');
             return;
         }
-        log('BOOK_UPDAtED', '--> diff', {
+        log('BOOK_UPDATED', '--> diff', {
             o:JSON.stringify(this.bookList.find(it=>it.name == book)?.entryList ?? null),
             n:JSON.stringify(entries.map(it=>Entry.from(book, it))),
         });
         await this.restartDebounced();
-        log('/BOOK_UPDAtED');
+        log('/BOOK_UPDATED');
     }
 
     /**

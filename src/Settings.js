@@ -5,9 +5,10 @@ import { delay } from '../../../../utils.js';
 
 import { Template } from './Template.js';
 import { debounceAsync } from './lib/debounce.js';
-import { warn } from './lib/log.js';
+import { log, warn } from './lib/log.js';
 import { EntrySection } from './ui/EntrySection.js';
 import { EntryType } from './ui/EntryType.js';
+import { ActionSetting } from './ui/settings/ActionSetting.js';
 import { BaseSetting } from './ui/settings/BaseSetting.js';
 import { CheckboxSetting } from './ui/settings/CheckboxSetting.js';
 import { ColorSetting } from './ui/settings/ColorSetting.js';
@@ -17,6 +18,10 @@ import { NumberSetting } from './ui/settings/NumberSetting.js';
 import { SettingAction } from './ui/settings/SettingAction.js';
 import { SETTING_ICON, SettingIcon } from './ui/settings/SettingIcon.js';
 import { TextSetting } from './ui/settings/TextSetting.js';
+import { Book } from './st/wi/Book.js';
+import { CodexEntryFactory } from './ui/CodexEntryFactory.js';
+import { CodexEntry } from './ui/CodexEntry.js';
+import { POPUP_TYPE, Popup } from '../../../../popup.js';
 
 
 
@@ -150,195 +155,209 @@ export class Settings {
 
     registerSettings() {
         // general settings
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--isEnabled',
-            name: 'Enable Codex',
-            description: 'Enable or disable Codex.',
-            category: ['General'],
-            initialValue: this.isEnabled,
-            onChange: (it)=>{
-                this.isEnabled = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--isEnabled',
+                name: 'Enable Codex',
+                description: 'Enable or disable Codex.',
+                category: ['General'],
+                initialValue: this.isEnabled,
+                onChange: (it)=>{
+                    this.isEnabled = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+        }
 
         // Matching
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--requirePrefix',
-            name: 'Require prefix',
-            description: 'Only match keys with <code>codex:</code> prefix',
-            category: ['Matching'],
-            initialValue: this.requirePrefix,
-            onChange: (it)=>{
-                this.skipCodeBlocks = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--requirePrefix',
+                name: 'Require prefix',
+                description: 'Only match keys with <code>codex:</code> prefix',
+                category: ['Matching'],
+                initialValue: this.requirePrefix,
+                onChange: (it)=>{
+                    this.skipCodeBlocks = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+        }
 
         // Links
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--disableLinks',
-            name: 'Disable links in messages',
-            description: 'Don\'t create Codex links in chat messages.',
-            category: ['Links'],
-            initialValue: this.disableLinks,
-            onChange: (it)=>{
-                this.disableLinks = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--onlyFirst',
-            name: 'Only create link on first occurrence in a message',
-            description: 'Only create link on first occurrence in a message',
-            category: ['Links'],
-            initialValue: this.onlyFirst,
-            onChange: (it)=>{
-                this.onlyFirst = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--skipCodeBlocks',
-            name: 'Don\'t create links in code blocks',
-            description: 'Don\'t create links in code blocks',
-            category: ['Links'],
-            initialValue: this.skipCodeBlocks,
-            onChange: (it)=>{
-                this.skipCodeBlocks = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
-        this.settingList.push(ColorSetting.fromProps({ id:'stcdx--color',
-            name: 'Color',
-            description: 'Font color applied to the Codex links added to chat messages',
-            category: ['Links'],
-            initialValue: this.color,
-            onChange: (it)=>{
-                this.color = it.value;
-                document.body.style.setProperty('--stcdx--color', `${this.color}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(TextSetting.fromProps({ id:'stcdx--icon',
-            name: 'Icon',
-            description: 'Icon to show next to Codex links.',
-            category: ['Links'],
-            initialValue: this.icon,
-            onChange: (it)=>{
-                this.icon = it.value;
-                document.body.style.setProperty('--stcdx--icon', `"${this.icon}"`);
-                this.save();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--disableLinks',
+                name: 'Disable links in messages',
+                description: 'Don\'t create Codex links in chat messages.',
+                category: ['Links'],
+                initialValue: this.disableLinks,
+                onChange: (it)=>{
+                    this.disableLinks = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--onlyFirst',
+                name: 'Only create link on first occurrence in a message',
+                description: 'Only create link on first occurrence in a message',
+                category: ['Links'],
+                initialValue: this.onlyFirst,
+                onChange: (it)=>{
+                    this.onlyFirst = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--skipCodeBlocks',
+                name: 'Don\'t create links in code blocks',
+                description: 'Don\'t create links in code blocks',
+                category: ['Links'],
+                initialValue: this.skipCodeBlocks,
+                onChange: (it)=>{
+                    this.skipCodeBlocks = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+            this.settingList.push(ColorSetting.fromProps({ id:'stcdx--color',
+                name: 'Color',
+                description: 'Font color applied to the Codex links added to chat messages',
+                category: ['Links'],
+                initialValue: this.color,
+                onChange: (it)=>{
+                    this.color = it.value;
+                    document.body.style.setProperty('--stcdx--color', `${this.color}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(TextSetting.fromProps({ id:'stcdx--icon',
+                name: 'Icon',
+                description: 'Icon to show next to Codex links.',
+                category: ['Links'],
+                initialValue: this.icon,
+                onChange: (it)=>{
+                    this.icon = it.value;
+                    document.body.style.setProperty('--stcdx--icon', `"${this.icon}"`);
+                    this.save();
+                },
+            }));
+        }
 
         // Tooltips
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--noTooltips',
-            name: 'Disable tooltips',
-            description: 'Don\'t show tooltips.',
-            category: ['UI', 'Tooltips'],
-            initialValue: this.noTooltips,
-            onChange: (it)=>{
-                this.noTooltips = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--fixedTooltips',
-            name: 'Fixed tooltips',
-            description: 'Show tooltips on top of Codex instead of at the cursor.',
-            category: ['UI', 'Tooltips'],
-            initialValue: this.fixedTooltips,
-            onChange: (it)=>{
-                this.fixedTooltips = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--noTooltips',
+                name: 'Disable tooltips',
+                description: 'Don\'t show tooltips.',
+                category: ['UI', 'Tooltips'],
+                initialValue: this.noTooltips,
+                onChange: (it)=>{
+                    this.noTooltips = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--fixedTooltips',
+                name: 'Fixed tooltips',
+                description: 'Show tooltips on top of Codex instead of at the cursor.',
+                category: ['UI', 'Tooltips'],
+                initialValue: this.fixedTooltips,
+                onChange: (it)=>{
+                    this.fixedTooltips = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+            }));
+        }
 
         // Animations
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--transitionTime',
-            name: 'Transition duration',
-            description: 'Transition duration for animations in milliseconds.',
-            min: 0,
-            max: 10000,
-            step: 1,
-            category: ['UI', 'Animations'],
-            initialValue: this.transitionTime,
-            onChange: (it)=>{
-                this.transitionTime = it.value;
-                document.body.style.setProperty('--stcdx--transitionTime', `${this.transitionTime}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--zoomTime',
-            name: 'Zoom duration',
-            description: 'Zoom duration for images and maps in milliseconds.',
-            min: 0,
-            max: 10000,
-            step: 1,
-            category: ['UI', 'Animations'],
-            initialValue: this.zoomTime,
-            onChange: (it)=>{
-                this.zoomTime = it.value;
-                document.body.style.setProperty('--stcdx--zoomTime', `${this.zoomTime}`);
-                this.save();
-            },
-        }));
+        {
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--transitionTime',
+                name: 'Transition duration',
+                description: 'Transition duration for animations in milliseconds.',
+                min: 0,
+                max: 10000,
+                step: 1,
+                category: ['UI', 'Animations'],
+                initialValue: this.transitionTime,
+                onChange: (it)=>{
+                    this.transitionTime = it.value;
+                    document.body.style.setProperty('--stcdx--transitionTime', `${this.transitionTime}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--zoomTime',
+                name: 'Zoom duration',
+                description: 'Zoom duration for images and maps in milliseconds.',
+                min: 0,
+                max: 10000,
+                step: 1,
+                category: ['UI', 'Animations'],
+                initialValue: this.zoomTime,
+                onChange: (it)=>{
+                    this.zoomTime = it.value;
+                    document.body.style.setProperty('--stcdx--zoomTime', `${this.zoomTime}`);
+                    this.save();
+                },
+            }));
+        }
 
         // Cycling
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--cycle',
-            name: 'Enable cycling',
-            description: 'Cycle through found entries on a new message (slideshow).',
-            category: ['Cycling'],
-            initialValue: this.cycle,
-            onChange: (it)=>{
-                this.cycle = it.value;
-                this.save();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--cycleDelay',
-            name: 'Cycle delay',
-            description: 'Time in milliseconds before going to the next matched entry.',
-            min: 0,
-            max: 10000,
-            step: 1,
-            category: ['Cycling'],
-            initialValue: this.cycleDelay,
-            onChange: (it)=>{
-                this.cycleDelay = it.value;
-                document.body.style.setProperty('--stcdx--cycleDelay', `${this.cycleDelay}`);
-                this.save();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--cycle',
+                name: 'Enable cycling',
+                description: 'Cycle through found entries on a new message (slideshow).',
+                category: ['Cycling'],
+                initialValue: this.cycle,
+                onChange: (it)=>{
+                    this.cycle = it.value;
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--cycleDelay',
+                name: 'Cycle delay',
+                description: 'Time in milliseconds before going to the next matched entry.',
+                min: 0,
+                max: 10000,
+                step: 1,
+                category: ['Cycling'],
+                initialValue: this.cycleDelay,
+                onChange: (it)=>{
+                    this.cycleDelay = it.value;
+                    document.body.style.setProperty('--stcdx--cycleDelay', `${this.cycleDelay}`);
+                    this.save();
+                },
+            }));
+        }
 
 
         // UI
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--alternateBg',
-            name: 'Alternate background color',
-            description: 'Use the SmartThemeBlurTintColor instead of SmartThemeBotMesBlurTintColor as Codex background.',
-            category: ['UI'],
-            initialValue: this.alternateBg,
-            onChange: (it)=>{
-                this.alternateBg = it.value;
-                document.body.style.setProperty('--stcdx--bgColor', `${this.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--headerFontSize',
-            name: 'Header button scale',
-            description: 'Size of the buttons in the Codex header, relative to font size.',
-            min: 0.1,
-            max: 5,
-            step: 0.1,
-            category: ['UI'],
-            initialValue: this.headerFontSize,
-            onChange: (it)=>{
-                this.headerFontSize = it.value;
-                document.body.style.setProperty('--stcdx--headerFontSize', `${this.headerFontSize}`);
-                this.save();
-            },
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--alternateBg',
+                name: 'Alternate background color',
+                description: 'Use the SmartThemeBlurTintColor instead of SmartThemeBotMesBlurTintColor as Codex background.',
+                category: ['UI'],
+                initialValue: this.alternateBg,
+                onChange: (it)=>{
+                    this.alternateBg = it.value;
+                    document.body.style.setProperty('--stcdx--bgColor', `${this.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--headerFontSize',
+                name: 'Header button scale',
+                description: 'Size of the buttons in the Codex header, relative to font size.',
+                min: 0.1,
+                max: 5,
+                step: 0.1,
+                category: ['UI'],
+                initialValue: this.headerFontSize,
+                onChange: (it)=>{
+                    this.headerFontSize = it.value;
+                    document.body.style.setProperty('--stcdx--headerFontSize', `${this.headerFontSize}`);
+                    this.save();
+                },
+            }));
+        }
 
         // Entry Types
         {
@@ -399,142 +418,229 @@ export class Settings {
 
         // Templates
         {
-            this.settingList.push(MultilineTextSetting.fromProps({ id: 'stcdx--template',
-                name: 'Default Template',
-                description: 'Default markdown template used to render WI entries in Codex.',
-                category: ['Entries', 'Text', 'Templates'],
-                initialValue: this.template,
+            // custom setting: default template
+            {
+                this.settingList.push(MultilineTextSetting.fromProps({ id: 'stcdx--template',
+                    name: 'Default Template',
+                    description: 'Default markdown template used to render WI entries in Codex.',
+                    category: ['Entries', 'Text', 'Templates'],
+                    initialValue: this.template,
+                    onChange: (it)=>{
+                        this.template = it.value;
+                        this.save();
+                        this.rerenderDebounced();
+                    },
+                }));
+            }
+            // custom setting: template list
+            {
+                /**@type {HTMLElement} */
+                let dom;
+                this.settingList.push(CustomSetting.fromProps({ id: 'stcdx--templateList',
+                    name: 'Custom Templates',
+                    description: 'Markdown templates used to render WI entries in Codex',
+                    category: ['Entries', 'Text', 'Templates'],
+                    initialValue: this.templateList,
+                    getValueCallback: ()=>this.templateList,
+                    setValueCallback: (value)=>null,
+                    renderCallback: ()=>{
+                        if (!dom) {
+                            const container = document.createElement('div'); {
+                                dom = container;
+                                container.classList.add('stcdx--templatesContainer');
+                                const add = document.createElement('div'); {
+                                    add.id = 'stcdx--addTemplate';
+                                    add.classList.add('menu_button');
+                                    add.classList.add('fa-solid');
+                                    add.classList.add('fa-plus');
+                                    add.title = 'Add template';
+                                    add.addEventListener('click', ()=>{
+                                        const template = new Template();
+                                        template.content = '';
+                                        template.name = '';
+                                        this.templateList.push(template);
+                                        this.save();
+                                        this.renderTemplate(template, add);
+                                    });
+                                    container.append(add);
+                                }
+                                for (const tpl of this.templateList) {
+                                    this.renderTemplate(tpl, add);
+                                }
+                            }
+                        }
+                        return dom;
+                    },
+                }));
+            }
+        }
+
+        // Maps
+        {
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapZoneZoomTime',
+                name: 'Zone zoom duration',
+                description: 'Zoom duration for hovered zones in milliseconds.',
+                min: 0,
+                max: 10000,
+                step: 1,
+                category: ['Entries', 'Maps'],
+                initialValue: this.mapZoneZoomTime,
                 onChange: (it)=>{
-                    this.template = it.value;
+                    this.mapZoneZoomTime = it.value;
+                    document.body.style.setProperty('--stcdx--mapZoneZoomTime', `${this.mapZoneZoomTime}`);
                     this.save();
                     this.rerenderDebounced();
                 },
             }));
-        }
-        {
-            /**@type {HTMLElement} */
-            let dom;
-            this.settingList.push(CustomSetting.fromProps({ id: 'stcdx--templateList',
-                name: 'Custom Templates',
-                description: 'Markdown templates used to render WI entries in Codex',
-                category: ['Entries', 'Text', 'Templates'],
-                initialValue: this.templateList,
-                getValueCallback: ()=>this.templateList,
-                setValueCallback: (value)=>null,
-                renderCallback: ()=>{
-                    if (!dom) {
-                        const container = document.createElement('div'); {
-                            dom = container;
-                            container.classList.add('stcdx--templatesContainer');
-                            const add = document.createElement('div'); {
-                                add.id = 'stcdx--addTemplate';
-                                add.classList.add('menu_button');
-                                add.classList.add('fa-solid');
-                                add.classList.add('fa-plus');
-                                add.title = 'Add template';
-                                add.addEventListener('click', ()=>{
-                                    const template = new Template();
-                                    template.content = '';
-                                    template.name = '';
-                                    this.templateList.push(template);
-                                    this.save();
-                                    this.renderTemplate(template, add);
-                                });
-                                container.append(add);
-                            }
-                            for (const tpl of this.templateList) {
-                                this.renderTemplate(tpl, add);
-                            }
-                        }
-                    }
-                    return dom;
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapZoom',
+                name: 'Zone zoom amount',
+                description: 'Zoom amount for hovered zones in percentage.',
+                min: 0,
+                max: 500,
+                step: 1,
+                category: ['Entries', 'Maps'],
+                initialValue: this.mapZoom,
+                onChange: (it)=>{
+                    this.mapZoom = it.value;
+                    document.body.style.setProperty('--stcdx--mapZoom', `${this.mapZoom}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapShadow',
+                name: 'Zone shadow strength',
+                description: 'Shadow strength for hovered zones in pixels.',
+                min: 0,
+                max: 500,
+                step: 1,
+                category: ['Entries', 'Maps'],
+                initialValue: this.mapShadow,
+                onChange: (it)=>{
+                    this.mapShadow = it.value;
+                    document.body.style.setProperty('--stcdx--mapShadow', `${this.mapShadow}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(ColorSetting.fromProps({ id:'stcdx--mapShadowColor',
+                name: 'Shadow color',
+                description: 'Shadow color for hovered zones.',
+                category: ['Entries', 'Maps'],
+                initialValue: this.mapShadowColor,
+                onChange: (it)=>{
+                    this.mapShadowColor = it.value;
+                    document.body.style.setProperty('--stcdx--mapShadowColor', `${this.mapShadowColor}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapDesaturate',
+                name: 'Desaturation',
+                description: 'Desaturation of the map image before hover in percentage.',
+                min: 0,
+                max: 100,
+                step: 1,
+                category: ['Entries', 'Maps'],
+                initialValue: this.mapDesaturate,
+                onChange: (it)=>{
+                    this.mapDesaturate = it.value;
+                    document.body.style.setProperty('--stcdx--mapDesaturate', `${this.mapDesaturate}`);
+                    this.save();
                 },
             }));
         }
 
-        // Maps
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapZoneZoomTime',
-            name: 'Zone zoom duration',
-            description: 'Zoom duration for hovered zones in milliseconds.',
-            min: 0,
-            max: 10000,
-            step: 1,
-            category: ['Entries', 'Maps'],
-            initialValue: this.mapZoneZoomTime,
-            onChange: (it)=>{
-                this.mapZoneZoomTime = it.value;
-                document.body.style.setProperty('--stcdx--mapZoneZoomTime', `${this.mapZoneZoomTime}`);
-                this.save();
-                this.rerenderDebounced();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapZoom',
-            name: 'Zone zoom amount',
-            description: 'Zoom amount for hovered zones in percentage.',
-            min: 0,
-            max: 500,
-            step: 1,
-            category: ['Entries', 'Maps'],
-            initialValue: this.mapZoom,
-            onChange: (it)=>{
-                this.mapZoom = it.value;
-                document.body.style.setProperty('--stcdx--mapZoom', `${this.mapZoom}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapShadow',
-            name: 'Zone shadow strength',
-            description: 'Shadow strength for hovered zones in pixels.',
-            min: 0,
-            max: 500,
-            step: 1,
-            category: ['Entries', 'Maps'],
-            initialValue: this.mapShadow,
-            onChange: (it)=>{
-                this.mapShadow = it.value;
-                document.body.style.setProperty('--stcdx--mapShadow', `${this.mapShadow}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(ColorSetting.fromProps({ id:'stcdx--mapShadowColor',
-            name: 'Shadow color',
-            description: 'Shadow color for hovered zones.',
-            category: ['Entries', 'Maps'],
-            initialValue: this.mapShadowColor,
-            onChange: (it)=>{
-                this.mapShadowColor = it.value;
-                document.body.style.setProperty('--stcdx--mapShadowColor', `${this.mapShadowColor}`);
-                this.save();
-            },
-        }));
-        this.settingList.push(NumberSetting.fromProps({ id:'stcdx--mapDesaturate',
-            name: 'Desaturation',
-            description: 'Desaturation of the map image before hover in percentage.',
-            min: 0,
-            max: 100,
-            step: 1,
-            category: ['Entries', 'Maps'],
-            initialValue: this.mapDesaturate,
-            onChange: (it)=>{
-                this.mapDesaturate = it.value;
-                document.body.style.setProperty('--stcdx--mapDesaturate', `${this.mapDesaturate}`);
-                this.save();
-            },
-        }));
+        // Maintenance
+        {
+            const getUpdateEntries = async()=>{
+                log('[getUpdateEntries()]');
+                const results = [];
+                const bookNames = [...document.querySelectorAll('#world_editor_select > option')].map(it=>it.textContent);
+                for (const name of bookNames) {
+                    log('[getUpdateEntries()]', { name });
+                    const book = new Book(name);
+                    await book.load();
+                    for (const entry of book.entryList) {
+                        const oc = entry.content;
+                        const cdx = CodexEntryFactory.create(entry, this, null, null);
+                        if (!(cdx instanceof CodexEntry)) continue;
+                        cdx.getType();
+                        if (oc != entry.content) {
+                            log('[getUpdateEntries()]', { name, e:entry.title, entry }, 'saveDebounced()');
+                            results.push(entry);
+                        }
+                    }
+                }
+                return results;
+            };
+            this.settingList.push(ActionSetting.fromProps({ id: 'stcdx--updateAllEntries',
+                name: 'Update all entries',
+                description: `
+                    Re-save all entries to update codex-specific metadata, settings, and formatting.<br>
+                    It is a good idea to make a backup of your World Info first.
+                `,
+                category: ['Maintenance'],
+                initialValue: null,
+                actionList: [
+                    SettingAction.fromProps({ label: 'List Entries',
+                        icon: 'fa-rectangle-list',
+                        tooltip: 'List all entries that would be affected by this action.',
+                        action: async()=>{
+                            toastr.info('this might take a while...', 'gathering entries to update');
+                            const updates = await getUpdateEntries();
+                            let book;
+                            let bul;
+                            const dom = document.createElement('ul');
+                            dom.style.textAlign = 'left';
+                            for (const entry of updates) {
+                                if (book != entry.book) {
+                                    book = entry.book;
+                                    const bli = document.createElement('li'); {
+                                        bli.append(book);
+                                        bul = document.createElement('ul'); {
+                                            bli.append(bul);
+                                        }
+                                        dom.append(bli);
+                                    }
+                                }
+                                const eli = document.createElement('li'); {
+                                    eli.textContent = entry.title;
+                                    bul.append(eli);
+                                }
+                            }
+                            const dlg = new Popup(dom, POPUP_TYPE.TEXT, null, { okButton:'Close' });
+                            await dlg.show();
+                        },
+                    }),
+                    SettingAction.fromProps({ label: 'Update Entries',
+                        icon: 'fa-rotate',
+                        tooltip: 'Update all entries',
+                        action: async()=>{
+                            toastr.info('this might take a while...', 'updating all entries');
+                            const updates = await getUpdateEntries();
+                            toastr.info(`found ${updates.length} entries to update`, 'updating all entries');
+                            for (const entry of updates) {
+                                await entry.saveDebounced();
+                            }
+                            toastr.success(`updated ${updates.length} entries`, 'updating all entries');
+                        },
+                    }),
+                ],
+            }));
+        }
 
         // Experiments
-        this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--isParchment',
-            name: 'Parchment style (WIP)',
-            description: 'Experimental parchment style.',
-            category: ['Experiments'],
-            initialValue: this.isParchment,
-            onChange: (it)=>{
-                this.isParchment = it.value;
-                this.save();
-                this.restartDebounced();
-            },
-            iconList: [SettingIcon.fromProps(SETTING_ICON.EXPERIMENTAL)],
-        }));
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--isParchment',
+                name: 'Parchment style (WIP)',
+                description: 'Experimental parchment style.',
+                category: ['Experiments'],
+                initialValue: this.isParchment,
+                onChange: (it)=>{
+                    this.isParchment = it.value;
+                    this.save();
+                    this.restartDebounced();
+                },
+                iconList: [SettingIcon.fromProps(SETTING_ICON.EXPERIMENTAL)],
+            }));
+        }
     }
 
 

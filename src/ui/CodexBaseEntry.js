@@ -35,6 +35,10 @@ export class CodexBaseEntry {
         return this.entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10) ?? '';
     }
 
+    get title() {
+        return this.entry.title;
+    }
+
 
 
 
@@ -81,8 +85,8 @@ export class CodexBaseEntry {
             .replace(/{{content::url}}/g, encodeURIComponent(entry.content))
             .replace(/{{key\[(\d+)\]}}/g, (_,idx)=>entry.keyList[idx])
             .replace(/{{key\[(\d+)\]::url}}/g, (_,idx)=>encodeURIComponent(entry.keyList[idx]))
-            .replace(/{{title}}/g, entry.title)
-            .replace(/{{title::url}}/g, encodeURIComponent(entry.title))
+            .replace(/{{title}}/g, this.title)
+            .replace(/{{title::url}}/g, encodeURIComponent(this.title))
         ;
         messageText = messageFormatting(
             messageText,

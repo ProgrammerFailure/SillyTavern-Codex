@@ -101,7 +101,7 @@ export class MapEditor extends MapBase {
                     }
                     const title = document.createElement('div'); {
                         title.classList.add('stcdx--title');
-                        title.textContent = `${this.codexMap.entry.book}: ${this.codexMap.entry.title}`;
+                        title.textContent = `${this.codexMap.entry.book}: ${this.codexMap.title}`;
                         menu.append(title);
                     }
                     const hints = document.createElement('div'); {

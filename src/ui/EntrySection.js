@@ -20,4 +20,8 @@ export class EntrySection {
     constructor() {
         this.id = uuidv4();
     }
+
+    toString() {
+        return `${this.prefix}${this.content}${this.suffix}`;
+    }
 }

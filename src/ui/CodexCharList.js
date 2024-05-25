@@ -62,7 +62,7 @@ export class CodexCharList extends CodexBaseEntry {
                 root.classList.add('stcdx--charList');
                 const title = document.createElement('h2'); {
                     title.classList.add('stcdx--title');
-                    title.textContent = this.entry.title;
+                    title.textContent = this.title;
                     root.append(title);
                 }
                 const chars = document.createElement('div'); {

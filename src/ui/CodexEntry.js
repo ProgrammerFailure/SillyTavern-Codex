@@ -5,14 +5,49 @@ import { log } from '../lib/log.js';
 import { waitForFrame } from '../lib/wait.js';
 import { Entry } from '../st/wi/Entry.js';
 import { CodexBaseEntry } from './CodexBaseEntry.js';
+import { CodexEntryProperties } from './CodexEntryProperties.js';
 import { EntrySection } from './EntrySection.js';
-import { EntryType } from './EntryType.js';
+import { BasicEntryType, EntryType } from './EntryType.js';
 
 
 
 
 export class CodexEntry extends CodexBaseEntry {
+    /**@type {CodexEntryProperties}*/ properties;
+
     /**@type {HTMLDivElement}*/ editor;
+
+    get titleField() { return this.properties.titleField; }
+    set titleField(value) {
+        this.properties.titleField = value;
+        this.updateEntryContent();
+    }
+
+    get templateName() { return this.properties.templateName; }
+    set templateName(value) {
+        this.properties.templateName = value;
+        this.updateEntryContent();
+    }
+
+    get title() {
+        const key = this.properties.titleField;
+        if (key) {
+            const reKey = /^key\[(\d+)]$/i;
+            if (reKey.test(key)) {
+                return this.entry.keyList[key.replace(reKey, '$1')];
+            }
+            return this.entry[key];
+        }
+        return this.entry.title;
+    }
+
+
+
+
+    constructor(entry, settings, matcher, linker) {
+        super(entry, settings, matcher, linker);
+        this.properties = CodexEntryProperties.from(entry);
+    }
 
 
 
@@ -20,89 +55,88 @@ export class CodexEntry extends CodexBaseEntry {
     /**
      *
      * @param {EntryType} current
-     * @returns
+     * @returns {EntryType}
      */
     getType(current = null) {
-        const typeRe = /{{\/\/codex-type:(.+?)}}/;
         /**@type {EntryType} */
-        let type;
-        if (typeRe.test(this.entry.content)) {
-            type = EntryType.from(JSON.parse(decodeURIComponent(atob(typeRe.exec(this.entry.content)[1]))));
-            log('[TYPE]', type);
-            current = current ?? this.settings.entryTypeList.find(it=>it.id == type.id);
-            if (!current) {
-                alert(`entry type does not exist anymore: ${type.name} (${type.id})`);
-            } else if (current.id != type.id) {
-                // IDs don't match
-            } else {
-                let isChanged = false;
-                // check type
-                if (type.name != current.name) {
-                    type.name = current.name;
+        let type = this.properties.type;
+        log('[TYPE]', type);
+        current = current ?? (type.id == null ? new BasicEntryType('') : this.settings.entryTypeList.find(it=>it.id == type.id));
+        if (!current) {
+            alert(`entry type does not exist anymore: ${type.name} (${type.id})`);
+        } else if (current.id != type.id) {
+            // IDs don't match
+        } else {
+            let isChanged = false;
+            // check type
+            if (type.name != current.name) {
+                type.name = current.name;
+                isChanged = true;
+            }
+            if (type.prefix != current.prefix) {
+                type.prefix = current.prefix;
+                isChanged = true;
+            }
+            if (type.suffix != current.suffix) {
+                type.suffix = current.suffix;
+                isChanged = true;
+            }
+            // check sections
+            const oldSections = [...type.sectionList];
+            const addedSections = [];
+            while (type.sectionList.pop());
+            for (const sec of current.sectionList) {
+                const idx = oldSections.findIndex(it=>it.id == sec.id);
+                if (idx == -1) {
+                    const nsec = EntrySection.from(sec);
+                    type.sectionList.push(nsec);
+                    addedSections.push(nsec);
                     isChanged = true;
-                }
-                if (type.prefix != current.prefix) {
-                    type.prefix = current.prefix;
-                    isChanged = true;
-                }
-                if (type.suffix != current.suffix) {
-                    type.suffix = current.suffix;
-                    isChanged = true;
-                }
-                // check sections
-                const oldSections = [...type.sectionList];
-                const addedSections = [];
-                while (type.sectionList.pop());
-                for (const sec of current.sectionList) {
-                    const idx = oldSections.findIndex(it=>it.id == sec.id);
-                    if (idx == -1) {
-                        const nsec = EntrySection.from(sec);
-                        type.sectionList.push(nsec);
-                        addedSections.push(nsec);
+                } else {
+                    const osec = oldSections[idx];
+                    osec.isRemoved = false;
+                    if (osec.name != sec.name) {
+                        osec.name = sec.name;
                         isChanged = true;
+                    }
+                    if (osec.prefix != sec.prefix) {
+                        osec.prefix = sec.prefix;
+                        isChanged = true;
+                    }
+                    if (osec.suffix != sec.suffix) {
+                        osec.suffix = sec.suffix;
+                        isChanged = true;
+                    }
+                    type.sectionList.push(osec);
+                    oldSections.splice(idx, 1);
+                }
+            }
+            // these sections don't exist anymore
+            for (const osec of oldSections) {
+                if (osec.content.length > 0) {
+                    const nsec = addedSections.find(it=>it.name.toLowerCase() == osec.name.toLowerCase());
+                    if (nsec) {
+                        nsec.content = osec.content;
                     } else {
-                        const osec = oldSections[idx];
-                        osec.isRemoved = false;
-                        if (osec.name != sec.name) {
-                            osec.name = sec.name;
-                            isChanged = true;
-                        }
-                        if (osec.prefix != sec.prefix) {
-                            osec.prefix = sec.prefix;
-                            isChanged = true;
-                        }
-                        if (osec.suffix != sec.suffix) {
-                            osec.suffix = sec.suffix;
-                            isChanged = true;
-                        }
+                        osec.isRemoved = true;
                         type.sectionList.push(osec);
-                        oldSections.splice(idx, 1);
                     }
                 }
-                // these sections don't exist anymore
-                for (const osec of oldSections) {
-                    if (osec.content.length > 0) {
-                        const nsec = addedSections.find(it=>it.name.toLowerCase() == osec.name.toLowerCase());
-                        if (nsec) {
-                            nsec.content = osec.content;
-                        } else {
-                            osec.isRemoved = true;
-                            type.sectionList.push(osec);
-                        }
-                    }
-                    isChanged = true;
-                }
-                if (isChanged) {
-                    this.entry.content = [
-                        type.prefix,
-                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                        type.suffix,
-                        `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
-                    ].filter(it=>it).join('\n');
-                }
+                isChanged = true;
+            }
+            if (isChanged) {
+                this.updateEntryContent();
             }
         }
         return type;
+    }
+
+
+    updateEntryContent() {
+        this.entry.content = [
+            this.properties.type.toString(),
+            this.properties.toString(),
+        ].join('');
     }
 
 
@@ -113,7 +147,7 @@ export class CodexEntry extends CodexBaseEntry {
      * @param {Entry} entry
      */
     renderTemplate(entry) {
-        let template = this.settings.templateList.find(tpl=>tpl.name == entry.keyList.find(it=>it.startsWith('codex-tpl:'))?.substring(10))?.content ?? this.settings.template;
+        let template = this.settings.templateList.find(tpl=>tpl.name == this.templateName)?.content ?? this.settings.template;
         let messageText = this.subParams(entry.content);
         messageText = template
             .replace(/{{comment}}/g, entry.comment)
@@ -122,8 +156,8 @@ export class CodexEntry extends CodexBaseEntry {
             .replace(/{{content::url}}/g, encodeURIComponent(entry.content))
             .replace(/{{key\[(\d+)\]}}/g, (_,idx)=>entry.keyList[idx])
             .replace(/{{key\[(\d+)\]::url}}/g, (_,idx)=>encodeURIComponent(entry.keyList[idx]))
-            .replace(/{{title}}/g, entry.title)
-            .replace(/{{title::url}}/g, encodeURIComponent(entry.title))
+            .replace(/{{title}}/g, this.title)
+            .replace(/{{title::url}}/g, encodeURIComponent(this.title))
         ;
         messageText = messageFormatting(
             messageText,
@@ -144,39 +178,35 @@ export class CodexEntry extends CodexBaseEntry {
         return Array.from(dom.children);
     }
     renderContent() {
-        const type = this.getType();
-        if (type) {
-            return [
-                type.prefix,
-                ...type.sectionList
-                    .filter(it=>it.content.length > 0)
-                    .map(it=>{
-                        const sec = document.createElement('section');
-                        sec.id = it.id;
-                        sec.setAttribute('data-name', it.name);
-                        sec.innerHTML = messageFormatting(
-                            [it.prefix, it.content, it.suffix].filter(it=>it).join('\n'),
-                            'Codex',
-                            false,
-                            false,
-                            null,
-                        );
-                        const btn = document.createElement('div'); {
-                            btn.classList.add('stcdx--editSection');
-                            btn.classList.add('menu_icon');
-                            btn.classList.add('fa-solid');
-                            btn.classList.add('fa-pencil');
-                            btn.title = `Edit section: ${it.name}`;
-                            sec.append(btn);
-                        }
-                        return sec.outerHTML;
-                    })
-                ,
-                type.suffix,
-            ].filter(it=>it).join('\n');
-        } else {
-            return this.entry.content;
-        }
+        const type = this.properties.type;
+        return [
+            type.prefix,
+            ...type.sectionList
+                .filter(it=>it.content.length > 0)
+                .map(it=>{
+                    const sec = document.createElement('section');
+                    sec.id = it.id;
+                    sec.setAttribute('data-name', it.name);
+                    sec.innerHTML = messageFormatting(
+                        [it.prefix, it.content, it.suffix].filter(it=>it).join('\n'),
+                        'Codex',
+                        false,
+                        false,
+                        null,
+                    );
+                    const btn = document.createElement('div'); {
+                        btn.classList.add('stcdx--editSection');
+                        btn.classList.add('menu_icon');
+                        btn.classList.add('fa-solid');
+                        btn.classList.add('fa-pencil');
+                        btn.title = `Edit section: ${it.name}`;
+                        sec.append(btn);
+                    }
+                    return sec.outerHTML;
+                })
+            ,
+            type.suffix,
+        ].filter(it=>it).join('\n');
     }
 
 
@@ -276,8 +306,6 @@ export class CodexEntry extends CodexBaseEntry {
             this.isEditing = true;
             let type = this.getType();
             let editor;
-            /**@type {HTMLInputElement} */
-            let keysInput;
             /**@type {HTMLSelectElement} */
             let codexTitleInput;
             const updateCodexTitleInput = ()=>{
@@ -287,14 +315,17 @@ export class CodexEntry extends CodexBaseEntry {
                     defaultOpt.textContent = 'Default (comment / keys)';
                     codexTitleInput.append(defaultOpt);
                 }
-                ['comment', ...this.entry.keyList.map((it,idx)=>`key[${idx}]`)].forEach(it=>{
+                [
+                    { value:'comment', text:'comment' },
+                    ...this.entry.keyList.map((it,idx)=>({ value:`key[${idx}]`, text:`key[${idx}] = ${it}` })),
+                ].forEach(it=>{
                     const opt = document.createElement('option'); {
-                        opt.value = it;
-                        opt.textContent = it;
+                        opt.value = it.value;
+                        opt.textContent = it.text;
                         codexTitleInput.append(opt);
                     }
                 });
-                codexTitleInput.value = this.titleField;
+                codexTitleInput.value = this.titleField ?? '';
             };
             const wrapper = document.createElement('div'); {
                 this.editor = wrapper;
@@ -320,7 +351,6 @@ export class CodexEntry extends CodexBaseEntry {
                     const keys = document.createElement('label'); {
                         keys.append('Primary Keywords: ');
                         const inp = document.createElement('input'); {
-                            keysInput = inp;
                             inp.classList.add('text_pole');
                             inp.classList.add('stcdx--editor-tags');
                             inp.placeholder = 'Primary Keywords';
@@ -359,9 +389,7 @@ export class CodexEntry extends CodexBaseEntry {
                             inp.title = 'Codex Title';
                             inp.addEventListener('change', async()=>{
                                 if (!this.isEditing || this.isTogglingEditor) return;
-                                this.entry.keyList = this.entry.keyList.filter(it=>!it.startsWith('codex-title:'));
-                                if (inp.value != '') this.entry.keyList.push(`codex-title:${inp.value}`);
-                                keysInput.value = this.entry.keyList.join(', ');
+                                this.titleField = inp.value;
                             });
                             updateCodexTitleInput();
                             codexTitle.append(inp);
@@ -376,9 +404,7 @@ export class CodexEntry extends CodexBaseEntry {
                             inp.title = 'Codex Template';
                             inp.addEventListener('change', async()=>{
                                 if (!this.isEditing || this.isTogglingEditor) return;
-                                this.entry.keyList = this.entry.keyList.filter(it=>!it.startsWith('codex-tpl:'));
-                                if (inp.value != '') this.entry.keyList.push(`codex-tpl:${inp.value}`);
-                                keysInput.value = this.entry.keyList.join(', ');
+                                this.templateName = inp.value;
                             });
                             const defaultOpt = document.createElement('option'); {
                                 defaultOpt.value = '';
@@ -392,7 +418,7 @@ export class CodexEntry extends CodexBaseEntry {
                                     inp.append(opt);
                                 }
                             });
-                            inp.value = this.templateName;
+                            inp.value = this.templateName ?? '';
                             codexTemplate.append(inp);
                         }
                         props.append(codexTemplate);
@@ -497,78 +523,64 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     wrapper.append(actionsRow);
                 }
-                if (type) {
-                    let curSection;
-                    let curTab;
-                    const tabUi = document.createElement('div'); {
-                        tabUi.classList.add('stcdx--editor-tabUi');
-                        const tabs = document.createElement('div'); {
-                            tabs.classList.add('stcdx--tabs');
-                            for (const sec of type.sectionList) {
-                                const tab = document.createElement('div'); {
-                                    if ((targetSection && sec.id == targetSection) || (!targetSection && !curSection)) {
-                                        curSection = sec;
-                                        curTab = tab;
-                                        tab.classList.add('stcdx--active');
-                                    }
-                                    tab.classList.add('stcdx--tab');
-                                    if (sec.isRemoved) {
-                                        tab.classList.add('stcdx--isRemoved');
-                                        tab.title = `Section has been removed from Entry Type "${type.name}"\n---\nLeave content blank to remove from this entry.`;
-                                    }
-                                    tab.textContent = sec.name;
-                                    tab.addEventListener('click', ()=>{
-                                        curTab.classList.remove('stcdx--active');
-                                        curTab = tab;
-                                        tab.classList.add('stcdx--active');
-                                        curSection = sec;
-                                        editor.value = sec.content;
-                                        editor.focus();
-                                    });
-                                    tabs.append(tab);
+                let curSection;
+                let curTab;
+                const tabUi = document.createElement('div'); {
+                    tabUi.classList.add('stcdx--editor-tabUi');
+                    const tabs = document.createElement('div'); {
+                        tabs.classList.add('stcdx--tabs');
+                        for (const sec of type.sectionList) {
+                            const tab = document.createElement('div'); {
+                                if ((targetSection && sec.id == targetSection) || (!targetSection && !curSection)) {
+                                    curSection = sec;
+                                    curTab = tab;
+                                    tab.classList.add('stcdx--active');
                                 }
+                                tab.classList.add('stcdx--tab');
+                                if (sec.isRemoved) {
+                                    tab.classList.add('stcdx--isRemoved');
+                                    tab.title = `Section has been removed from Entry Type "${type.name}"\n---\nLeave content blank to remove from this entry.`;
+                                }
+                                tab.textContent = sec.name;
+                                tab.addEventListener('click', ()=>{
+                                    curTab.classList.remove('stcdx--active');
+                                    curTab = tab;
+                                    tab.classList.add('stcdx--active');
+                                    curSection = sec;
+                                    editor.value = sec.content;
+                                    editor.focus();
+                                });
+                                tabs.append(tab);
                             }
-                            tabUi.append(tabs);
                         }
-                        if (!curSection) {
-                            curSection = type.sectionList[0];
-                            curTab = tabs.children[0];
-                        }
-                        editor = document.createElement('textarea'); {
-                            editor.classList.add('text_pole');
-                            editor.classList.add('stcdx--editor-content');
-                            editor.value = curSection.content;
-                            editor.addEventListener('input', async()=>{
-                                if (!this.isEditing || this.isTogglingEditor) return;
-                                curSection.content = editor.value;
-                                if (curSection.isRemoved && curSection.content.length == 0) {
-                                    type.sectionList.splice(type.sectionList.indexOf(curSection), 1);
-                                } else if (curSection.isRemoved && curSection.content.length > 0 && !type.sectionList.includes(curSection)) {
-                                    type.sectionList.push(curSection);
-                                }
-                                this.entry.content = [
-                                    type.prefix,
-                                    ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                    type.suffix,
-                                    `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
-                                ].filter(it=>it).join('\n');
-                            });
-                            tabUi.append(editor);
-                        }
-                        wrapper.append(tabUi);
+                        tabUi.append(tabs);
                     }
-                } else {
+                    if (!curSection) {
+                        curSection = type.sectionList[0];
+                        curTab = tabs.children[0];
+                    }
                     editor = document.createElement('textarea'); {
                         editor.classList.add('text_pole');
                         editor.classList.add('stcdx--editor-content');
-                        editor.value = this.entry.content;
+                        editor.value = curSection.content;
                         editor.addEventListener('input', async()=>{
                             if (!this.isEditing || this.isTogglingEditor) return;
-                            this.entry.content = editor.value;
-                            // this.entry.saveDebounced();
+                            curSection.content = editor.value;
+                            if (curSection.isRemoved && curSection.content.length == 0) {
+                                type.sectionList.splice(type.sectionList.indexOf(curSection), 1);
+                            } else if (curSection.isRemoved && curSection.content.length > 0 && !type.sectionList.includes(curSection)) {
+                                type.sectionList.push(curSection);
+                            }
+                            this.entry.content = [
+                                type.prefix,
+                                ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
+                                type.suffix,
+                                `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
+                            ].filter(it=>it).join('\n');
                         });
-                        wrapper.append(editor);
+                        tabUi.append(editor);
                     }
+                    wrapper.append(tabUi);
                 }
                 this.dom.insertAdjacentElement('afterend', wrapper);
             }

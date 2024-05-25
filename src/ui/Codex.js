@@ -164,9 +164,10 @@ export class Codex {
             results.classList.add('stcdx--results');
             results.innerHTML = '';
             entries.forEach(entry=>{
+                const ce = CodexEntryFactory.create(entry, this.settings, this.matcher, this.linker);
                 const item = document.createElement('div'); {
                     item.classList.add('stcdx--result');
-                    item.textContent = `${entry.book}: ${entry.title}`;
+                    item.textContent = `${entry.book}: ${ce.title}`;
                     item.addEventListener('mousedown', ()=>this.show(new Match(entry.book, entry)));
                     results.append(item);
                 }
@@ -196,6 +197,7 @@ export class Codex {
                 const entries = book.entryList
                     .filter(e=>e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
                     .filter(e=>!e.keyList.includes('codex-skip:'))
+                    .map(e=>CodexEntryFactory.create(e, this.settings, this.matcher, this.linker))
                     .toSorted((a,b)=>a.title.localeCompare(b.title))
                 ;
                 if (entries.length == 0) return;
@@ -256,7 +258,7 @@ export class Codex {
                                 link.textContent = entry.title;
                                 link.title = entry.title;
                                 link.addEventListener('click', (evt)=>{
-                                    this.show(new Match(book.name, entry));
+                                    this.show(new Match(book.name, entry.entry));
                                 });
                                 entryList.append(link);
                             }
@@ -476,7 +478,7 @@ export class Codex {
 
     async toggleEditor() {
         if (!this.isEditing) {
-            this.editHeader.textContent = `${this.content?.entry?.book}: (${this.content?.entry?.uid}) ${this.content?.entry?.title}`;
+            this.editHeader.textContent = `${this.content?.entry?.book}: (${this.content?.entry?.uid}) ${this.content?.title}`;
             this.dom.classList.add('stcdx--isEditing');
         }
         await this.content?.toggleEditor();
