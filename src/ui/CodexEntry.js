@@ -1,6 +1,6 @@
-import { messageFormatting } from '../../../../../../script.js';
+import { getRequestHeaders, messageFormatting } from '../../../../../../script.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
-import { delay } from '../../../../../utils.js';
+import { delay, uuidv4 } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
 import { waitForFrame } from '../lib/wait.js';
 import { Entry } from '../st/wi/Entry.js';
@@ -577,6 +577,47 @@ export class CodexEntry extends CodexBaseEntry {
                                 type.suffix,
                                 `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
                             ].filter(it=>it).join('\n');
+                        });
+                        editor.addEventListener('paste', async(evt)=>{
+                            if (evt.clipboardData.types.includes('Files') && evt.clipboardData.files?.length > 0 && evt.clipboardData.files[0].type.startsWith('image/')) {
+                                log('[PASTE]', evt.clipboardData, evt.clipboardData.types, evt.clipboardData.files, evt.clipboardData.files[0]);
+                                editor.disabled = true;
+                                const file = evt.clipboardData.files[0];
+                                const name = file.name;
+                                const id = uuidv4();
+                                const before = editor.value.slice(0, editor.selectionStart);
+                                const after = editor.value.slice(editor.selectionEnd);
+                                editor.value = [
+                                    before,
+                                    `![uploading...${id}](/user/images/codex/${name})`,
+                                    after,
+                                ].join('');
+                                const reader = new FileReader();
+                                const prom = new Promise(resolve=>reader.addEventListener('load', resolve));
+                                reader.readAsDataURL(file);
+                                await prom;
+                                const dataUrl = reader.result;
+                                const response = await fetch('/api/plugins/files/put', {
+                                    method: 'POST',
+                                    headers: getRequestHeaders(),
+                                    body: JSON.stringify({
+                                        path: `~/user/images/codex/${name}`,
+                                        file: dataUrl,
+                                    }),
+                                });
+                                if (!response.ok) {
+                                    alert('something went wrong');
+                                    return;
+                                }
+                                const data = await response.json();
+                                editor.value = [
+                                    before,
+                                    `![image](/user/images/codex/${data.name})`,
+                                    after,
+                                ].join('');
+                                editor.dispatchEvent(new Event('input', { bubbles:true }));
+                                editor.disabled = false;
+                            }
                         });
                         tabUi.append(editor);
                     }
