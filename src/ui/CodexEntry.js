@@ -607,6 +607,11 @@ export class CodexEntry extends CodexBaseEntry {
                                 });
                                 if (!response.ok) {
                                     alert('something went wrong');
+                                    editor.value = [
+                                        before,
+                                        after,
+                                    ].join('');
+                                    editor.disabled = false;
                                     return;
                                 }
                                 const data = await response.json();
