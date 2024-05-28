@@ -2,7 +2,6 @@ import { eventSource, event_types } from '../../../../../../script.js';
 import { dragElement } from '../../../../../RossAscends-mods.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
-import { quickReplyApi } from '../../../../quick-reply/index.js';
 
 // eslint-disable-next-line no-unused-vars
 import { Linker } from '../Linker.js';
@@ -12,6 +11,7 @@ import { Matcher } from '../Matcher.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from '../Settings.js';
 import { log } from '../lib/log.js';
+import { waitForFrame } from '../lib/wait.js';
 // eslint-disable-next-line no-unused-vars
 import { Book } from '../st/wi/Book.js';
 import { Entry } from '../st/wi/Entry.js';
@@ -19,6 +19,7 @@ import { worldInfoLogic } from '../st/wi/Logic.js';
 // eslint-disable-next-line no-unused-vars
 import { CodexBaseEntry } from './CodexBaseEntry.js';
 import { CodexCharList } from './CodexCharList.js';
+import { CodexCreateMenu } from './CodexCreateMenu.js';
 import { CodexEntry } from './CodexEntry.js';
 import { CodexEntryFactory } from './CodexEntryFactory.js';
 import { CodexMap } from './CodexMap.js';
@@ -27,10 +28,17 @@ export class Codex {
     /**@type {Settings}*/ settings;
     /**@type {Matcher}*/ matcher;
     /**@type {Linker}*/ linker;
-    /**@type {Book[]}*/ bookList;
+    /**@type {Book[]}*/ #bookList;
+    get bookList() { return this.#bookList; }
+    set bookList(value) {
+        this.#bookList = value;
+        if (this.createMenu) this.createMenu.bookList = value;
+    }
 
     /**@type {CodexBaseEntry}*/ content;
     /**@type {CodexBaseEntry}*/ newContent;
+
+    /**@type {CodexCreateMenu}*/ createMenu;
 
     /**@type {Match[]}*/ history = [];
     /**@type {Number}*/ historyIdx = 0;
@@ -51,6 +59,8 @@ export class Codex {
     /**@type {Boolean}*/ isCreating = false;
     get isEditing() { return this.isCreating || (this.content?.isEditing ?? false); }
 
+    get isActive() { return this.dom?.classList?.contains('stcdx--active'); }
+
 
 
 
@@ -63,6 +73,49 @@ export class Codex {
         this.matcher = matcher;
         this.linker = linker;
         this.bookList = bookList;
+
+        this.createMenu = new CodexCreateMenu(settings, matcher, linker, bookList);
+        this.createMenu.onStageChanged = async()=>await this.showCreateMenu();
+        this.createMenu.onCanceled = async()=>{
+            await this.createMenu.hide();
+            this.createMenu.unrender();
+            this.content = null;
+        };
+        this.createMenu.onCompleted = async()=>{
+            let book = this.bookList.find(it=>it.name == this.createMenu.book);
+            if (!book) {
+                book = new Book(this.createMenu.book);
+                await book.load();
+                this.bookList.push(book);
+            }
+            const key = this.createMenu.key;
+            const type = this.createMenu.type;
+            const typeContent = {
+                'Map': `{{//codex-map:${btoa(encodeURIComponent(JSON.stringify({})))}}}`,
+                'Character List': `{{//codex-chars:${btoa(encodeURIComponent(JSON.stringify({})))}}}`,
+                'Basic Text': 'YOUR CONTENT HERE',
+            };
+            for (const et of this.settings.entryTypeList) {
+                typeContent[`Custom - ${et.name}`] = [
+                    et.prefix,
+                    ...et.sectionList.map(it=>[it.prefix, it.suffix].filter(it=>it)).flat(),
+                    et.suffix,
+                    `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(et)))}}}`,
+                ].filter(it=>it).join('\n');
+            }
+            eventSource.once(event_types.WORLDINFO_UPDATED, (...args)=>log('WIUP', ...args));
+
+            const entry = Entry.from(book.name, { uid:null, key:[...`${key}`.split(/\s*,\s*/)], keysecondary:[], selectiveLogic:worldInfoLogic.AND_ANY, comment:'', content:typeContent[type], disable:false });
+            this.isCreating = true;
+            executeSlashCommands(`/createentry file="${book.name}" key="${key}" ${typeContent[type]}`).then(result=>{
+                entry.uid = result?.pipe;
+            });
+            book.addEntry(entry);
+            await this.show(new Match(book.name, entry));
+            this.toggleEditor();
+            // await wiPromise;
+            this.isCreating = false;
+        };
     }
 
     startReload() {
@@ -193,6 +246,21 @@ export class Codex {
         const menu = document.createElement('ul'); {
             this.menu = menu;
             menu.classList.add('stcdx--books');
+            const createLi = document.createElement('li'); {
+                createLi.classList.add('stcdx--book');
+                createLi.addEventListener('click', ()=>this.showCreateMenu());
+                const name = document.createElement('div'); {
+                    name.classList.add('stcdx--name');
+                    name.textContent = 'Create Codex Entry';
+                    name.title = 'Create a new Codex Entry';
+                    createLi.append(name);
+                }
+                menu.append(createLi);
+            }
+            const sep = document.createElement('li'); {
+                sep.classList.add('stcdx--sep');
+                menu.append(sep);
+            }
             this.bookList.forEach(book=>{
                 const entries = book.entryList
                     .filter(e=>e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
@@ -205,49 +273,7 @@ export class Codex {
                     li.classList.add('stcdx--book');
                     const name = document.createElement('div'); {
                         name.classList.add('stcdx--name');
-                        name.textContent = `${book.name} +`;
-                        name.title = `Create entry in ${book.name}`;
-                        name.addEventListener('click', async(evt)=>{
-                            const types = ['Basic Text', 'Map', 'Character List', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
-                            const type = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
-                            const key = (await executeSlashCommands('/input Key'))?.pipe;
-                            let qrs;
-                            if (type == 'Character List') {
-                                qrs = (await executeSlashCommands(`/buttons labels=${JSON.stringify(quickReplyApi.listSets())} Quick Reply Set`))?.pipe;
-                            }
-                            const typeKey = {
-                                'Map': ', codex-map:',
-                                'Character List': `, codex-chars:${qrs ?? ''}`,
-                                'Basic Text': '',
-                            };
-                            const typeContent = {
-                                'Map': '{}',
-                                'Character List': 'Alice\nBob',
-                                'Basic Text': 'YOUR CONTENT HERE',
-                            };
-                            for (const et of this.settings.entryTypeList) {
-                                typeKey[`Custom: ${et.name}`] = '';
-                                typeContent[`Custom: ${et.name}`] = [
-                                    et.prefix,
-                                    ...et.sectionList.map(it=>[it.prefix, it.suffix].filter(it=>it)).flat(),
-                                    et.suffix,
-                                    `{{//codex-type:${btoa(JSON.stringify(et))}}}`,
-                                ].filter(it=>it).join('\n');
-                            }
-                            eventSource.on(event_types.WORLDINFO_UPDATED, (...args)=>log('WIUP', ...args));
-                            // const wiPromise = new Promise(resolve=>eventSource.once(event_types.WORLDINFO_UPDATED, resolve));
-
-                            const entry = Entry.from(book.name, { uid:null, key:[...`${key}${typeKey[type]}`.split(/\s*,\s*/)], keysecondary:[], selectiveLogic:worldInfoLogic.AND_ANY, comment:'', content:typeContent[type], disable:false });
-                            this.isCreating = true;
-                            executeSlashCommands(`/createentry file="${book.name}" key="${key}${typeKey[type]}" ${typeContent[type]}`).then(result=>{
-                                entry.uid = result?.pipe;
-                            });
-                            book.addEntry(entry);
-                            await this.show(new Match(book.name, entry));
-                            this.toggleEditor();
-                            // await wiPromise;
-                            this.isCreating = false;
-                        });
+                        name.textContent = `${book.name}`;
                         li.append(name);
                     }
                     const entryList = document.createElement('ul'); {
@@ -394,6 +420,7 @@ export class Codex {
                     root.append(head);
                 }
                 document.body.append(root);
+                this.showCreateMenu();
                 dragElement($(root));
             }
         } else if (!this.dom.parentElement) {
@@ -405,6 +432,11 @@ export class Codex {
     unrender() {
         this.dom?.remove();
         this.dom = null;
+    }
+
+
+    async showCreateMenu() {
+        await this.transitionToNewContent(this.createMenu);
     }
 
 
@@ -420,23 +452,30 @@ export class Codex {
         if (match) {
             /**@type {CodexBaseEntry}*/
             let content = CodexEntryFactory.create(match.entry, this.settings, this.matcher, this.linker);
-            this.newContent = content;
-            this.dom.append(await content.render());
-            await Promise.all([
-                this.content?.hide(),
-                content.show(),
-            ]);
-            this.content?.unrender();
-            if (this.newContent == content) {
-                this.content = content;
-                this.newContent = null;
-                this.edit.classList.remove('stcdx--disabled');
-                if (!isHistory) {
-                    this.addToHistory(match);
-                }
-            } else {
-                content.unrender();
+            const transitioned = await this.transitionToNewContent(content);
+            if (!isHistory && transitioned) {
+                this.addToHistory(match);
             }
+        } else if (this.content) {
+            await this.content.show();
+        }
+    }
+    async transitionToNewContent(content) {
+        this.newContent = content;
+        this.dom.append(await content.render());
+        await Promise.all([
+            this.content?.hide(),
+            content.show(),
+        ]);
+        this.content?.unrender();
+        if (this.newContent == content) {
+            this.content = content;
+            this.newContent = null;
+            this.edit.classList.remove('stcdx--disabled');
+            return true;
+        } else {
+            content.unrender();
+            return false;
         }
     }
 
@@ -454,12 +493,20 @@ export class Codex {
     async toggle(match = null) {
         if (match) {
             if (match.entry == this.content?.entry) {
-                this.render().classList.toggle('stcdx--active');
+                if (this.isActive) {
+                    await this.hide();
+                } else {
+                    await this.show();
+                }
             } else {
                 await this.show(match);
             }
         } else {
-            this.render().classList.toggle('stcdx--active');
+            if (this.isActive) {
+                await this.hide();
+            } else {
+                await this.show();
+            }
         }
     }
 

@@ -127,7 +127,7 @@ export class CodexBaseEntry {
 
 
     async show() {
-        await this.render();
+        // await this.render();
         this.dom.classList.add('stcdx--preactive');
         await waitForFrame();
         this.dom.classList.add('stcdx--active');

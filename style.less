@@ -340,6 +340,11 @@ body .stcdx--codex {
 						display: block;
 					}
 
+					> .stcdx--sep {
+						border-bottom: 1px solid var(--SmartThemeBodyColor);
+						margin: 0.5em 0;
+					}
+
 					> .stcdx--book {
 						> .stcdx--name {
 							font-weight: bold;
@@ -468,6 +473,7 @@ body .stcdx--root {
 		height: 100%;
 		width: 100%;
 		padding: 1em;
+		&:has(.mes_text > section) { padding: 0; }
 		text-align: justify;
 		margin: 0;
 		background-color: transparent;
@@ -510,6 +516,7 @@ body .stcdx--root {
 
 		&.stcdx--entry {
 			section {
+				padding: 1em;
 				position: relative;
 				transition: 200ms;
 				.custom-stcdx--editSection {
@@ -523,7 +530,10 @@ body .stcdx--root {
 				&:hover {
 					background-color: rgb(0 0 0 / 0.125);
 					.custom-stcdx--editSection {
-						opacity: 1;
+						opacity: 0.5;
+						&:hover {
+							opacity: 1;
+						}
 					}
 				}
 			}
@@ -1168,4 +1178,37 @@ body .stcdx--tooltip {
 }
 body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 	max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
+}
+
+
+
+.stcdx--createMenu > .mes_text {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+
+	.menu_button {
+		width: auto;
+	}
+
+	h2, h3 {
+		flex: 0 0 auto;
+		margin: 0;
+	}
+	.stcdx--crumbs {
+		text-align: center;
+	}
+	.stcdx--typeList {
+		flex: 1 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		align-items: stretch;
+		.stcdx--notLoaded {
+			opacity: 0.5;
+		}
+	}
+	.actions {
+		flex: 0 0 auto;
+	}
 }

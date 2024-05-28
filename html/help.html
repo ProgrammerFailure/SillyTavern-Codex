@@ -17,10 +17,123 @@
 
 	<hr>
 
+	<h2 id="stcdx--help--maps">
+		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
+		Creating Codex Entries
+	</h2>
+	<p>
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on <em>"Create Codex Entry"</em>.
+	</p>
+
+	<hr>
+
+	<h2 id="stcdx--help--maps">
+		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
+		Basic Text Entries
+	</h2>
+	<p>
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on <em>"Create Codex Entry"</em>.
+		Pick <em>"Basic Text"</em> from the list of entry types.
+	</p>
+	<p>...</p>
+
+	<hr>
+
+	<h2 id="stcdx--help--maps">
+		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
+		Maps
+	</h2>
+	<p>
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on <em>"Create Codex Entry"</em>.
+		Pick <em>"Map"</em> from the list of entry types.
+	</p>
+	<p>...</p>
+	<h3>Zones</h3>
+	<p>...</p>
+	<h4>Macros</h4>
+	<p>...</p>
+	<ul>
+		<li>
+			<code>{{map}}</code>
+			<p>The map's WI entry's title.</p>
+		</li>
+		<li>
+			<code>{{zone}}</code>
+			<p>The zone's label.</p>
+		</li>
+		<li>
+			<code>{{zoom}}</code>
+			<p>Whether or not the map was zoomed / expanded / fullscreen while clicking. Either <code>true</code> or <code>false</code>.</p>
+		</li>
+	</ul>
+	<h3>Painter</h3>
+	<p>...</p>
+
+	<hr>
+
+	<h2 id="stcdx--help--charLists">
+		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
+		Character Lists
+	</h2>
+	<p>
+		Open Codex.
+		Click on the <code>≡</code> menu.
+		Click on <em>"Create Codex Entry"</em>.
+		Pick <em>"Character List"</em> from the list of entry types.
+		Put a list of names in the WI entry's content. Separate the names either with a comma or write one name per line.
+	</p>
+	<p>...</p>
+	<h3>Actions</h3>
+	<p>
+		The named Quick Reply set should have a single Quick Reply. That QR will be executed when clicking on a character.
+		The QR's context menu will be shown when right-clicking on a character.
+	</p>
+	<h4>Macros</h4>
+	<p>
+		The following macros can be used in the QR and its context menu's QRs.
+	</p>
+	<ul>
+		<li>
+			<code>{{arg::avatar}}</code>
+			<p>The character's avatar.</p>
+		</li>
+		<li>
+			<code>{{arg::name}}</code>
+			<p>The character's name.</p>
+		</li>
+		<li>
+			<code>{{arg::description}}</code>
+			<p>The character's description.</p>
+		</li>
+		<li>
+			<code>{{arg::personality}}</code>
+			<p>The character's personality.</p>
+		</li>
+	</ul>
+
+	<hr>
+
+	<h2 id="stcdx--help--charLists">
+		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
+		Custom Entry Types
+	</h2>
+	<p>
+		...
+	</p>
+
+	<hr>
+
 	<h2 id="stcdx--help--keywords">
 		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
 		Special World Info Keywords
 	</h2>
+	<p>...</p>
 	<ul>
 		<li>
 			<code>codex:<q>text</q></code>
@@ -46,6 +159,7 @@
 		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
 		Slash Commands
 	</h2>
+	<p>Codex provides the following slash commands.</p>
 	<ul>
 		%%COMMANDS%%
 	</ul>
@@ -91,79 +205,6 @@
 		<li>
 			<code>{{title::url}}</code>
 			<p>The WI entry's title. If no <code>codex-title:</code> key is present, this defaults to either the comment (if less than 50 characters) or the keys, separated by a forward slash. Special characters are escaped for use in URLs (e.g., images or links).</p>
-		</li>
-	</ul>
-
-	<hr>
-
-	<h2 id="stcdx--help--maps">
-		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
-		Maps
-	</h2>
-	<p>
-		Open Codex.
-		Click on the <code>≡</code> menu.
-		Click on the name of the book you want to add the map to.
-		Pick "Map" from the list of entry types.
-	</p>
-	<h3>Zones</h3>
-	<p>...</p>
-	<h4>Macros</h4>
-	<ul>
-		<li>
-			<code>{{map}}</code>
-			<p>The map's WI entry's title.</p>
-		</li>
-		<li>
-			<code>{{zone}}</code>
-			<p>The zone's label.</p>
-		</li>
-		<li>
-			<code>{{zoom}}</code>
-			<p>Whether or not the map was zoomed / expanded / fullscreen while clicking. Either <code>true</code> or <code>false</code>.</p>
-		</li>
-	</ul>
-	<h3>Painter</h3>
-	<p>...</p>
-
-	<hr>
-
-	<h2 id="stcdx--help--charLists">
-		<a data-stcdx--href="%%TIMESTAMP%%">↑</a>
-		Character Lists
-	</h2>
-	<p>
-		Open Codex.
-		Click on the <code>≡</code> menu.
-		Click on the name of the book you want to add the map to.
-		Pick "Character List" from the list of entry types.
-		Put a list of names in the WI entry's content. Separate the names either with a comma or write one name per line.
-	</p>
-	<h3>Actions</h3>
-	<p>
-		The named Quick Reply set should have a single Quick Reply. That QR will be executed when clicking on a character.
-		The QR's context menu will be shown when right-clicking on a character.
-	</p>
-	<h4>Macros</h4>
-	<p>
-		The following macros can be used in the QR and its context menu's QRs.
-	</p>
-	<ul>
-		<li>
-			<code>{{arg::avatar}}</code>
-			<p>The character's avatar.</p>
-		</li>
-		<li>
-			<code>{{arg::name}}</code>
-			<p>The character's name.</p>
-		</li>
-		<li>
-			<code>{{arg::description}}</code>
-			<p>The character's description.</p>
-		</li>
-		<li>
-			<code>{{arg::personality}}</code>
-			<p>The character's personality.</p>
 		</li>
 	</ul>
 </div>

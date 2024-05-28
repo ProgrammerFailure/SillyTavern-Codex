@@ -159,7 +159,7 @@ export class CodexManager {
         Array.from(document.querySelectorAll('#chat > .mes .mes_text')).forEach(it=>this.linker.restoreChatMessage(it));
         this.matcher = null;
         this.linker = null;
-        if (!getContext().chatId || !this.settings.isEnabled) {
+        if (!this.settings.isEnabled) {
             this.codex?.unrender();
             this.codex = null;
         } else {

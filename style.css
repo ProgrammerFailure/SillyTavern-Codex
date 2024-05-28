@@ -357,6 +357,10 @@ body .stcdx--codex > .stcdx--header > .stcdx--action.stcdx--menu > .stcdx--books
 body .stcdx--codex > .stcdx--header > .stcdx--action.stcdx--menu > .stcdx--books.stcdx--active {
   display: block;
 }
+body .stcdx--codex > .stcdx--header > .stcdx--action.stcdx--menu > .stcdx--books > .stcdx--sep {
+  border-bottom: 1px solid var(--SmartThemeBodyColor);
+  margin: 0.5em 0;
+}
 body .stcdx--codex > .stcdx--header > .stcdx--action.stcdx--menu > .stcdx--books > .stcdx--book > .stcdx--name {
   font-weight: bold;
 }
@@ -475,6 +479,10 @@ body .stcdx--root > .stcdx--editor {
   pointer-events: none;
   transition: calc(1ms * var(--stcdx--transitionTime));
 }
+body .stcdx--root > .stcdx--content:has(.mes_text > section),
+body .stcdx--root > .stcdx--editor:has(.mes_text > section) {
+  padding: 0;
+}
 body .stcdx--root > .stcdx--content.stcdx--preactive,
 body .stcdx--root > .stcdx--editor.stcdx--preactive {
   display: block;
@@ -508,6 +516,7 @@ body .stcdx--root > .stcdx--content img:hover {
   filter: drop-shadow(0 0 6px rgba(0 0 0 / 1));
 }
 body .stcdx--root > .stcdx--content.stcdx--entry section {
+  padding: 1em;
   position: relative;
   transition: 200ms;
 }
@@ -523,6 +532,9 @@ body .stcdx--root > .stcdx--content.stcdx--entry section:hover {
   background-color: rgba(0, 0, 0, 0.125);
 }
 body .stcdx--root > .stcdx--content.stcdx--entry section:hover .custom-stcdx--editSection {
+  opacity: 0.5;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry section:hover .custom-stcdx--editSection:hover {
   opacity: 1;
 }
 body .stcdx--root > .stcdx--content.stcdx--map {
@@ -1176,4 +1188,33 @@ body .stcdx--tooltip > .stcdx--content.stcdx--active {
 }
 body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
   max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
+}
+.stcdx--createMenu > .mes_text {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.stcdx--createMenu > .mes_text .menu_button {
+  width: auto;
+}
+.stcdx--createMenu > .mes_text h2,
+.stcdx--createMenu > .mes_text h3 {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.stcdx--createMenu > .mes_text .stcdx--crumbs {
+  text-align: center;
+}
+.stcdx--createMenu > .mes_text .stcdx--typeList {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  align-items: stretch;
+}
+.stcdx--createMenu > .mes_text .stcdx--typeList .stcdx--notLoaded {
+  opacity: 0.5;
+}
+.stcdx--createMenu > .mes_text .actions {
+  flex: 0 0 auto;
 }
