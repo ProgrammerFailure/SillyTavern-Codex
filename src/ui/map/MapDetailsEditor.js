@@ -1,5 +1,6 @@
-import { callPopup } from '../../../../../../../script.js';
+import { callPopup, getRequestHeaders } from '../../../../../../../script.js';
 import { quickReplyApi } from '../../../../../quick-reply/index.js';
+import { imgUpload } from '../../lib/imgUpload.js';
 
 import { warn } from '../../lib/log.js';
 // eslint-disable-next-line no-unused-vars
@@ -45,6 +46,23 @@ export class MapDetailsEditor {
         url.value = this.codexMap.url ?? '';
         url.addEventListener('input', ()=>{
             this.codexMap.url = url.value.trim();
+        });
+        url.addEventListener('paste', async(evt)=>{
+            if (evt.clipboardData.types.includes('Files') && evt.clipboardData.files?.length > 0 && evt.clipboardData.files[0].type.startsWith('image/')) {
+                url.disabled = true;
+                url.value = 'uploading...';
+                const file = evt.clipboardData.files[0];
+                const response = await imgUpload(evt);
+                if (!response.ok) {
+                    alert('something went wrong');
+                    url.value = '';
+                    url.disabled = false;
+                    return;
+                }
+                url.value = `/user/images/codex/${response.name}`;
+                url.disabled = false;
+                url.dispatchEvent(new Event('input', { bubbles:true }));
+            }
         });
         /**@type {HTMLTextAreaElement}*/
         const description = dom.querySelector('#stcdx--map-description');
