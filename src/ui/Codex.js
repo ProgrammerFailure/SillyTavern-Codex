@@ -261,7 +261,7 @@ export class Codex {
                 sep.classList.add('stcdx--sep');
                 menu.append(sep);
             }
-            this.bookList.forEach(book=>{
+            this.bookList.toSorted((a,b)=>a.name.toLowerCase().localeCompare(b.name.toLowerCase())).forEach(book=>{
                 const entries = book.entryList
                     .filter(e=>e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
                     .filter(e=>!e.keyList.includes('codex-skip:'))
