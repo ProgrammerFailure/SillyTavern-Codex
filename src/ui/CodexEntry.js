@@ -2,6 +2,7 @@ import { getRequestHeaders, messageFormatting, setCharacterId, this_chid } from 
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';
+import { imgUpload } from '../lib/imgUpload.js';
 import { log } from '../lib/log.js';
 import { messageFormattingWithLanding } from '../lib/messageFormattingWithLanding.js';
 import { waitForFrame } from '../lib/wait.js';
@@ -591,19 +592,7 @@ export class CodexEntry extends CodexBaseEntry {
                                     `![uploading...${id}](/user/images/codex/${name})`,
                                     after,
                                 ].join('');
-                                const reader = new FileReader();
-                                const prom = new Promise(resolve=>reader.addEventListener('load', resolve));
-                                reader.readAsDataURL(file);
-                                await prom;
-                                const dataUrl = reader.result;
-                                const response = await fetch('/api/plugins/files/put', {
-                                    method: 'POST',
-                                    headers: getRequestHeaders(),
-                                    body: JSON.stringify({
-                                        path: `~/user/images/codex/${name}`,
-                                        file: dataUrl,
-                                    }),
-                                });
+                                const response = await imgUpload(evt);
                                 if (!response.ok) {
                                     alert('something went wrong');
                                     editor.value = [
@@ -613,10 +602,9 @@ export class CodexEntry extends CodexBaseEntry {
                                     editor.disabled = false;
                                     return;
                                 }
-                                const data = await response.json();
                                 editor.value = [
                                     before,
-                                    `![image](/user/images/codex/${data.name})`,
+                                    `![image](/user/images/codex/${response.name})`,
                                     after,
                                 ].join('');
                                 editor.dispatchEvent(new Event('input', { bubbles:true }));
