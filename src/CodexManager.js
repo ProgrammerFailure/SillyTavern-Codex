@@ -85,7 +85,7 @@ export class CodexManager {
     async start() {
         if (this.isStarting) return;
         if (!this.settings.isEnabled) return;
-        if (!getContext().chatId) return;
+        // if (!getContext().chatId) return;
         this.isStarting = true;
         log('START');
 

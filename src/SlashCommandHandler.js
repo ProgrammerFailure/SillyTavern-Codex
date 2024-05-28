@@ -124,10 +124,10 @@ export class SlashCommandHandler {
 
 
     async handleCodex(args, value) {
-        if (getCurrentChatId() == null) {
-            toastr.warning('Cannot open Codex outside of chat');
-            return;
-        }
+        // if (getCurrentChatId() == null) {
+        //     toastr.warning('Cannot open Codex outside of chat');
+        //     return;
+        // }
         if (value && value.length > 0) {
             const matches = this.matcher.findMatches(value);
             if (matches.length > 0) {

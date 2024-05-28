@@ -8,6 +8,7 @@ import { ResultNode } from './ResultNode.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from './Settings.js';
 import { log } from './lib/log.js';
+import { messageFormattingWithLanding } from './lib/messageFormattingWithLanding.js';
 import { Tooltip } from './ui/Tooltip.js';
 
 
@@ -117,13 +118,7 @@ export class Linker {
     restoreChatMessage(el) {
         if (el.querySelector('[data-codex]')) {
             let messageText = substituteParams(chat[el.closest('.mes').getAttribute('mesid')].mes);
-            el.innerHTML = messageFormatting(
-                messageText,
-                'Codex',
-                false,
-                false,
-                null,
-            );
+            el.innerHTML = messageFormattingWithLanding(messageText);
             addCopyToCodeBlocks(el);
         }
     }

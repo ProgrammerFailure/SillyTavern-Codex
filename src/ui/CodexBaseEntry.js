@@ -1,4 +1,5 @@
-import { messageFormatting, substituteParams } from '../../../../../../script.js';
+import { messageFormatting, setCharacterId, substituteParams, this_chid } from '../../../../../../script.js';
+import { selected_group } from '../../../../../group-chats.js';
 import { delay } from '../../../../../utils.js';
 
 // eslint-disable-next-line no-unused-vars
@@ -7,6 +8,7 @@ import { Linker } from '../Linker.js';
 import { Matcher } from '../Matcher.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from '../Settings.js';
+import { messageFormattingWithLanding } from '../lib/messageFormattingWithLanding.js';
 import { waitForFrame } from '../lib/wait.js';
 // eslint-disable-next-line no-unused-vars
 import { Entry } from '../st/wi/Entry.js';
@@ -88,13 +90,16 @@ export class CodexBaseEntry {
             .replace(/{{title}}/g, this.title)
             .replace(/{{title::url}}/g, encodeURIComponent(this.title))
         ;
-        messageText = messageFormatting(
-            messageText,
-            'Codex',
-            false,
-            false,
-            null,
-        );
+        const currentChatId = this_chid;
+        let landingHack = false;
+        if ((this_chid ?? selected_group) == null) {
+            landingHack = true;
+            setCharacterId(1);
+        }
+        messageText = messageFormattingWithLanding(messageText);
+        if (landingHack) {
+            setCharacterId(currentChatId);
+        }
         const dom = document.createElement('div');
         dom.innerHTML = messageText;
         this.linker.addCodexLinks(dom, [this.entry]);

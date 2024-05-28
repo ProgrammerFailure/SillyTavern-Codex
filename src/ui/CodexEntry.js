@@ -1,7 +1,9 @@
-import { getRequestHeaders, messageFormatting } from '../../../../../../script.js';
+import { getRequestHeaders, messageFormatting, setCharacterId, this_chid } from '../../../../../../script.js';
+import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
+import { messageFormattingWithLanding } from '../lib/messageFormattingWithLanding.js';
 import { waitForFrame } from '../lib/wait.js';
 import { Entry } from '../st/wi/Entry.js';
 import { CodexBaseEntry } from './CodexBaseEntry.js';
@@ -159,13 +161,16 @@ export class CodexEntry extends CodexBaseEntry {
             .replace(/{{title}}/g, this.title)
             .replace(/{{title::url}}/g, encodeURIComponent(this.title))
         ;
-        messageText = messageFormatting(
-            messageText,
-            'Codex',
-            false,
-            false,
-            null,
-        );
+        const currentChatId = this_chid;
+        let landingHack = false;
+        if ((this_chid ?? selected_group) == null) {
+            landingHack = true;
+            setCharacterId(1);
+        }
+        messageText = messageFormattingWithLanding(messageText);
+        if (landingHack) {
+            setCharacterId(currentChatId);
+        }
         const dom = document.createElement('div');
         dom.innerHTML = messageText;
         this.linker.addCodexLinks(dom, [this.entry]);
@@ -187,13 +192,7 @@ export class CodexEntry extends CodexBaseEntry {
                     const sec = document.createElement('section');
                     sec.id = it.id;
                     sec.setAttribute('data-name', it.name);
-                    sec.innerHTML = messageFormatting(
-                        [it.prefix, it.content, it.suffix].filter(it=>it).join('\n'),
-                        'Codex',
-                        false,
-                        false,
-                        null,
-                    );
+                    sec.innerHTML = messageFormattingWithLanding([it.prefix, it.content, it.suffix].filter(it=>it).join('\n'));
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');
                         btn.classList.add('menu_icon');
