@@ -552,7 +552,7 @@ export class Settings {
             const getUpdateEntries = async()=>{
                 log('[getUpdateEntries()]');
                 const results = [];
-                const bookNames = [...document.querySelectorAll('#world_editor_select > option')].map(it=>it.textContent);
+                const bookNames = [...document.querySelectorAll('#world_editor_select > option:not([value=""])')].map(it=>it.textContent);
                 for (const name of bookNames) {
                     log('[getUpdateEntries()]', { name });
                     const book = new Book(name);

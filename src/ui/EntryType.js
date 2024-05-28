@@ -40,7 +40,7 @@ export class EntryType {
 
     async applyChanges() {
         log('[EntryType.applyChanges()]', this.id, this.name);
-        const bookNames = [...document.querySelectorAll('#world_editor_select > option')].map(it=>it.textContent);
+        const bookNames = [...document.querySelectorAll('#world_editor_select > option:not([value=""])')].map(it=>it.textContent);
         for (const name of bookNames) {
             log('[EntryType.applyChanges()]', this.id, this.name, { name });
             const book = new Book(name);
