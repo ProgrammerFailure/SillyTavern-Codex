@@ -90,6 +90,15 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--mapEditor > label:has(input[ty
 body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor > label:has(input[type="checkbox"]) > .stcdx--labelText:after {
   content: ": ";
 }
+#shadow_popup:has(#stcdx--zoneEditor) #stcdx--mapEditor .stcdx--inputWithBtn,
+#shadow_popup:has(#stcdx--mapEditor) #stcdx--mapEditor .stcdx--inputWithBtn,
+body:has(.stcdx--mapEditor) #shadow_popup #stcdx--mapEditor .stcdx--inputWithBtn,
+#shadow_popup:has(#stcdx--zoneEditor) #stcdx--zoneEditor .stcdx--inputWithBtn,
+#shadow_popup:has(#stcdx--mapEditor) #stcdx--zoneEditor .stcdx--inputWithBtn,
+body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--inputWithBtn {
+  display: flex;
+  gap: 0.5em;
+}
 #shadow_popup:has(#stcdx--zoneEditor) #stcdx--mapEditor .stcdx--inputs,
 #shadow_popup:has(#stcdx--mapEditor) #stcdx--mapEditor .stcdx--inputs,
 body:has(.stcdx--mapEditor) #shadow_popup #stcdx--mapEditor .stcdx--inputs,
@@ -1217,4 +1226,23 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 }
 .stcdx--createMenu > .mes_text .actions {
   flex: 0 0 auto;
+}
+.stcdx--explorer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.5em;
+}
+.stcdx--explorer .stcdx--explorer-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  background-color: var(--SmartThemeBotMesBlurTintColor);
+  cursor: pointer;
+  border: 1px solid var(--SmartThemeBorderColor);
+  transition: 200ms;
+  padding: 0.25em;
+}
+.stcdx--explorer .stcdx--explorer-thumb:hover {
+  border-color: var(--SmartThemeQuoteColor);
 }
