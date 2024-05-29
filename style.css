@@ -650,6 +650,8 @@ body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow {
   flex-direction: row;
   gap: 1em;
   justify-content: space-between;
+  container-type: inline-size;
+  container-name: stfe--actions;
 }
 body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .stcdx--editor-actions {
   display: flex;
@@ -658,6 +660,11 @@ body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .stcdx--editor-ac
 }
 body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .menu_button {
   white-space: nowrap;
+}
+@container stfe--actions (max-width: 31rem) {
+  .menu_button_icon > span {
+    display: none;
+  }
 }
 body .stcdx--root > .stcdx--editor .stcdx--editor-content {
   flex: 1 1 auto;

@@ -2,6 +2,7 @@ import { getRequestHeaders, messageFormatting, setCharacterId, this_chid } from 
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';
+import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer.js';
 import { imgUpload } from '../lib/imgUpload.js';
 import { log } from '../lib/log.js';
 import { messageFormattingWithLanding } from '../lib/messageFormattingWithLanding.js';
@@ -446,10 +447,41 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     const actions = document.createElement('div'); {
                         actions.classList.add('stcdx--editor-actions');
+                        const addImg = document.createElement('div'); {
+                            addImg.classList.add('menu_button');
+                            addImg.classList.add('menu_button_icon');
+                            addImg.title = 'Insert Image';
+                            addImg.addEventListener('pointerdown', async()=>{
+                                const idx = [editor.selectionStart, editor.selectionEnd];
+                                const fe = new FileExplorer('~/user/images/codex');
+                                fe.typeList = ['image'];
+                                await fe.show();
+                                if (fe.selection) {
+                                    const before = editor.value.slice(0, idx[0]);
+                                    const after = editor.value.slice(idx[1]);
+                                    editor.value = [
+                                        before,
+                                        `![image](${fe.selection})`,
+                                        after,
+                                    ].join('');
+                                    editor.dispatchEvent(new Event('input', { bubbles:true }));
+                                }
+                            });
+                            const i = document.createElement('i'); {
+                                i.classList.add('fa-solid');
+                                i.classList.add('fa-image');
+                                addImg.append(i);
+                            }
+                            const text = document.createElement('span'); {
+                                text.textContent = 'Insert Image';
+                                addImg.append(text);
+                            }
+                            actions.append(addImg);
+                        }
                         const changeType = document.createElement('div'); {
                             changeType.classList.add('menu_button');
                             changeType.classList.add('menu_button_icon');
-                            changeType.title = `Current type: ${type?.name ?? 'Basic Text'}`;
+                            changeType.title = `Change Entry Type\n---\nCurrent type: ${type?.name ?? 'Basic Text'}`;
                             changeType.addEventListener('click', async()=>{
                                 const types = ['Basic Text', ...this.settings.entryTypeList.map(it=>`Custom: ${it.name}`)];
                                 const newTypeName = (await executeSlashCommands(`/buttons labels=${JSON.stringify(types)} Codex Entry Type`))?.pipe;
@@ -470,7 +502,7 @@ export class CodexEntry extends CodexBaseEntry {
                                         type.prefix,
                                         ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
                                         type.suffix,
-                                        `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
+                                        this.properties.toString(),
                                     ].filter(it=>it).join('\n');
                                 } else {
                                     // switching to basic text
@@ -497,6 +529,7 @@ export class CodexEntry extends CodexBaseEntry {
                         const wi = document.createElement('div'); {
                             wi.classList.add('menu_button');
                             wi.classList.add('menu_button_icon');
+                            wi.title = 'Open in WI Panel';
                             wi.addEventListener('click', ()=>{
                                 this.toggleEditor();
                                 this.entry.showInWorldInfo();
@@ -575,7 +608,7 @@ export class CodexEntry extends CodexBaseEntry {
                                 type.prefix,
                                 ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
                                 type.suffix,
-                                `{{//codex-type:${btoa(encodeURIComponent(JSON.stringify(type)))}}}`,
+                                this.properties.toString(),
                             ].filter(it=>it).join('\n');
                         });
                         editor.addEventListener('paste', async(evt)=>{
