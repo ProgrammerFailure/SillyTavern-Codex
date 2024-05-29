@@ -20,6 +20,7 @@ export class Entry {
             originalKeyList: props.key.join(', '),
             originalComment: props.comment,
             originalContent: props.content,
+            originalIsDisabled: props.disable,
         });
         return instance;
     }
