@@ -1,5 +1,7 @@
 import { callPopup } from '../../../../../../../script.js';
 import { quickReplyApi } from '../../../../../quick-reply/index.js';
+import { imgBrowse } from '../../lib/imgBrowse.js';
+import { imgUpload } from '../../lib/imgUpload.js';
 
 import { warn } from '../../lib/log.js';
 // eslint-disable-next-line no-unused-vars
@@ -42,6 +44,27 @@ export class ZoneEditor {
         url.value = this.zone.url ?? '';
         url.addEventListener('input', ()=>{
             this.zone.url = url.value.trim();
+        });
+        url.addEventListener('paste', async(evt)=>{
+            if (evt.clipboardData.types.includes('Files') && evt.clipboardData.files?.length > 0 && evt.clipboardData.files[0].type.startsWith('image/')) {
+                url.disabled = true;
+                url.value = 'uploading...';
+                const response = await imgUpload(evt);
+                if (!response.ok) {
+                    alert('something went wrong');
+                    url.value = '';
+                    url.disabled = false;
+                    return;
+                }
+                url.value = `/user/images/codex/${response.name}`;
+                url.disabled = false;
+                url.dispatchEvent(new Event('input', { bubbles:true }));
+            }
+        });
+        /**@type {HTMLElement} */
+        const urlBrowse = dom.querySelector('#stcdx--zone-url-browse');
+        urlBrowse.addEventListener('click', async()=>{
+            await imgBrowse(url);
         });
         /**@type {HTMLInputElement}*/
         const isAlwaysVisible = dom.querySelector('#stcdx--zone-isAlwaysVisible');
