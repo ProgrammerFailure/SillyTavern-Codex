@@ -1216,30 +1216,3 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 		flex: 0 0 auto;
 	}
 }
-
-
-
-
-
-.stcdx--explorer {
-	display: grid;
-	grid-template-columns: repeat(
-		auto-fill,
-		minmax(10rem, 1fr);
-	);
-	gap: 0.5em;
-	.stcdx--explorer-thumb {
-		width: 100%;
-		aspect-ratio: 1 / 1;
-		object-fit: contain;
-		object-position: center;
-		background-color: var(--SmartThemeBotMesBlurTintColor);
-		cursor: pointer;
-		border: 1px solid var(--SmartThemeBorderColor);
-		transition: 200ms;
-		padding: 0.25em;
-		&:hover {
-			border-color: var(--SmartThemeQuoteColor);
-		}
-	}
-}
