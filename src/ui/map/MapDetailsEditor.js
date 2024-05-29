@@ -1,6 +1,7 @@
 import { callPopup, getRequestHeaders } from '../../../../../../../script.js';
 import { POPUP_TYPE, Popup } from '../../../../../../popup.js';
 import { quickReplyApi } from '../../../../../quick-reply/index.js';
+import { imgBrowse } from '../../lib/imgBrowse.js';
 import { imgUpload } from '../../lib/imgUpload.js';
 
 import { warn } from '../../lib/log.js';
@@ -52,7 +53,6 @@ export class MapDetailsEditor {
             if (evt.clipboardData.types.includes('Files') && evt.clipboardData.files?.length > 0 && evt.clipboardData.files[0].type.startsWith('image/')) {
                 url.disabled = true;
                 url.value = 'uploading...';
-                const file = evt.clipboardData.files[0];
                 const response = await imgUpload(evt);
                 if (!response.ok) {
                     alert('something went wrong');
@@ -68,43 +68,7 @@ export class MapDetailsEditor {
         /**@type {HTMLElement} */
         const urlBrowse = dom.querySelector('#stcdx--map-url-browse');
         urlBrowse.addEventListener('click', async()=>{
-            const browseDom = document.createElement('div'); {
-                browseDom.classList.add('stcdx--explorer');
-                browseDom.textContent = 'Loading...';
-            }
-            fetch('/api/plugins/files/list', {
-                method: 'POST',
-                headers: getRequestHeaders(),
-                body: JSON.stringify({
-                    folder: '~/user/images/codex',
-                }),
-            }).then(async(response)=>{
-                if (!response.ok) {
-                    alert('Something went wrong');
-                    return;
-                }
-                const files = (await response.json()).filter(it=>it.type == 'file' && ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'].includes(it.path.split('.').pop()));
-                browseDom.innerHTML = '';
-                for (const file of files) {
-                    const img = document.createElement('img'); {
-                        img.classList.add('stcdx--explorer-thumb');
-                        img.src = `/user/images/codex/${file.path}`;
-                        img.addEventListener('click', ()=>{
-                            url.value = `/user/images/codex/${file.path}`;
-                            url.dispatchEvent(new Event('input', { bubbles:true }));
-                            dlg.completeAffirmative();
-                        });
-                        browseDom.append(img);
-                    }
-                }
-            });
-            const dlg = new Popup(browseDom, POPUP_TYPE.TEXT, null, {
-                okButton:'Cancel',
-                wide: true,
-                large: true,
-            });
-            dlg.dom.style.zIndex = '10010';
-            await dlg.show();
+            await imgBrowse(url);
         });
         /**@type {HTMLTextAreaElement}*/
         const description = dom.querySelector('#stcdx--map-description');
