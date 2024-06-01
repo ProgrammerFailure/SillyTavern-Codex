@@ -1,4 +1,4 @@
-import { getRequestHeaders, messageFormatting, setCharacterId, this_chid } from '../../../../../../script.js';
+import { setCharacterId, this_chid } from '../../../../../../script.js';
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';

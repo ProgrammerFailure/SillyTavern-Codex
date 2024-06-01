@@ -11,18 +11,16 @@ import { Matcher } from '../Matcher.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from '../Settings.js';
 import { log } from '../lib/log.js';
-import { waitForFrame } from '../lib/wait.js';
 // eslint-disable-next-line no-unused-vars
 import { Book } from '../st/wi/Book.js';
 import { Entry } from '../st/wi/Entry.js';
 import { worldInfoLogic } from '../st/wi/Logic.js';
 // eslint-disable-next-line no-unused-vars
 import { CodexBaseEntry } from './CodexBaseEntry.js';
-import { CodexCharList } from './CodexCharList.js';
+import { CodexBookMenu } from './CodexBookMenu.js';
+import { CodexBooksMenu } from './CodexBooksMenu.js';
 import { CodexCreateMenu } from './CodexCreateMenu.js';
-import { CodexEntry } from './CodexEntry.js';
 import { CodexEntryFactory } from './CodexEntryFactory.js';
-import { CodexMap } from './CodexMap.js';
 
 export class Codex {
     /**@type {Settings}*/ settings;
@@ -39,6 +37,7 @@ export class Codex {
     /**@type {CodexBaseEntry}*/ newContent;
 
     /**@type {CodexCreateMenu}*/ createMenu;
+    /**@type {CodexBooksMenu}*/ booksMenu;
 
     /**@type {Match[]}*/ history = [];
     /**@type {Number}*/ historyIdx = 0;
@@ -116,6 +115,19 @@ export class Codex {
             // await wiPromise;
             this.isCreating = false;
         };
+
+        this.booksMenu = new CodexBooksMenu(settings, matcher, linker, bookList);
+        this.booksMenu.onBookSelected = async(book)=>{
+            this.showBookMenu(book.name);
+        };
+        this.booksMenu.onEntrySelected = async(book, entry)=>{
+            this.show(new Match(book.name, entry));
+        };
+
+        this.bookMenu = new CodexBookMenu(settings, matcher, linker, bookList);
+        this.bookMenu.onEntrySelected = async(book, entry)=>{
+            this.show(new Match(book.name, entry));
+        };
     }
 
     startReload() {
@@ -132,8 +144,14 @@ export class Codex {
         this.history = this.history.filter(it=>it);
         if (this.dom) {
             if (this.dom.classList.contains('stcdx--active')) {
-                if (this.history.length == 0) {
+                if (this.content == this.booksMenu) {
+                    this.showBooksMenu();
+                } else if (this.content == this.bookMenu) {
+                    this.showBookMenu(this.bookMenu.book);
+                } else if (this.history.length == 0) {
                     this.content?.unrender();
+                    this.content = null;
+                    this.showBooksMenu();
                 } else {
                     const currentIndex = this.history.findIndex(match=>match.book == currentMatch.book && match.entry.uid == currentMatch.entry.uid);
                     if (currentIndex == -1) {
@@ -274,6 +292,7 @@ export class Codex {
                     const name = document.createElement('div'); {
                         name.classList.add('stcdx--name');
                         name.textContent = `${book.name}`;
+                        name.addEventListener('click', ()=>this.showBookMenu(book.name));
                         li.append(name);
                     }
                     const entryList = document.createElement('ul'); {
@@ -311,6 +330,15 @@ export class Codex {
                 // root.classList.add('draggable');
                 const head = document.createElement('div'); {
                     head.classList.add('stcdx--header');
+                    const home = document.createElement('div'); {
+                        home.classList.add('stcdx--action');
+                        home.classList.add('stcdx--home');
+                        home.classList.add('fa-solid');
+                        home.classList.add('fa-house');
+                        home.title = 'Home';
+                        home.addEventListener('click', ()=>this.showBooksMenu());
+                        head.append(home);
+                    }
                     const menuTrigger = document.createElement('div'); {
                         this.menuTrigger = menuTrigger;
                         menuTrigger.classList.add('stcdx--action');
@@ -420,7 +448,7 @@ export class Codex {
                     root.append(head);
                 }
                 document.body.append(root);
-                this.showCreateMenu();
+                // this.showBooksMenu();
                 dragElement($(root));
             }
         } else if (!this.dom.parentElement) {
@@ -437,6 +465,15 @@ export class Codex {
 
     async showCreateMenu() {
         await this.transitionToNewContent(this.createMenu);
+    }
+
+    async showBooksMenu() {
+        await this.transitionToNewContent(this.booksMenu);
+    }
+
+    async showBookMenu(book) {
+        this.bookMenu.book = book;
+        await this.transitionToNewContent(this.bookMenu);
     }
 
 
@@ -458,16 +495,29 @@ export class Codex {
             }
         } else if (this.content) {
             await this.content.show();
+        } else {
+            await this.showBooksMenu();
         }
     }
     async transitionToNewContent(content) {
+        // if (content == this.content) {
+        //     await this.content.show();
+        //     return;
+        // }
         this.newContent = content;
-        this.dom.append(await content.render());
-        await Promise.all([
-            this.content?.hide(),
-            content.show(),
-        ]);
-        this.content?.unrender();
+        if (this.content == content) {
+            await this.content.hide();
+            this.content.unrender();
+            this.dom.append(await content.render());
+            await content.show();
+        } else {
+            this.dom.append(await content.render());
+            await Promise.all([
+                this.content?.hide(),
+                content.show(),
+            ]);
+            this.content?.unrender();
+        }
         if (this.newContent == content) {
             this.content = content;
             this.newContent = null;

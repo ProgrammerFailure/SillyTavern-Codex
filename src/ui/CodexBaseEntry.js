@@ -1,4 +1,4 @@
-import { messageFormatting, setCharacterId, substituteParams, this_chid } from '../../../../../../script.js';
+import { setCharacterId, substituteParams, this_chid } from '../../../../../../script.js';
 import { selected_group } from '../../../../../group-chats.js';
 import { delay } from '../../../../../utils.js';
 
@@ -127,7 +127,7 @@ export class CodexBaseEntry {
 
 
     async show() {
-        // await this.render();
+        await this.render();
         this.dom.classList.add('stcdx--preactive');
         await waitForFrame();
         this.dom.classList.add('stcdx--active');
