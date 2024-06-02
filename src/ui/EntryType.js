@@ -1,3 +1,4 @@
+import { executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { uuidv4 } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
 import { Book } from '../st/wi/Book.js';
@@ -16,9 +17,19 @@ export class EntryType {
 
     /**@type {string}*/ id;
     /**@type {string}*/ name = '';
+    /**@type {string}*/ defaultFieldValues = '';
     /**@type {string}*/ prefix = '';
     /**@type {string}*/ suffix = '';
     /**@type {EntrySection[]}*/ sectionList = [];
+
+    get defaultFieldValueList() {
+        const re = /^([^=]+)=(.*)$/;
+        return this.defaultFieldValues.split('\n')
+            .filter(it=>re.test(it))
+            .map(it=>re.exec(it))
+            .map(it=>({ field:it[1], value:it[2] }))
+        ;
+    }
 
 
 
@@ -50,9 +61,17 @@ export class EntryType {
                 const cdx = CodexEntryFactory.create(entry, null, null, null);
                 if (!(cdx instanceof CodexEntry)) continue;
                 const type = cdx.getType(this);
-                if (type.id == this.id && oc != entry.content) {
-                    log('[EntryType.applyChanges()]', this.id, this.name, { name, entry }, 'saveDebounced()');
-                    await entry.saveDebounced();
+                if (type.id == this.id) {
+                    if (oc != entry.content) {
+                        log('[EntryType.applyChanges()]', this.id, this.name, { name, entry }, 'saveDebounced()');
+                        await entry.saveDebounced();
+                    }
+                    for (const dv of type.defaultFieldValueList) {
+                        if (entry.rawData[dv.field] != dv.value) {
+                            log('[EntryType.applyChanges()]', this.id, this.name, { name, entry, dv }, '/setentryfield');
+                            await executeSlashCommandsWithOptions(`/setentryfield file="${book.name}" uid=${entry.uid} field="${dv.field}" ${dv.value.replace(/{/g, '\\{')}`);
+                        }
+                    }
                 }
             }
         }

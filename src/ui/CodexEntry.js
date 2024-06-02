@@ -77,6 +77,10 @@ export class CodexEntry extends CodexBaseEntry {
                 type.name = current.name;
                 isChanged = true;
             }
+            if (type.defaultFieldValues != current.defaultFieldValues) {
+                type.defaultFieldValues = current.defaultFieldValues;
+                isChanged = true;
+            }
             if (type.prefix != current.prefix) {
                 type.prefix = current.prefix;
                 isChanged = true;

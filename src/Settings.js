@@ -901,6 +901,32 @@ export class Settings {
                     }
                     cont.append(head);
                 }
+                const fieldsRow = document.createElement('div'); {
+                    fieldsRow.classList.add('stcdx--row');
+                    const fields = document.createElement('label'); {
+                        fields.classList.add('stcdx--setting');
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Default Field Values:';
+                            fields.append(text);
+                        }
+                        const inp = document.createElement('textarea'); {
+                            inp.classList.add('stcdx--input');
+                            inp.classList.add('text_pole');
+                            inp.value = item.defaultFieldValues;
+                            inp.placeholder = 'position=4\ndepth=10\nrole=0';
+                            inp.rows = 3;
+                            inp.addEventListener('input', ()=>{
+                                item.defaultFieldValues = inp.value;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            fields.append(inp);
+                        }
+                        fieldsRow.append(fields);
+                    }
+                    cont.append(fieldsRow);
+                }
                 const preSuff = document.createElement('div'); {
                     preSuff.classList.add('stcdx--row');
                     const prefix = document.createElement('label'); {

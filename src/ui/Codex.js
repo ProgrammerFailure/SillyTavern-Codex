@@ -1,6 +1,6 @@
 import { eventSource, event_types } from '../../../../../../script.js';
 import { dragElement } from '../../../../../RossAscends-mods.js';
-import { executeSlashCommands } from '../../../../../slash-commands.js';
+import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
 
 // eslint-disable-next-line no-unused-vars
@@ -109,8 +109,21 @@ export class Codex {
 
             const entry = Entry.from(book.name, { uid:null, key:[...`${key}`.split(/\s*,\s*/)], keysecondary:[], selectiveLogic:worldInfoLogic.AND_ANY, comment:'', content:typeContent[type], disable:false });
             this.isCreating = true;
-            executeSlashCommands(`/createentry file="${book.name}" key="${key}" ${typeContent[type]}`).then(result=>{
+            executeSlashCommands(`/createentry file="${book.name}" key="${key}" ${typeContent[type]}`).then(async(result)=>{
                 entry.uid = result?.pipe;
+                if (type.startsWith('Custom -')) {
+                    const et = this.settings.entryTypeList.find(it=>`Custom - ${it.name}` == type);
+                    let fields = et.defaultFieldValueList;
+                    const roleValue = fields.find(it=>it.field == 'role');
+                    if (roleValue) {
+                        fields.splice(fields.indexOf(roleValue), 1);
+                        fields.unshift(roleValue);
+                    }
+                    for (const dv of fields) {
+                        log('[SEF]', dv);
+                        await executeSlashCommandsWithOptions(`/setentryfield file="${book.name}" uid=${entry.uid} field="${dv.field}" ${dv.value.replace(/{/g, '\\{')}`);
+                    }
+                }
             });
             book.addEntry(entry);
             await this.show(new Match(book.name, entry));

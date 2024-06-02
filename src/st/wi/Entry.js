@@ -21,6 +21,7 @@ export class Entry {
             originalComment: props.comment,
             originalContent: props.content,
             originalIsDisabled: props.disable,
+            rawData: props,
         });
         return instance;
     }
@@ -42,6 +43,8 @@ export class Entry {
     /**@type {string}*/ originalComment;
     /**@type {string}*/ originalContent;
     /**@type {boolean}*/ originalIsDisabled;
+
+    /**@type {object}*/ rawData;
 
     /**@type {boolean}*/ isOpeningWorldInfoPanel = false;
 
