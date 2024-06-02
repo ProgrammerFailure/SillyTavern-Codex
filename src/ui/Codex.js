@@ -60,6 +60,8 @@ export class Codex {
 
     get isActive() { return this.dom?.classList?.contains('stcdx--active'); }
 
+    /**@type {(book:Book)=>void}*/ onBookAdded;
+
 
 
 
@@ -86,6 +88,7 @@ export class Codex {
                 book = new Book(this.createMenu.book);
                 await book.load();
                 this.bookList.push(book);
+                this.onBookAdded?.(book);
             }
             const key = this.createMenu.key;
             const type = this.createMenu.type;

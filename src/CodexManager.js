@@ -110,6 +110,9 @@ export class CodexManager {
                 this.linker,
                 this.bookList,
             );
+            this.codex.onBookAdded = (book)=>{
+                this.wiSettings.bookNameList.push(book.name);
+            };
         }
 
         this.wiButton = document.createElement('div'); {
