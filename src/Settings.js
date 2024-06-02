@@ -760,7 +760,7 @@ export class Settings {
         const wrapRect = this.dom.querySelector('.contentWrapper').getBoundingClientRect();
         for (const setting of this.settingList) {
             const rect = setting.dom.getBoundingClientRect();
-            if (rect.top > wrapRect.top) {
+            if (rect.top > wrapRect.top || rect.top < wrapRect.top && rect.bottom > wrapRect.top + wrapRect.height / 4) {
                 const cat = setting.dom.closest('.category').querySelector('.head').textContent;
                 const heads = [...this.dom.querySelectorAll('.categoriesWrapper .head')];
                 for (const head of heads) {
