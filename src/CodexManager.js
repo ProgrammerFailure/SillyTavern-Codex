@@ -289,6 +289,10 @@ export class CodexManager {
      * @param {Match} match
      */
     async toggleCodex(match = null) {
+        if (!this.codex) {
+            toastr.warning('hold on one second...', 'Codex is not ready yet');
+            while (!this.codex) await delay(100);
+        }
         await this.codex.toggle(match);
     }
 
