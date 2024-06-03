@@ -198,12 +198,6 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
 }
-body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) #top-bar {
-  z-index: 899;
-}
-body:has(#stcdx--codex.stcdx--active):has(#WorldInfo.openDrawer) #top-settings-holder {
-  z-index: 900;
-}
 #WorldInfo .stcdx--wiButton {
   white-space: nowrap;
   position: absolute;
