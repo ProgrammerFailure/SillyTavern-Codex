@@ -1309,3 +1309,6 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 .stcdx--bookMenu > .mes_text .stcdx--entries .stcdx--item:hover {
   opacity: 1;
 }
+.stcdx--askInstall {
+  text-align: left;
+}
