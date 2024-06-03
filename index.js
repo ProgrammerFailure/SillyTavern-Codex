@@ -71,11 +71,9 @@ const askInstallExtensions = async(urls)=>{
             const response = await request.json();
             toastr.success(`Extension "${response.display_name}" by ${response.author} (version ${response.version}) has been installed successfully!`, 'Extension installation successful');
         }
-        toastr.info('Reloading SillyTavern...');
-        await delay(500);
-        showLoader();
-        location.reload();
+        return true;
     }
+    return false;
 };
 
 const askInstallPlugins = async(urls)=>{
@@ -147,18 +145,15 @@ const askInstallPlugins = async(urls)=>{
             }
             toastr.success(`Plugin "${url.split('/').pop()}" has been installed successfully!`, 'Plugin installation successful');
         }
-        toastr.info('Restarting SillyTavern WebServer...');
-        await delay(500);
-        showLoader();
-        await fetch('/api/plugins/pluginmanager/restart');
-        await delay(1000);
-        while (!(await fetch('/', { method:'HEAD' })).ok) await delay(100);
-        location.reload();
+        return true;
     }
+    return false;
 };
 
 const checkDependencies = async()=>{
     let result = true;
+    let hasInstalledExtensions = false;
+    let hasInstalledPlugins = false;
 
     // check FileExplorer extension
     try {
@@ -166,7 +161,7 @@ const checkDependencies = async()=>{
     } catch {
         log('[DEP]', 'FileExplorer extension missing');
         result = false;
-        await askInstallExtensions(['https://github.com/LenAnderson/SillyTavern-FileExplorer']);
+        hasInstalledExtensions = await askInstallExtensions(['https://github.com/LenAnderson/SillyTavern-FileExplorer']);
     }
 
     // check Files plugin
@@ -174,7 +169,31 @@ const checkDependencies = async()=>{
     if (!response.ok) {
         log('[DEP]', 'File plugin missing');
         result = false;
-        await askInstallPlugins(['https://github.com/LenAnderson/SillyTavern-Files']);
+        hasInstalledPlugins = await askInstallPlugins(['https://github.com/LenAnderson/SillyTavern-Files']);
+    }
+
+    if (hasInstalledPlugins) {
+        toastr.info('Restarting SillyTavern WebServer...');
+        await delay(500);
+        showLoader();
+        await fetch('/api/plugins/pluginmanager/restart');
+        await delay(1000);
+        let done = false;
+        while (!done) {
+            await delay(100);
+            try {
+                done = (await fetch('/', { method:'HEAD' })).ok;
+            } catch { /* empty */ }
+        }
+        location.reload();
+        return false;
+    }
+    if (hasInstalledExtensions) {
+        toastr.info('Reloading SillyTavern...');
+        await delay(500);
+        showLoader();
+        location.reload();
+        return false;
     }
 
     return result;
