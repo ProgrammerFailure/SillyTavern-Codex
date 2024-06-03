@@ -538,6 +538,10 @@ export class Codex {
             this.content = content;
             this.newContent = null;
             this.edit.classList.remove('stcdx--disabled');
+            if (this.dom.children.length > 2) {
+                //HACK cleanup in case some content stuff is left over from timing issues and the like...
+                [...this.dom.children].slice(1).filter(it=>it != this.content.dom).forEach(it=>it.remove());
+            }
             return true;
         } else {
             content.unrender();
