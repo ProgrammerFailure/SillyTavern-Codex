@@ -77,7 +77,7 @@ export class Settings {
     /**@type {Function}*/ restartDebounced;
     /**@type {Function}*/ rerenderDebounced;
 
-    /**@type {Function}*/ onRestartRequired;
+    /**@type {(isForced:true)=>Promise}*/ onRestartRequired;
     /**@type {Function}*/ onRerenderRequired;
 
 
@@ -166,6 +166,23 @@ export class Settings {
                     this.save();
                     this.restartDebounced();
                 },
+            }));
+            this.settingList.push(ActionSetting.fromProps({ id:'stcdx--restart',
+                name: 'Restart Codex',
+                description: 'Restart Codex in case something has gone horribly wrong.',
+                category: ['General'],
+                initialValue: null,
+                actionList: [
+                    SettingAction.fromProps({ label: 'Restart',
+                        icon: 'fa-rotate',
+                        tooltip: 'Restart Codex',
+                        action: async()=>{
+                            toastr.info('Please wait...', 'Restarting Codex');
+                            await this.onRestartRequired(true);
+                            toastr.success('', 'Codex restarted');
+                        },
+                    }),
+                ],
             }));
         }
 

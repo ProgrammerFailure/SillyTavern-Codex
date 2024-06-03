@@ -40,18 +40,18 @@ export class CodexManager {
 
     /**@type {Number[]}*/ messageQueue = [];
 
-    /**@type {Function}*/ restartDebounced;
+    /**@type {(isForced:boolean)=>Promise}*/ restartDebounced;
     /**@type {Function}*/ processQueueDebounced;
 
 
 
 
     constructor() {
-        this.restartDebounced = debounceAsync(async()=>await this.restart(), 500);
+        this.restartDebounced = debounceAsync(async(isForced = false)=>await this.restart(isForced), 500);
         this.processQueueDebounced = debounceAsync(async()=>await this.processQueue());
 
         this.settings = new Settings(
-            ()=>this.restartDebounced(),
+            (isForced)=>this.restartDebounced(isForced),
             ()=>this.codex?.rerender(),
         );
 
@@ -68,13 +68,13 @@ export class CodexManager {
     }
 
 
-    async restart() {
+    async restart(isForced = false) {
         if (this.isRestarting) return;
         if (this.codex?.isEditing) return;
         this.isRestarting = true;
         log('== RESTART ==');
 
-        await this.stop();
+        await this.stop(isForced);
         await delay(500);
         await this.start();
 
@@ -151,7 +151,7 @@ export class CodexManager {
         this.isStarting = false;
     }
 
-    async stop() {
+    async stop(isForced = true) {
         if (this.isStopping) return;
         if (!this.isActive) return;
         this.isStopping = true;
@@ -162,7 +162,7 @@ export class CodexManager {
         Array.from(document.querySelectorAll('#chat > .mes .mes_text')).forEach(it=>this.linker.restoreChatMessage(it));
         this.matcher = null;
         this.linker = null;
-        if (!this.settings.isEnabled) {
+        if (!this.settings.isEnabled || isForced) {
             this.codex?.unrender();
             this.codex = null;
         } else {
