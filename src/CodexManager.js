@@ -40,7 +40,7 @@ export class CodexManager {
 
     /**@type {Number[]}*/ messageQueue = [];
 
-    /**@type {(isForced:boolean)=>Promise}*/ restartDebounced;
+    /**@type {(isForced?:boolean)=>Promise}*/ restartDebounced;
     /**@type {Function}*/ processQueueDebounced;
 
 
