@@ -1199,45 +1199,49 @@ body .stcdx--tooltip > .stcdx--content.stcdx--active {
 body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
   max-width: calc(100vw - (100vw - var(--sheldWidth)) / 2 - var(--nav-bar-width, 0));
 }
-.stcdx--createMenu > .mes_text {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text {
+  padding: 0 1em;
   display: flex;
   flex-direction: column;
   gap: 1em;
 }
-.stcdx--createMenu > .mes_text .menu_button {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text .menu_button {
   width: auto;
 }
-.stcdx--createMenu > .mes_text h2,
-.stcdx--createMenu > .mes_text h3 {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text h2,
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text h3 {
   flex: 0 0 auto;
   margin: 0;
 }
-.stcdx--createMenu > .mes_text .stcdx--crumbs {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text .stcdx--crumbs {
   text-align: center;
 }
-.stcdx--createMenu > .mes_text .stcdx--typeList {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text .stcdx--typeList {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.5em;
   align-items: stretch;
 }
-.stcdx--createMenu > .mes_text .stcdx--typeList .stcdx--notLoaded {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text .stcdx--typeList .stcdx--notLoaded {
   opacity: 0.5;
 }
-.stcdx--createMenu > .mes_text .stcdx--actions {
+body .stcdx--root > .stcdx--content.stcdx--createMenu > .mes_text .stcdx--actions {
   flex: 0 0 auto;
 }
-.stcdx--booksMenu > .mes_text .stcdx--book {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu {
+  padding: 0 1em;
+}
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--book {
   display: flex;
   gap: 1em;
   align-items: flex-start;
   margin-bottom: 2em;
 }
-.stcdx--booksMenu > .mes_text .stcdx--book:hover .stcdx--head {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--book:hover .stcdx--head {
   opacity: 1;
 }
-.stcdx--booksMenu > .mes_text .stcdx--book .stcdx--head {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--book .stcdx--head {
   flex: 0 0 auto;
   width: 7rem;
   max-width: 25%;
@@ -1249,18 +1253,18 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
   opacity: 0.5;
   transition: 200ms;
 }
-.stcdx--booksMenu > .mes_text .stcdx--book .stcdx--head .stcdx--cover {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--book .stcdx--head .stcdx--cover {
   cursor: pointer;
   border-radius: 10px;
   width: 100%;
 }
-.stcdx--booksMenu > .mes_text .stcdx--entries {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--entries {
   flex: 1 1 auto;
   display: grid;
   gap: 0.25em;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 }
-.stcdx--booksMenu > .mes_text .stcdx--entries .stcdx--item {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--entries .stcdx--item {
   cursor: pointer;
   opacity: 0.5;
   transition: 200ms;
@@ -1269,29 +1273,29 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
   white-space: nowrap;
   overflow: hidden;
 }
-.stcdx--booksMenu > .mes_text .stcdx--entries .stcdx--item:hover {
+body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--entries .stcdx--item:hover {
   opacity: 1;
 }
-.stcdx--bookMenu > .mes_text .stcdx--head {
+body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--head {
   display: flex;
   gap: 1em;
   align-items: center;
   margin-bottom: 1em;
 }
-.stcdx--bookMenu > .mes_text .stcdx--head .stcdx--cover {
+body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--head .stcdx--cover {
   flex: 0 0 auto;
   width: 10rem;
   max-width: 33%;
   cursor: pointer;
   border-radius: 10px;
 }
-.stcdx--bookMenu > .mes_text .stcdx--entries {
+body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--entries {
   flex: 1 1 auto;
   display: grid;
   gap: 0.25em;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 }
-.stcdx--bookMenu > .mes_text .stcdx--entries .stcdx--item {
+body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--entries .stcdx--item {
   cursor: pointer;
   opacity: 0.5;
   transition: 200ms;
@@ -1300,31 +1304,34 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
   white-space: nowrap;
   overflow: hidden;
 }
-.stcdx--bookMenu > .mes_text .stcdx--entries .stcdx--item:hover {
+body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--entries .stcdx--item:hover {
   opacity: 1;
 }
-.stcdx--activateBooksMenu > .mes_text {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu {
+  padding: 0 1em;
+}
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text {
   display: flex;
   flex-direction: column;
   gap: 1em;
 }
-.stcdx--activateBooksMenu > .mes_text .menu_button {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .menu_button {
   width: auto;
 }
-.stcdx--activateBooksMenu > .mes_text .stcdx--books {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--books {
   flex: 1 1 auto;
 }
-.stcdx--activateBooksMenu > .mes_text .stcdx--books .stcdx--book {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--books .stcdx--book {
   display: flex;
   align-items: baseline;
   gap: 1em;
   opacity: 0.5;
   transition: 200ms;
 }
-.stcdx--activateBooksMenu > .mes_text .stcdx--books .stcdx--book:has(:checked) {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--books .stcdx--book:has(:checked) {
   opacity: 1;
 }
-.stcdx--activateBooksMenu > .mes_text .stcdx--actions {
+body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--actions {
   flex: 0 0 auto;
   display: flex;
   gap: 1em;
