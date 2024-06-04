@@ -69,6 +69,14 @@ export class SlashCommandHandler {
 
         SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-edit',
             callback: (args, value)=>this.handleCodexEdit(args, value),
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'wi',
+                    description: 'open in WI panel',
+                    typeList: [ARGUMENT_TYPE.BOOLEAN],
+                    defaultValue: 'false',
+                    enumList: ['true', 'false'],
+                }),
+            ],
             unnamedArgumentList: [
                 SlashCommandArgument.fromProps({ description: 'text / keys',
                     typeList: [ARGUMENT_TYPE.STRING],
@@ -176,7 +184,11 @@ export class SlashCommandHandler {
         const matches = this.matcher.findMatches(value);
         if (matches.length > 0) {
             await this.manager.showCodex(matches[0]);
-            this.manager.codex.toggleEditor();
+            if (isTrueBoolean(args.wi)) {
+                matches[0].entry.showInWorldInfo();
+            } else {
+                this.manager.codex.toggleEditor();
+            }
         }
     }
 
