@@ -260,7 +260,37 @@ export class Settings {
             }));
         }
 
-        // Tooltips
+
+        // UI
+        {
+            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--alternateBg',
+                name: 'Alternate background color',
+                description: 'Use the SmartThemeBlurTintColor instead of SmartThemeBotMesBlurTintColor as Codex background.',
+                category: ['UI'],
+                initialValue: this.alternateBg,
+                onChange: (it)=>{
+                    this.alternateBg = it.value;
+                    document.body.style.setProperty('--stcdx--bgColor', `${this.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
+                    this.save();
+                },
+            }));
+            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--headerFontSize',
+                name: 'Header button scale',
+                description: 'Size of the buttons in the Codex header, relative to font size.',
+                min: 0.1,
+                max: 5,
+                step: 0.1,
+                category: ['UI'],
+                initialValue: this.headerFontSize,
+                onChange: (it)=>{
+                    this.headerFontSize = it.value;
+                    document.body.style.setProperty('--stcdx--headerFontSize', `${this.headerFontSize}`);
+                    this.save();
+                },
+            }));
+        }
+
+        // UI > Tooltips
         {
             this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--noTooltips',
                 name: 'Disable tooltips',
@@ -286,7 +316,7 @@ export class Settings {
             }));
         }
 
-        // Animations
+        // UI > Animations
         {
             this.settingList.push(NumberSetting.fromProps({ id:'stcdx--transitionTime',
                 name: 'Transition duration',
@@ -341,36 +371,6 @@ export class Settings {
                 onChange: (it)=>{
                     this.cycleDelay = it.value;
                     document.body.style.setProperty('--stcdx--cycleDelay', `${this.cycleDelay}`);
-                    this.save();
-                },
-            }));
-        }
-
-
-        // UI
-        {
-            this.settingList.push(CheckboxSetting.fromProps({ id:'stcdx--alternateBg',
-                name: 'Alternate background color',
-                description: 'Use the SmartThemeBlurTintColor instead of SmartThemeBotMesBlurTintColor as Codex background.',
-                category: ['UI'],
-                initialValue: this.alternateBg,
-                onChange: (it)=>{
-                    this.alternateBg = it.value;
-                    document.body.style.setProperty('--stcdx--bgColor', `${this.alternateBg ? 'var(--SmartThemeBlurTintColor)' : 'var(--SmartThemeBotMesBlurTintColor)'}`);
-                    this.save();
-                },
-            }));
-            this.settingList.push(NumberSetting.fromProps({ id:'stcdx--headerFontSize',
-                name: 'Header button scale',
-                description: 'Size of the buttons in the Codex header, relative to font size.',
-                min: 0.1,
-                max: 5,
-                step: 0.1,
-                category: ['UI'],
-                initialValue: this.headerFontSize,
-                onChange: (it)=>{
-                    this.headerFontSize = it.value;
-                    document.body.style.setProperty('--stcdx--headerFontSize', `${this.headerFontSize}`);
                     this.save();
                 },
             }));
