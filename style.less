@@ -1211,7 +1211,7 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 			opacity: 0.5;
 		}
 	}
-	.actions {
+	.stcdx--actions {
 		flex: 0 0 auto;
 	}
 }
@@ -1311,6 +1311,38 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 				opacity: 1;
 			}
 		}
+	}
+}
+
+
+.stcdx--activateBooksMenu > .mes_text {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+
+	.menu_button {
+		width: auto;
+	}
+
+	.stcdx--books {
+		flex: 1 1 auto;
+		.stcdx--book {
+			display: flex;
+			align-items: baseline;
+			gap: 1em;
+			opacity: 0.5;
+			transition: 200ms;
+			&:has(:checked) {
+				opacity: 1;
+			}
+		}
+	}
+
+	.stcdx--actions {
+		flex: 0 0 auto;
+		display: flex;
+		gap: 1em;
+		justify-content: center;
 	}
 }
 

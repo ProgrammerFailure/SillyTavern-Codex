@@ -1225,7 +1225,7 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 .stcdx--createMenu > .mes_text .stcdx--typeList .stcdx--notLoaded {
   opacity: 0.5;
 }
-.stcdx--createMenu > .mes_text .actions {
+.stcdx--createMenu > .mes_text .stcdx--actions {
   flex: 0 0 auto;
 }
 .stcdx--booksMenu > .mes_text .stcdx--book {
@@ -1302,6 +1302,33 @@ body:has(#stcdx--codex.stcdx--active) #stcdx--settings-v2 {
 }
 .stcdx--bookMenu > .mes_text .stcdx--entries .stcdx--item:hover {
   opacity: 1;
+}
+.stcdx--activateBooksMenu > .mes_text {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.stcdx--activateBooksMenu > .mes_text .menu_button {
+  width: auto;
+}
+.stcdx--activateBooksMenu > .mes_text .stcdx--books {
+  flex: 1 1 auto;
+}
+.stcdx--activateBooksMenu > .mes_text .stcdx--books .stcdx--book {
+  display: flex;
+  align-items: baseline;
+  gap: 1em;
+  opacity: 0.5;
+  transition: 200ms;
+}
+.stcdx--activateBooksMenu > .mes_text .stcdx--books .stcdx--book:has(:checked) {
+  opacity: 1;
+}
+.stcdx--activateBooksMenu > .mes_text .stcdx--actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 1em;
+  justify-content: center;
 }
 .stcdx--askInstall {
   text-align: left;

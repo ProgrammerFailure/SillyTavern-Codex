@@ -15,6 +15,7 @@ import { log } from '../lib/log.js';
 import { Book } from '../st/wi/Book.js';
 import { Entry } from '../st/wi/Entry.js';
 import { worldInfoLogic } from '../st/wi/Logic.js';
+import { CodexActivateBooksMenu } from './CodexActivateBooksMenu.js';
 // eslint-disable-next-line no-unused-vars
 import { CodexBaseEntry } from './CodexBaseEntry.js';
 import { CodexBookMenu } from './CodexBookMenu.js';
@@ -38,6 +39,7 @@ export class Codex {
 
     /**@type {CodexCreateMenu}*/ createMenu;
     /**@type {CodexBooksMenu}*/ booksMenu;
+    /**@type {CodexActivateBooksMenu}*/ activateBooksMenu;
 
     /**@type {Match[]}*/ history = [];
     /**@type {Number}*/ historyIdx = 0;
@@ -78,9 +80,7 @@ export class Codex {
         this.createMenu = new CodexCreateMenu(settings, matcher, linker, bookList);
         this.createMenu.onStageChanged = async()=>await this.showCreateMenu();
         this.createMenu.onCanceled = async()=>{
-            await this.createMenu.hide();
-            this.createMenu.unrender();
-            this.content = null;
+            await this.showBooksMenu();
         };
         this.createMenu.onCompleted = async()=>{
             let book = this.bookList.find(it=>it.name == this.createMenu.book);
@@ -143,6 +143,12 @@ export class Codex {
         this.bookMenu = new CodexBookMenu(settings, matcher, linker, bookList);
         this.bookMenu.onEntrySelected = async(book, entry)=>{
             this.show(new Match(book.name, entry));
+        };
+
+        this.activateBooksMenu = new CodexActivateBooksMenu(settings, matcher, linker, bookList);
+        this.activateBooksMenu.onCanceled = async()=>await this.showBooksMenu();
+        this.activateBooksMenu.onApplied = async()=>{
+            await this.activateBooksMenu.hide();
         };
     }
 
@@ -484,12 +490,20 @@ export class Codex {
     }
 
     async showBooksMenu() {
-        await this.transitionToNewContent(this.booksMenu);
+        if (this.bookList.length == 0) {
+            await this.showActivateBooksMenu();
+        } else {
+            await this.transitionToNewContent(this.booksMenu);
+        }
     }
 
     async showBookMenu(book) {
         this.bookMenu.book = book;
         await this.transitionToNewContent(this.bookMenu);
+    }
+
+    async showActivateBooksMenu() {
+        await this.transitionToNewContent(this.activateBooksMenu);
     }
 
 
