@@ -77,7 +77,7 @@ export class Book {
             cover: url,
         };
         if (!propsEntry) {
-            const uid = (await executeSlashCommandsWithOptions(`/createentry file="${this.name}" key="codex-book:,codex-skip:" \\{\\{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`)).pipe;
+            const uid = (await executeSlashCommandsWithOptions(`/createentry file="${this.name}" key="codex-book:, codex-skip:" \\{\\{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`)).pipe;
             await executeSlashCommandsWithOptions(`/setentryfield file="${this.name}" uid=${uid} field=disable true`);
         } else {
             await executeSlashCommandsWithOptions(`/setentryfield file="${this.name}" uid=${propsEntry.uid} field=content \\{\\{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`);
