@@ -59,6 +59,7 @@ export class CodexBookMenu extends CodexBaseEntry {
                         cover.title = 'Click to change cover';
                         cover.addEventListener('click', async()=>{
                             const fe = new FileExplorer('~/user/images/codex');
+                            fe.isPicker = true;
                             fe.typeList = ['image'];
                             await fe.show();
                             if (fe.selection) {

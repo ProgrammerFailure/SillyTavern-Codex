@@ -7,6 +7,7 @@ import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer
  */
 export const imgBrowse = async(url)=>{
     const fe = new FileExplorer('~/user/images/codex');
+    fe.isPicker = true;
     fe.typeList = ['image'];
     fe.popup.dom.style.zIndex = '10010';
     await fe.show();

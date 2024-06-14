@@ -458,6 +458,7 @@ export class CodexEntry extends CodexBaseEntry {
                             addImg.addEventListener('pointerdown', async()=>{
                                 const idx = [editor.selectionStart, editor.selectionEnd];
                                 const fe = new FileExplorer('~/user/images/codex');
+                                fe.isPicker = true;
                                 fe.typeList = ['image'];
                                 await fe.show();
                                 if (fe.selection) {
