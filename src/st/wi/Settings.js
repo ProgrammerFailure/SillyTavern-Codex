@@ -69,7 +69,7 @@ export class WorldInfoSettings {
             ...(world_info.globalSelect ?? []),
             chat_metadata.world_info,
             characters[context.characterId]?.data?.character_book?.name,
-            ...(world_info.charLore?.find(it=>it.name == characters[context.characterId]?.avatar?.split('.')?.slice(0,-1)?.join('.'))?.map(it=>it.extraBooks) ?? []),
+            ...(world_info.charLore?.find(it=>it.name == characters[context.characterId]?.avatar?.split('.')?.slice(0,-1)?.join('.'))?.extraBooks ?? []),
             ...(groups
                 .find(it=>it.id == context.groupId)
                 ?.members
