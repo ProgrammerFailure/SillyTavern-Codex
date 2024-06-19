@@ -1,4 +1,4 @@
-import { chat_metadata, saveSettingsDebounced, setCharacterId, this_chid } from '../../../../../../script.js';
+import { chat_metadata, eventSource, event_types, saveSettingsDebounced, setCharacterId, this_chid } from '../../../../../../script.js';
 import { extension_settings, saveMetadataDebounced } from '../../../../../extensions.js';
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';

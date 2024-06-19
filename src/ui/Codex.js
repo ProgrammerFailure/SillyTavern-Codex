@@ -1,5 +1,6 @@
-import { eventSource, event_types } from '../../../../../../script.js';
+import { chat_metadata, eventSource, event_types } from '../../../../../../script.js';
 import { dragElement } from '../../../../../RossAscends-mods.js';
+import { extension_settings } from '../../../../../extensions.js';
 import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
 
@@ -11,6 +12,7 @@ import { Matcher } from '../Matcher.js';
 // eslint-disable-next-line no-unused-vars
 import { Settings } from '../Settings.js';
 import { log } from '../lib/log.js';
+import { messageFormattingWithLanding } from '../lib/messageFormattingWithLanding.js';
 // eslint-disable-next-line no-unused-vars
 import { Book } from '../st/wi/Book.js';
 import { Entry } from '../st/wi/Entry.js';
@@ -528,6 +530,7 @@ export class Codex {
         } else {
             await this.showBooksMenu();
         }
+        this.updateVars();
     }
     async transitionToNewContent(content) {
         // if (content == this.content) {
@@ -616,6 +619,34 @@ export class Codex {
         if (!this.isEditing) {
             this.dom.classList.remove('stcdx--isEditing');
             this.renderMenu();
+        }
+    }
+
+    async updateVars() {
+        let content;
+        let vars;
+        while (this.isActive) {
+            await delay(1000);
+            if (!this.content?.dom) continue;
+            if (content != this.content) {
+                content = this.content;
+                vars = {
+                    global: {},
+                    local: {},
+                };
+            }
+            for (const v of [...this.content.dom.querySelectorAll('.stcdx--var')]) {
+                const name = v.getAttribute('data-var');
+                const scope = v.getAttribute('data-scope') || 'local';
+                const val = scope == 'global' ?
+                    (extension_settings.variables.global[name] ?? '')
+                    : (chat_metadata.variables[name] ?? '')
+                ;
+                if (vars[scope][name] != val) {
+                    v.innerHTML = messageFormattingWithLanding(`§§STCDX§§${val}§§/STCDX§§`).replace(/^.*§§STCDX§§(.*)§§\/STCDX§§.*$/s, '$1');
+                    vars[scope][name] = val;
+                }
+            }
         }
     }
 }
