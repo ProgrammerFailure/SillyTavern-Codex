@@ -173,15 +173,15 @@ export class CodexEntry extends CodexBaseEntry {
             landingHack = true;
             setCharacterId(1);
         }
-        messageText = messageFormattingWithLanding(messageText);
+        messageText = messageFormattingWithLanding(messageText, true);
         if (landingHack) {
             setCharacterId(currentChatId);
         }
         const dom = document.createElement('div');
         dom.innerHTML = messageText;
         this.linker.addCodexLinks(dom, [this.entry]);
-        for (const section of [...dom.querySelectorAll('section:has(.custom-stcdx--editSection)')]) {
-            const btn = section.querySelector('.custom-stcdx--editSection');
+        for (const section of [...dom.querySelectorAll('section:has(.stcdx--editSection)')]) {
+            const btn = section.querySelector('.stcdx--editSection');
             btn.addEventListener('click', ()=>{
                 this.toggleEditor(section.id);
             });
