@@ -1,4 +1,5 @@
-import { setCharacterId, this_chid } from '../../../../../../script.js';
+import { chat_metadata, saveSettingsDebounced, setCharacterId, this_chid } from '../../../../../../script.js';
+import { extension_settings, saveMetadataDebounced } from '../../../../../extensions.js';
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';
@@ -186,6 +187,48 @@ export class CodexEntry extends CodexBaseEntry {
                 this.toggleEditor(section.id);
             });
         }
+        for (const v of [...dom.querySelectorAll('.stcdx--var')]) {
+            v.addEventListener('click', ()=>{
+                const name = v.getAttribute('data-var');
+                const scope = v.getAttribute('data-scope');
+                const val = scope == 'global' ?
+                    (extension_settings.variables.global[name] ?? '')
+                    : (chat_metadata.variables[name] ?? '')
+                ;
+                const inp = document.createElement(val && val.includes('\n') ? 'textarea' : 'input');
+                inp.classList.add('stcdx--var-input');
+                inp.classList.add('text_pole');
+                inp.value = val;
+                inp.addEventListener('keydown', async(evt)=>{
+                    switch (evt.key) {
+                        case 'Enter': {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (scope == 'global') {
+                                extension_settings.variables.global[name] = inp.value;
+                                saveSettingsDebounced();
+                            } else {
+                                chat_metadata.variables[name] = inp.value;
+                                saveMetadataDebounced();
+                            }
+                            await this.render(true);
+                            this.dom.classList.add('stcdx--preactive');
+                            await waitForFrame();
+                            this.dom.classList.add('stcdx--active');
+                            break;
+                        }
+                        case 'Escape': {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            inp.replaceWith(v);
+                            break;
+                        }
+                    }
+                });
+                v.replaceWith(inp);
+                inp.select();
+            });
+        }
         return Array.from(dom.children);
     }
     renderContent() {
@@ -198,7 +241,9 @@ export class CodexEntry extends CodexBaseEntry {
                     const sec = document.createElement('section');
                     sec.id = it.id;
                     sec.setAttribute('data-name', it.name);
-                    sec.innerHTML = messageFormattingWithLanding([it.prefix, it.content, it.suffix].filter(it=>it).join('\n'));
+                    let text = [it.prefix, it.content, it.suffix].filter(it=>it).join('\n');
+                    text = text.replace(/{{get(global)?var::((?:(?!}}).)+)}}/g, '<span class="stcdx--var" data-scope="$1" data-var="$2" title="$1 variable: $2">$&</span>');
+                    sec.innerHTML = messageFormattingWithLanding(text);
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');
                         btn.classList.add('menu_icon');

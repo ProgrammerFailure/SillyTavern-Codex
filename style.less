@@ -533,6 +533,20 @@ body .stcdx--root {
 					}
 				}
 			}
+			.stcdx--var {
+				color: var(--SmartThemeQuoteColor);
+				cursor: pointer;
+				&:empty {
+					color: red;
+					&:before { content: "???"; }
+				}
+				&:hover {
+					text-decoration: dotted;
+				}
+			}
+			.stcdx--var-input {
+				width: unset;
+			}
 		}
 		&.stcdx--map {
 			display: flex;

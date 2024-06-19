@@ -523,7 +523,7 @@ body .stcdx--root > .stcdx--content.stcdx--entry section {
   position: relative;
   transition: 200ms;
 }
-body .stcdx--root > .stcdx--content.stcdx--entry section .custom-stcdx--editSection {
+body .stcdx--root > .stcdx--content.stcdx--entry section .stcdx--editSection {
   position: absolute;
   top: 0;
   right: 0;
@@ -534,11 +534,27 @@ body .stcdx--root > .stcdx--content.stcdx--entry section .custom-stcdx--editSect
 body .stcdx--root > .stcdx--content.stcdx--entry section:hover {
   background-color: rgba(0, 0, 0, 0.125);
 }
-body .stcdx--root > .stcdx--content.stcdx--entry section:hover .custom-stcdx--editSection {
+body .stcdx--root > .stcdx--content.stcdx--entry section:hover .stcdx--editSection {
   opacity: 0.5;
 }
-body .stcdx--root > .stcdx--content.stcdx--entry section:hover .custom-stcdx--editSection:hover {
+body .stcdx--root > .stcdx--content.stcdx--entry section:hover .stcdx--editSection:hover {
   opacity: 1;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var {
+  color: var(--SmartThemeQuoteColor);
+  cursor: pointer;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var:empty {
+  color: red;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var:empty:before {
+  content: "???";
+}
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var:hover {
+  text-decoration: dotted;
+}
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var-input {
+  width: unset;
 }
 body .stcdx--root > .stcdx--content.stcdx--map {
   display: flex;
