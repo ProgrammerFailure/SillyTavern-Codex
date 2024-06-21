@@ -6,6 +6,7 @@ import { tryDecodeBase64 } from '../lib/base64.js';
 import { log } from '../lib/log.js';
 import { waitForFrame } from '../lib/wait.js';
 import { CodexBaseEntry } from './CodexBaseEntry.js';
+import { CodexCharList } from './CodexCharList.js';
 import { Map } from './map/Map.js';
 import { MapEditor } from './map/MapEditor.js';
 import { PaintLayer } from './map/PaintLayer.js';
@@ -196,7 +197,7 @@ export class CodexMap extends CodexBaseEntry {
                             const p = document.createElement('p');
                             p.textContent = zone.description;
                             content.append(p);
-                        } else if (entry && !entry.isMap && !entry.isCharList) {
+                        } else if (entry && !CodexMap.test(entry) && !CodexCharList.test(entry)) {
                             content.append(...this.renderTemplate(entry));
                             Array.from(content.querySelectorAll('img, h1, h2, h3, h4')).forEach(it=>it.remove());
                         }

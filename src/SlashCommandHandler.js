@@ -7,6 +7,7 @@ import { delay, isTrueBoolean } from '../../../../utils.js';
 import { CodexManager } from './CodexManager.js';
 import { warn } from './lib/log.js';
 import { waitForFrame } from './lib/wait.js';
+import { CodexCharList } from './ui/CodexCharList.js';
 import { CodexMap } from './ui/CodexMap.js';
 
 
@@ -171,7 +172,7 @@ export class SlashCommandHandler {
 
 
     async handleCodexMap(args, value) {
-        const matches = this.matcher.findMatches(value).filter(it=>it.entry.isMap);
+        const matches = this.matcher.findMatches(value).filter(it=>CodexMap.test(it.entry));
         if (matches.length > 0) {
             const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
             await map.render();
@@ -193,7 +194,7 @@ export class SlashCommandHandler {
     }
 
     async handleCodexPaint(args, value) {
-        const matches = this.matcher.findMatches(value).filter(it=>it.entry.isMap);
+        const matches = this.matcher.findMatches(value).filter(it=>CodexMap.test(it.entry));
         if (matches.length > 0) {
             await this.manager.showCodex(matches[0]);
             /**@type {CodexMap} */
@@ -206,7 +207,7 @@ export class SlashCommandHandler {
 
 
     async handleCodexMatch(args, value) {
-        const matches = this.matcher.findMatches(value).filter(it=>!it.entry.isMap && !it.entry.isCharList);
+        const matches = this.matcher.findMatches(value).filter(it=>!CodexMap.test(it.entry) && !CodexCharList.test(it.entry));
         return JSON.stringify(matches.map(it=>it.entry.content));
     }
 
