@@ -74,4 +74,10 @@ export class CharListContextMenu extends QrContextMenu {
         });
         return tree;
     }
+
+    render() {
+        super.render();
+        this.root.classList.add('stcdx--ctx');
+        return this.root;
+    }
 }

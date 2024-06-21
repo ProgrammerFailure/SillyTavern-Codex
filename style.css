@@ -1356,3 +1356,6 @@ body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--a
 .stcdx--askInstall {
   text-align: left;
 }
+.stcdx--ctx {
+  z-index: 20000;
+}
