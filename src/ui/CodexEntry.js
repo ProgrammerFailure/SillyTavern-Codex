@@ -549,17 +549,13 @@ export class CodexEntry extends CodexBaseEntry {
                                     const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName.slice(8));
                                     type.id = newType.id;
                                     this.entry.content = [
-                                        type.prefix,
-                                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                        type.suffix,
+                                        type.toString(),
                                         this.properties.toString(),
-                                    ].filter(it=>it).join('\n');
+                                    ].filter(it=>it).join('');
                                 } else {
                                     // switching to basic text
                                     this.entry.content = [
-                                        type.prefix,
-                                        ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                        type.suffix,
+                                        type.toString(),
                                     ].filter(it=>it).join('\n');
                                 }
                                 await this.toggleEditor();
@@ -655,11 +651,9 @@ export class CodexEntry extends CodexBaseEntry {
                                 type.sectionList.push(curSection);
                             }
                             this.entry.content = [
-                                type.prefix,
-                                ...type.sectionList.filter(it=>it.content.length > 0).map(it=>[it.prefix, it.content, it.suffix].filter(it=>it)).flat(),
-                                type.suffix,
+                                type.toString(),
                                 this.properties.toString(),
-                            ].filter(it=>it).join('\n');
+                            ].filter(it=>it).join('');
                         });
                         editor.addEventListener('paste', async(evt)=>{
                             if (evt.clipboardData.types.includes('Files') && evt.clipboardData.files?.length > 0 && evt.clipboardData.files[0].type.startsWith('image/')) {

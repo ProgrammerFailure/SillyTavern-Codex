@@ -42,7 +42,7 @@ export class EntryType {
     toString() {
         return [
             this.prefix,
-            ...this.sectionList.filter(it=>it.content.length > 0).map(it=>it.toString()).join(''),
+            ...this.sectionList.filter(it=>it.isIncluded && it.content.length > 0).map(it=>it.toString()).join(''),
             this.suffix,
         ].join('');
     }

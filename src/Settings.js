@@ -1067,6 +1067,30 @@ export class Settings {
                     }
                     cont.append(head);
                 }
+                const incl = document.createElement('div'); {
+                    incl.classList.add('stcdx--row');
+                    const include = document.createElement('label'); {
+                        include.classList.add('stcdx--setting');
+                        const inp = document.createElement('input'); {
+                            inp.classList.add('stcdx--input');
+                            inp.type = 'checkbox';
+                            inp.checked = section.isIncluded;
+                            inp.addEventListener('click', ()=>{
+                                section.isIncluded = inp.checked;
+                                this.save();
+                                this.rerenderDebounced();
+                            });
+                            include.append(inp);
+                        }
+                        const text = document.createElement('span'); {
+                            text.classList.add('stcdx--text');
+                            text.textContent = 'Include in World Info';
+                            include.append(text);
+                        }
+                        incl.append(include);
+                    }
+                    cont.append(incl);
+                }
                 const preSuff = document.createElement('div'); {
                     preSuff.classList.add('stcdx--row');
                     const prefix = document.createElement('label'); {

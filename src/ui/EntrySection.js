@@ -13,6 +13,7 @@ export class EntrySection {
     /**@type {string}*/ prefix = '';
     /**@type {string}*/ suffix = '';
     /**@type {string}*/ content = '';
+    /**@type {boolean}*/ isIncluded = true;
     /**@type {boolean}*/ isRemoved = false;
 
 
