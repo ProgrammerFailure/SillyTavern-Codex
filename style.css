@@ -556,6 +556,10 @@ body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var:hover {
 body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var-input {
   width: unset;
 }
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--entryButton {
+  display: inline-flex;
+  width: fit-content;
+}
 body .stcdx--root > .stcdx--content.stcdx--map {
   display: flex;
   flex-direction: column;

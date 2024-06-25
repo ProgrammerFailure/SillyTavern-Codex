@@ -3,6 +3,7 @@ import { extension_settings, saveMetadataDebounced } from '../../../../../extens
 import { selected_group } from '../../../../../group-chats.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { delay, uuidv4 } from '../../../../../utils.js';
+import { quickReplyApi } from '../../../../quick-reply/index.js';
 import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer.js';
 import { imgUpload } from '../lib/imgUpload.js';
 import { log } from '../lib/log.js';
@@ -227,6 +228,63 @@ export class CodexEntry extends CodexBaseEntry {
                 });
                 v.replaceWith(inp);
                 inp.select();
+            });
+        }
+        for (const a of /**@type {HTMLLinkElement[]}*/([...dom.querySelectorAll('a[href^="#"]')])) {
+            const lblParts = a.textContent.split(';');
+            const linkParts = a.href.split('#').pop().split('/');
+            linkParts.shift();
+            /**@type {HTMLElement} */
+            let dom;
+            if (linkParts[0] == 'button') {
+                linkParts.shift();
+                const btn = document.createElement('div'); {
+                    dom = btn;
+                    btn.classList.add('stcdx--entryButton');
+                    btn.classList.add('menu_button');
+                    if (lblParts[0] && lblParts[1]) {
+                        btn.classList.add('menu_button_icon');
+                        const i = document.createElement('i'); {
+                            i.classList.add('fa-solid');
+                            i.classList.add(lblParts[1]);
+                            btn.append(i);
+                        }
+                        const span = document.createElement('span'); {
+                            span.textContent = lblParts[0];
+                            btn.append(span);
+                        }
+                    } else if (lblParts[1]) {
+                        btn.classList.add('fa-solid');
+                        btn.classList.add(lblParts[1]);
+                    } else {
+                        btn.textContent = lblParts[0];
+                    }
+                    if (lblParts[2]) {
+                        btn.title = lblParts[2];
+                    }
+                    a.replaceWith(btn);
+                }
+            } else {
+                dom = a;
+                a.textContent = lblParts[0];
+                if (lblParts[1]) {
+                    a.title = lblParts[1];
+                }
+            }
+            dom.addEventListener('click', async(evt)=>{
+                evt.preventDefault();
+                evt.stopPropagation();
+                switch (linkParts[0]) {
+                    case 'qr': {
+                        const qr = quickReplyApi.getQrByLabel(linkParts[1], linkParts[2]);
+                        await qr.execute();
+                        break;
+                    }
+                    default: {
+                        toastr.error(`Link type "${linkParts[0]}" is not supported`, 'Codex');
+                        break;
+                    }
+                }
             });
         }
         return Array.from(dom.children);
