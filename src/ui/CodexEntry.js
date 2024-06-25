@@ -1,8 +1,9 @@
 import { chat_metadata, eventSource, event_types, saveSettingsDebounced, setCharacterId, this_chid } from '../../../../../../script.js';
 import { extension_settings, saveMetadataDebounced } from '../../../../../extensions.js';
 import { selected_group } from '../../../../../group-chats.js';
+import { POPUP_RESULT, POPUP_TYPE, Popup } from '../../../../../popup.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
-import { delay, uuidv4 } from '../../../../../utils.js';
+import { debounce, delay, uuidv4 } from '../../../../../utils.js';
 import { quickReplyApi } from '../../../../quick-reply/index.js';
 import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer.js';
 import { imgUpload } from '../lib/imgUpload.js';
@@ -277,7 +278,11 @@ export class CodexEntry extends CodexBaseEntry {
                 switch (linkParts[0]) {
                     case 'qr': {
                         const qr = quickReplyApi.getQrByLabel(linkParts[1], linkParts[2]);
-                        await qr.execute();
+                        const args = linkParts.slice(3)
+                            .filter(it=>it.includes('='))
+                            .map(it=>it.split('='))
+                            .reduce((args, cur)=>(args[cur[0]] = cur[1],args), {});
+                        await qr.execute(args);
                         break;
                     }
                     default: {
@@ -554,6 +559,249 @@ export class CodexEntry extends CodexBaseEntry {
                     }
                     const actions = document.createElement('div'); {
                         actions.classList.add('stcdx--editor-actions');
+                        const addQr = document.createElement('div'); {
+                            addQr.classList.add('menu_button');
+                            addQr.classList.add('menu_button_icon');
+                            addQr.title = 'Insert QuickReply';
+                            addQr.addEventListener('pointerdown', async()=>{
+                                const idx = [editor.selectionStart, editor.selectionEnd];
+                                let lblInp;
+                                let ttInp;
+                                let isBtn;
+                                let icnInp;
+                                let setSel;
+                                let qrSel;
+                                const fetchFa = async(name)=>{
+                                    const style = document.createElement('style');
+                                    style.innerHTML = await (await fetch(`/css/${name}`)).text();
+                                    document.head.append(style);
+                                    const sheet = style.sheet;
+                                    style.remove();
+                                    return [...sheet.cssRules].filter(it=>it.style?.content).map(it=>it.selectorText.split('::').shift().slice(1));
+                                };
+                                const updateQrSel = ()=>{
+                                    qrSel.innerHTML = '';
+                                    if (setSel.value == '') {
+                                        qrSel.disabled = true;
+                                        const nopt = document.createElement('option'); {
+                                            nopt.value = '';
+                                            nopt.textContent = '-- Select a QR Set --';
+                                            qrSel.append(nopt);
+                                        }
+                                    } else {
+                                        qrSel.disabled = false;
+                                        const nopt = document.createElement('option'); {
+                                            nopt.value = '';
+                                            nopt.textContent = '-- Select a Quick Reply --';
+                                            qrSel.append(nopt);
+                                        }
+                                        for (const q of quickReplyApi.listQuickReplies(setSel.value)) {
+                                            const opt = document.createElement('option'); {
+                                                opt.value = q;
+                                                opt.textContent = q;
+                                                qrSel.append(opt);
+                                            }
+                                        }
+                                    }
+                                };
+                                const dom = document.createElement('div'); {
+                                    dom.classList.add('stcdx--insertQrModal');
+                                    const title = document.createElement('h3'); {
+                                        title.textContent = 'Insert Quick Reply';
+                                        dom.append(title);
+                                    }
+                                    const lbl = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Label: ';
+                                            lbl.append(txt);
+                                        }
+                                        const sel = document.createElement('input'); {
+                                            lblInp = sel;
+                                            sel.classList.add('text_pole');
+                                            lbl.append(sel);
+                                        }
+                                        dom.append(lbl);
+                                    }
+                                    const tt = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Tooltip: ';
+                                            tt.append(txt);
+                                        }
+                                        const sel = document.createElement('input'); {
+                                            ttInp = sel;
+                                            sel.classList.add('text_pole');
+                                            tt.append(sel);
+                                        }
+                                        dom.append(tt);
+                                    }
+                                    const btn = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Display:';
+                                            btn.append(txt);
+                                        }
+                                        const sel = document.createElement('select'); {
+                                            isBtn = sel;
+                                            sel.classList.add('text_pole');
+                                            const optLink = document.createElement('option'); {
+                                                optLink.value = '';
+                                                optLink.textContent = 'Link';
+                                                sel.append(optLink);
+                                            }
+                                            const optBtn = document.createElement('option'); {
+                                                optBtn.value = '1';
+                                                optBtn.textContent = 'Button';
+                                                sel.append(optBtn);
+                                            }
+                                            btn.append(sel);
+                                        }
+                                        dom.append(btn);
+                                    }
+                                    const icn = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Icon (button only): ';
+                                            const btn = document.createElement('div'); {
+                                                btn.classList.add('menu_button');
+                                                btn.classList.add('menu_button_icon');
+                                                const i = document.createElement('i'); {
+                                                    i.classList.add('fa-solid');
+                                                    i.classList.add('fa-magnifying-glass');
+                                                    btn.append(i);
+                                                }
+                                                const btnTxt = document.createElement('span'); {
+                                                    btnTxt.textContent = 'Browse icons';
+                                                    btn.append(btnTxt);
+                                                }
+                                                btn.addEventListener('click', async()=>{
+                                                    const faList = [...new Set((await Promise.all([
+                                                        fetchFa('fontawesome.min.css'),
+                                                    ])).flat())];
+                                                    const fas = {};
+                                                    const dom = document.createElement('div'); {
+                                                        const search = document.createElement('div'); {
+                                                            const qry = document.createElement('input'); {
+                                                                qry.classList.add('text_pole');
+                                                                qry.classList.add('stcdx--faQuery');
+                                                                qry.type = 'search';
+                                                                qry.placeholder = 'Filter icons';
+                                                                qry.autofocus = true;
+                                                                const qryDebounced = debounce(()=>{
+                                                                    const result = faList.filter(it=>it.includes(qry.value));
+                                                                    for (const fa of faList) {
+                                                                        if (!result.includes(fa)) {
+                                                                            fas[fa].classList.add('stcdx--hidden');
+                                                                        } else {
+                                                                            fas[fa].classList.remove('stcdx--hidden');
+                                                                        }
+                                                                    }
+                                                                });
+                                                                qry.addEventListener('input', qryDebounced);
+                                                                search.append(qry);
+                                                            }
+                                                            dom.append(search);
+                                                        }
+                                                        const grid = document.createElement('div'); {
+                                                            grid.classList.add('stcdx--faPicker');
+                                                            for (const fa of faList) {
+                                                                const opt = document.createElement('div'); {
+                                                                    fas[fa] = opt;
+                                                                    opt.classList.add('menu_button');
+                                                                    opt.classList.add('fa-solid');
+                                                                    opt.classList.add(fa);
+                                                                    opt.title = fa.slice(3);
+                                                                    opt.dataset.result = POPUP_RESULT.AFFIRMATIVE.toString();
+                                                                    opt.addEventListener('click', ()=>{
+                                                                        sel.value = fa;
+                                                                    });
+                                                                    grid.append(opt);
+                                                                }
+                                                            }
+                                                            dom.append(grid);
+                                                        }
+                                                    }
+                                                    const picker = new Popup(dom, POPUP_TYPE.CONFIRM, null, { allowVerticalScrolling:true });
+                                                    await picker.show();
+                                                });
+                                                txt.append(btn);
+                                            }
+                                            icn.append(txt);
+                                        }
+                                        const sel = document.createElement('input'); {
+                                            icnInp = sel;
+                                            sel.classList.add('text_pole');
+                                            icn.append(sel);
+                                        }
+                                        dom.append(icn);
+                                    }
+                                    const set = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Set: ';
+                                            set.append(txt);
+                                        }
+                                        const sel = document.createElement('select'); {
+                                            setSel = sel;
+                                            sel.classList.add('text_pole');
+                                            sel.addEventListener('change', ()=>{
+                                                updateQrSel();
+                                            });
+                                            const nopt = document.createElement('option'); {
+                                                nopt.value = '';
+                                                nopt.textContent = '-- Select a QR Set --';
+                                                sel.append(nopt);
+                                            }
+                                            for (const s of quickReplyApi.listSets()) {
+                                                const opt = document.createElement('option'); {
+                                                    opt.value = s;
+                                                    opt.textContent = s;
+                                                    sel.append(opt);
+                                                }
+                                            }
+                                            set.append(sel);
+                                        }
+                                        dom.append(set);
+                                    }
+                                    const qr = document.createElement('label'); {
+                                        const txt = document.createElement('span'); {
+                                            txt.textContent = 'Quick Reply: ';
+                                            qr.append(txt);
+                                        }
+                                        const sel = document.createElement('select'); {
+                                            qrSel = sel;
+                                            sel.classList.add('text_pole');
+                                            updateQrSel();
+                                            qr.append(sel);
+                                        }
+                                        dom.append(qr);
+                                    }
+                                }
+                                const dlg = new Popup(dom, POPUP_TYPE.CONFIRM, null);
+                                await dlg.show();
+                                if (dlg.result == POPUP_RESULT.AFFIRMATIVE && setSel.value && qrSel.value) {
+                                    const before = editor.value.slice(0, idx[0]);
+                                    const after = editor.value.slice(idx[1]);
+                                    const labelParts = [
+                                        lblInp.value,
+                                        isBtn.value ? `;${icnInp.value}` : '',
+                                        `;${ttInp.value}`,
+                                    ].join('');
+                                    editor.value = [
+                                        before,
+                                        `[${labelParts}](#${isBtn.value ? '/button' : ''}/qr/${encodeURIComponent(setSel.value)}/${encodeURIComponent(qrSel.value)})`,
+                                        after,
+                                    ].join('');
+                                    editor.dispatchEvent(new Event('input', { bubbles:true }));
+                                }
+                            });
+                            const i = document.createElement('i'); {
+                                i.classList.add('fa-solid');
+                                i.classList.add('fa-jet-fighter');
+                                addQr.append(i);
+                            }
+                            const text = document.createElement('span'); {
+                                text.textContent = 'Insert QR';
+                                addQr.append(text);
+                            }
+                            actions.append(addQr);
+                        }
                         const addImg = document.createElement('div'); {
                             addImg.classList.add('menu_button');
                             addImg.classList.add('menu_button_icon');
@@ -644,7 +892,7 @@ export class CodexEntry extends CodexBaseEntry {
                                 wi.append(i);
                             }
                             const text = document.createElement('span'); {
-                                text.textContent = 'Open in WI Panel';
+                                // text.textContent = 'Open in WI Panel';
                                 wi.append(text);
                             }
                             actions.append(wi);

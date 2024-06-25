@@ -1363,3 +1363,39 @@ body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--a
 .stcdx--ctx {
   z-index: 20000;
 }
+.stcdx--insertQrModal {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.stcdx--insertQrModal label {
+  display: flex;
+  flex-direction: column;
+}
+.stcdx--insertQrModal label > span:has(.menu_button) {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+  justify-content: center;
+}
+.stcdx--insertQrModal label > span:has(.menu_button) > .menu_button {
+  display: inline-flex;
+}
+.stcdx--faPicker {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.stcdx--faPicker .menu_button {
+  aspect-ratio: 1 / 1;
+  font-size: 2em;
+  height: 1lh;
+  line-height: 1.2;
+  padding: 0.25em;
+  width: unset;
+  box-sizing: content-box;
+}
+.stcdx--faPicker .menu_button.stcdx--hidden {
+  display: none;
+}
