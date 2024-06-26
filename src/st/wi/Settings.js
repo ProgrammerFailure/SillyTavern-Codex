@@ -74,7 +74,7 @@ export class WorldInfoSettings {
                 .find(it=>it.id == context.groupId)
                 ?.members
                 ?.map(m=>[
-                    ...(characters.find(it=>it.avatar == m)?.data?.character_book?.name ?? []),
+                    characters.find(it=>it.avatar == m)?.data?.character_book?.name,
                     ...(world_info.charLore?.find(it=>it.name == m.split('.').slice(0,-1).join('.'))?.extraBooks ?? []),
                 ])?.flat()
                 ?? []
