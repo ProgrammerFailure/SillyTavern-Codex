@@ -1,7 +1,7 @@
 import { characters, chat_metadata, eventSource, event_types } from '../../../../../../../script.js';
 import { getContext } from '../../../../../../extensions.js';
 import { groups } from '../../../../../../group-chats.js';
-import { world_info, world_info_case_sensitive, world_info_match_whole_words } from '../../../../../../world-info.js';
+import { world_info, world_info_case_sensitive, world_info_match_whole_words, world_names } from '../../../../../../world-info.js';
 
 import { debounceAsync } from '../../lib/debounce.js';
 import { log } from '../../lib/log.js';
@@ -79,8 +79,11 @@ export class WorldInfoSettings {
                 ])?.flat()
                 ?? []
             ),
-        ].filter(it=>it);
-        names = names.filter((it,idx)=>names.indexOf(it) == idx).toSorted((a,b)=>a.localeCompare(b));
+        ]
+            .filter(it=>it)
+            .filter((it,idx,list)=>list.indexOf(it) == idx).toSorted((a,b)=>a.localeCompare(b))
+            .filter(it=>world_names.includes(it))
+        ;
         const added = [];
         for (const name of names) {
             if (!this.bookNameList.includes(name)) {
