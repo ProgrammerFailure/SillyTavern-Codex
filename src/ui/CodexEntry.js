@@ -110,6 +110,10 @@ export class CodexEntry extends CodexBaseEntry {
                         osec.name = sec.name;
                         isChanged = true;
                     }
+                    if (osec.isIncluded != sec.isIncluded) {
+                        osec.isIncluded = sec.isIncluded;
+                        isChanged = true;
+                    }
                     if (osec.prefix != sec.prefix) {
                         osec.prefix = sec.prefix;
                         isChanged = true;
@@ -853,7 +857,8 @@ export class CodexEntry extends CodexBaseEntry {
                                         type.sectionList.push(EntrySection.from({ name:'NO SECTION', content:this.entry.content }));
                                     }
                                     const newType = this.settings.entryTypeList.find(it=>it.name == newTypeName.slice(8));
-                                    type.id = newType.id;
+                                    type = Object.assign(new newType.constructor(), newType, { sectionList:type.sectionList });
+                                    this.properties.type = type;
                                     this.entry.content = [
                                         type.toString(),
                                         this.properties.toString(),

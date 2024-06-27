@@ -392,11 +392,11 @@ export class Settings {
                         tooltip: 'Apply changes to all entries using any of the Entry Types',
                         action: async()=>{
                             //TODO show spinner / progress
-                            toastr.info('applying Event Type changes...');
+                            toastr.info('applying Entry Type changes...');
                             for (const type of this.entryTypeList) {
                                 await type.applyChanges();
                             }
-                            toastr.success('finished applying Event Type changes');
+                            toastr.success('finished applying Entry Type changes');
                         },
                     }),
                 ],
@@ -894,9 +894,9 @@ export class Settings {
                         apply.title = 'Apply changes to all entries using this Entry Type';
                         apply.addEventListener('click', async() => {
                             //TODO show spinner?
-                            toastr.info('applying Event Type changes...');
+                            toastr.info('applying Entry Type changes...');
                             await item.applyChanges();
-                            toastr.success('finished applying Event Type changes');
+                            toastr.success('finished applying Entry Type changes');
                         });
                         head.append(apply);
                     }
