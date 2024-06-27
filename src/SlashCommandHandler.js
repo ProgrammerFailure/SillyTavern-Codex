@@ -1,6 +1,7 @@
 import { getCurrentChatId, sendSystemMessage } from '../../../../../script.js';
 import { SlashCommand } from '../../../../slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../../slash-commands/SlashCommandArgument.js';
+import { SlashCommandEnumValue } from '../../../../slash-commands/SlashCommandEnumValue.js';
 import { SlashCommandParser } from '../../../../slash-commands/SlashCommandParser.js';
 import { delay, isTrueBoolean } from '../../../../utils.js';
 // eslint-disable-next-line no-unused-vars
@@ -108,6 +109,73 @@ export class SlashCommandHandler {
             ],
             returns: 'matching entries',
             helpString: 'get an array of matching entries (basic entries only, no maps or character lists)',
+        }));
+
+
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-type-section-wi',
+            /**
+             * @param {{type:string, section:string, apply:string}} args
+             * @param {string} value
+             */
+            callback: async(args, value)=>{
+                const type = this.manager.settings.entryTypeList.find(it=>it.name.toLowerCase() == args.type.toLowerCase());
+                if (!type) throw new Error(`/codex-type-section-wi - no type "${args.type}"`);
+                const section = type.sectionList.find(it=>it.name.toLowerCase() == args.section.toLowerCase());
+                if (!section) throw new Error(`/codex-type-section-wi - no section "${args.type}" in type "${type.name}"`);
+                if (value.length) {
+                    section.isIncluded = isTrueBoolean(value);
+                    this.manager.settings.save();
+                    if (isTrueBoolean(args.apply)) {
+                        await type.applyChanges();
+                    }
+                }
+                return JSON.stringify(section.isIncluded);
+            },
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'type',
+                    description: 'name of the type',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                    enumProvider: ()=>this.manager.settings.entryTypeList.map(it=>new SlashCommandEnumValue(it.name)),
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'section',
+                    description: 'name of the type\'s section',
+                    typeList: [ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                    enumProvider: (executor)=>{
+                        const typeName = executor.namedArgumentList.find(it=>it.name == 'type')?.value?.toLowerCase();
+                        return this.manager.settings.entryTypeList.find(type=>type.name.toLowerCase() == typeName)
+                            ?.sectionList
+                            ?.map(it=>new SlashCommandEnumValue(it.name))
+                        ;
+                    },
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'apply',
+                    description: 'whether to apply the change to related entries - re-saves all related entries, might take a minute',
+                    typeList: [ARGUMENT_TYPE.BOOLEAN],
+                    defaultValue: 'false',
+                }),
+            ],
+            unnamedArgumentList: [
+                SlashCommandArgument.fromProps({ description: 'whether to include the section in WI',
+                    typeList: [ARGUMENT_TYPE.BOOLEAN],
+                }),
+            ],
+            returns: 'The section\'s WI inclusion status after the command has run.',
+            helpString: `
+                <div>
+                    Set an Entry Type's section to be included in the World Info content (what gets sent to the LLM) or not.
+                </div>
+                <div>
+                    Leave the unnamed argument blank to get the current status without changing anything.
+                <div>
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li><pre><code class="language-stscript">/codex-type-section-wi type=Character section=Notes |\n/echo</code></pre></li>
+                        <li><pre><code class="language-stscript">/codex-type-section-wi type=Character section=Notes apply=true false |\n/echo</code></pre></li>
+                    </ul>
+                </div>
+            `,
         }));
 
 
