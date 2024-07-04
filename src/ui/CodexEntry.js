@@ -122,6 +122,10 @@ export class CodexEntry extends CodexBaseEntry {
                         osec.suffix = sec.suffix;
                         isChanged = true;
                     }
+                    const nidx = current.sectionList.indexOf(sec);
+                    if (idx != nidx) {
+                        isChanged = true;
+                    }
                     type.sectionList.push(osec);
                     oldSections.splice(idx, 1);
                 }

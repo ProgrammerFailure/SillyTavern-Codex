@@ -193,6 +193,9 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
 }
 #stcdx--settings .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list .stcdx--entrySection,
 #stcdx--settings-v2 .stcdx--entryTypesContainer .stcdx--entryType .stcdx--content > .stcdx--row.stcdx--sections .stcdx--list .stcdx--entrySection {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
   border-bottom: 1px solid var(--SmartThemeBorderColor);
 }
 body:has(#stcdx--codex.stcdx--active) #WorldInfo {
@@ -506,7 +509,7 @@ body .stcdx--root > .stcdx--content h2,
 body .stcdx--root > .stcdx--content h3 {
   text-align: center;
 }
-body .stcdx--root > .stcdx--content img {
+body .stcdx--root > .stcdx--content img:not([width]):not([height]) {
   cursor: zoom-in;
   height: auto;
   max-height: 50vh;
@@ -515,7 +518,7 @@ body .stcdx--root > .stcdx--content img {
   transition: 200ms;
   width: 100%;
 }
-body .stcdx--root > .stcdx--content img:hover {
+body .stcdx--root > .stcdx--content img:not([width]):not([height]):hover {
   filter: drop-shadow(0 0 6px rgba(0 0 0 / 1));
 }
 body .stcdx--root > .stcdx--content.stcdx--entry section {

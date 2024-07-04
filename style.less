@@ -130,6 +130,9 @@
 						.stcdx--list {
 							flex: 1 1 auto;
 							.stcdx--entrySection {
+								display: flex;
+								gap: 1em;
+								align-items: baseline;
 								border-bottom: 1px solid var(--SmartThemeBorderColor);
 							}
 						}
@@ -497,7 +500,7 @@ body .stcdx--root {
 		h1, h2, h3 {
 			text-align: center;
 		}
-		img {
+		img:not([width]):not([height]) {
 			cursor: zoom-in;
 			height: auto;
 			max-height: 50vh;

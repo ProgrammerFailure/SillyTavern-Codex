@@ -1,7 +1,7 @@
 import { saveSettingsDebounced } from '../../../../../script.js';
 import { extension_settings } from '../../../../extensions.js';
 import { executeSlashCommandsWithOptions } from '../../../../slash-commands.js';
-import { delay } from '../../../../utils.js';
+import { delay, getSortableDelay } from '../../../../utils.js';
 
 import { Template } from './Template.js';
 import { debounceAsync } from './lib/debounce.js';
@@ -1014,6 +1014,14 @@ export class Settings {
                         for (const section of item.sectionList) {
                             this.renderEntryTypeSection(item, section, secAdd);
                         }
+                        $(list).sortable({
+                            delay: getSortableDelay(),
+                            stop: ()=>{
+                                const children = [...list.children];
+                                item.sectionList.sort((a,b)=>children.findIndex(it=>it.getAttribute('data-stcdx--id') == a.id) - children.findIndex(it=>it.getAttribute('data-stcdx--id') == b.id));
+                                this.save();
+                            },
+                        });
                         sections.append(list);
                     }
                     cont.append(sections);
@@ -1032,6 +1040,13 @@ export class Settings {
     renderEntryTypeSection(type, section, add) {
         const wrap = document.createElement('div'); {
             wrap.classList.add('stcdx--entrySection');
+            wrap.setAttribute('data-stcdx--id', section.id);
+            const drag = document.createElement('div'); {
+                drag.classList.add('drag-handle');
+                drag.classList.add('ui-sortable-handle');
+                drag.textContent = '☰';
+                wrap.append(drag);
+            }
             const cont = document.createElement('div'); {
                 cont.classList.add('stcdx--content');
                 const head = document.createElement('div'); {
