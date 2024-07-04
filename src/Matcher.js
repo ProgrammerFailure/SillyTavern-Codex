@@ -71,7 +71,7 @@ export class Matcher {
         for (const book of this.bookList) {
             for (const entry of book.entryList) {
                 if (entry.keyList.includes('codex-skip:')) continue;
-                if (found.find(it=>it == entry)) continue;
+                if (this.settings.onlyFirst && found.find(it=>it == entry)) continue;
                 const keys = entry.keyList.filter(it=>!this.settings.requirePrefix || it.startsWith('codex:'));
                 for (const key of keys) {
                     if (this.settings.onlyFirst && found.find(it=>it == entry)) continue;
