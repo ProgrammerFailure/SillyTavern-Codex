@@ -2,9 +2,10 @@ import { chat_metadata, eventSource, event_types, saveSettingsDebounced, setChar
 import { extension_settings, saveMetadataDebounced } from '../../../../../extensions.js';
 import { selected_group } from '../../../../../group-chats.js';
 import { POPUP_RESULT, POPUP_TYPE, Popup } from '../../../../../popup.js';
-import { executeSlashCommands } from '../../../../../slash-commands.js';
+import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { debounce, delay, uuidv4 } from '../../../../../utils.js';
 import { quickReplyApi } from '../../../../quick-reply/index.js';
+import { QuickReply } from '../../../../quick-reply/src/QuickReply.js';
 import { QuickReplySet } from '../../../../quick-reply/src/QuickReplySet.js';
 import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer.js';
 import { imgUpload } from '../lib/imgUpload.js';
@@ -345,6 +346,7 @@ export class CodexEntry extends CodexBaseEntry {
                 dom.classList.add('stcdx--entry');
                 dom.classList.add('mes');
                 if (this.entry.automationId) {
+                    /**@type {{qrs:QuickReplySet, qr:QuickReply}[]} */
                     const qrList = [];
                     for (const qrs of QuickReplySet.list) {
                         for (const qr of qrs.qrList) {
@@ -362,6 +364,17 @@ export class CodexEntry extends CodexBaseEntry {
                             '---',
                             ...qrList.map(it=>`${it.qrs.name} > ${it.qr.label}`),
                         ].join('\n');
+                        if (qrList.length > 0) {
+                            btn.addEventListener('click', async()=>{
+                                const choice = (await executeSlashCommandsWithOptions(`/buttons labels=${JSON.stringify(qrList.map(it=>`${it.qrs.name} > ${it.qr.label}`))} Which QR do you want to execute?`)).pipe;
+                                if (choice) {
+                                    const qr = qrList.find(it=>`${it.qrs.name} > ${it.qr.label}` == choice);
+                                    if (qr) {
+                                        await qr.qr.execute();
+                                    }
+                                }
+                            });
+                        }
                         dom.append(btn);
                     }
                 }
