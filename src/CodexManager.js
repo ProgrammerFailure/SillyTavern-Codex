@@ -64,7 +64,7 @@ export class CodexManager {
         eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (idx)=>this.queueMessageAndCycle(idx));
         eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx)=>this.queueMessageAndCycle(idx));
         eventSource.on(event_types.MESSAGE_SWIPED, (idx)=>this.queueMessageAndCycle(idx));
-        eventSource.on(event_types.MESSAGE_EDITED, (idx)=>this.queueMessageAndCycle(idx));
+        eventSource.on(event_types.MESSAGE_UPDATED, (idx)=>this.queueMessageAndCycle(idx));
     }
 
 
