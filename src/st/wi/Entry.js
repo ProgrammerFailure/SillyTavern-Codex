@@ -17,6 +17,7 @@ export class Entry {
             isDisabled: props.disable,
             isCaseSensitive: props.caseSensitive,
             isMatchingWholeWords: props.matchWholeWords,
+            automationId: props.automationId,
             originalKeyList: props.key.join(', '),
             originalComment: props.comment,
             originalContent: props.content,
@@ -38,6 +39,7 @@ export class Entry {
     /**@type {boolean}*/ isDisabled;
     /**@type {boolean}*/ isCaseSensitive;
     /**@type {boolean}*/ isMatchingWholeWords;
+    /**@type {string}*/ automationId;
 
     /**@type {string}*/ originalKeyList;
     /**@type {string}*/ originalComment;

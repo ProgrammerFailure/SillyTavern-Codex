@@ -501,6 +501,17 @@ body .stcdx--root > .stcdx--editor.stcdx--active {
 body .stcdx--root > .stcdx--content {
   overflow: auto;
 }
+body .stcdx--root > .stcdx--content > .stcdx--automation {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  opacity: 0.5;
+  transition: 200ms;
+  cursor: pointer;
+}
+body .stcdx--root > .stcdx--content > .stcdx--automation:hover {
+  opacity: 1;
+}
 body .stcdx--root > .stcdx--content > br {
   display: none;
 }

@@ -5,6 +5,7 @@ import { POPUP_RESULT, POPUP_TYPE, Popup } from '../../../../../popup.js';
 import { executeSlashCommands } from '../../../../../slash-commands.js';
 import { debounce, delay, uuidv4 } from '../../../../../utils.js';
 import { quickReplyApi } from '../../../../quick-reply/index.js';
+import { QuickReplySet } from '../../../../quick-reply/src/QuickReplySet.js';
 import { FileExplorer } from '../../../SillyTavern-FileExplorer/src/FileExplorer.js';
 import { imgUpload } from '../lib/imgUpload.js';
 import { log } from '../lib/log.js';
@@ -343,6 +344,27 @@ export class CodexEntry extends CodexBaseEntry {
                 dom.classList.add('stcdx--content');
                 dom.classList.add('stcdx--entry');
                 dom.classList.add('mes');
+                if (this.entry.automationId) {
+                    const qrList = [];
+                    for (const qrs of QuickReplySet.list) {
+                        for (const qr of qrs.qrList) {
+                            if (qr.automationId == this.entry.automationId) {
+                                qrList.push({ qrs, qr });
+                            }
+                        }
+                    }
+                    const btn = document.createElement('div'); {
+                        btn.classList.add('stcdx--automation');
+                        btn.classList.add('fa-solid');
+                        btn.classList.add('fa-jet-fighter');
+                        btn.title = [
+                            this.entry.automationId,
+                            '---',
+                            ...qrList.map(it=>`${it.qrs.name} > ${it.qr.label}`),
+                        ].join('\n');
+                        dom.append(btn);
+                    }
+                }
                 const mesWrapper = document.createElement('div'); {
                     mesWrapper.classList.add('mes_text');
                     mesWrapper.append(...this.renderTemplate(this.entry));

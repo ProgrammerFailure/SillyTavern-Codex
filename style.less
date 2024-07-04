@@ -494,6 +494,17 @@ body .stcdx--root {
 	}
 	> .stcdx--content {
 		overflow: auto;
+		> .stcdx--automation {
+			position: absolute;
+			top: 0.5em;
+			right: 0.5em;
+			opacity: 0.5;
+			transition: 200ms;
+			cursor: pointer;
+			&:hover {
+				opacity: 1;
+			}
+		}
 		> br {
 			display: none;
 		}
