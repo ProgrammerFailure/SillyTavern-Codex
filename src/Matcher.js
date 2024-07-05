@@ -34,7 +34,7 @@ export class Matcher {
     /**
      * @param {XPathResult} nodes
      */
-    checkNodes(nodes, alreadyFound = []) {
+    checkNodes(nodes, alreadyFound = [], skip = []) {
         log('MATCHER.checkNodes');
         const resultNodes = [];
         const found = [...alreadyFound];
@@ -46,7 +46,7 @@ export class Matcher {
                     continue;
                 }
             }
-            const matches = this.findMatches(node.textContent, found);
+            const matches = this.findMatches(node.textContent, found, skip);
             if (matches.length > 0) {
                 found.push(...matches.map(it=>it.entry));
                 resultNodes.push(new ResultNode(node, matches));
@@ -62,7 +62,7 @@ export class Matcher {
      * @param {Entry[]} alreadyFound List of already found entries
      * @returns The list of found matches
      */
-    findMatches(text, alreadyFound = []) {
+    findMatches(text, alreadyFound = [], skip = []) {
         log('MATCHER.findMatches', { text, alreadyFound });
         /**@type {Entry[]}*/
         const found = [...alreadyFound];
@@ -71,11 +71,13 @@ export class Matcher {
         for (const book of this.bookList) {
             for (const entry of book.entryList) {
                 if (entry.keyList.includes('codex-skip:')) continue;
-                if (this.settings.onlyFirst && found.find(it=>it == entry)) continue;
+                if (skip.includes(entry)) continue;
+                if (this.settings.onlyFirst && found.includes(entry)) continue;
                 const keys = entry.keyList.filter(it=>!this.settings.requirePrefix || it.startsWith('codex:'));
                 for (const key of keys) {
-                    if (this.settings.onlyFirst && found.find(it=>it == entry)) continue;
+                    if (this.settings.onlyFirst && found.includes(entry)) continue;
                     let searchKey = key.replace(/^codex:/, '');
+                    if (searchKey.length == 0) continue;
                     /**@type {RegExp}*/
                     let re;
                     /**@type {String}*/
@@ -104,6 +106,7 @@ export class Matcher {
                         let all = true;
                         for (const key of entry.secondaryKeyList) {
                             const searchKey = key.replace(/^codex:/, '');
+                            if (searchKey.length == 0) continue;
                             /**@type {RegExp}*/
                             let re;
                             /**@type {String}*/

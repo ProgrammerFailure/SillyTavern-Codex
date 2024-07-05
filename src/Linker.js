@@ -45,7 +45,7 @@ export class Linker {
     addCodexLinks(el, skipEntries = []) {
         log('ADD CODEX LINKS', el.textContent);
         const nodes = document.evaluate('.//text()', el, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);
-        const resultNodes = this.matcher.checkNodes(nodes, skipEntries);
+        const resultNodes = this.matcher.checkNodes(nodes, [], skipEntries);
         if (resultNodes.length > 0) {
             this.updateNodes(resultNodes);
             const fingerprint = document.createElement('span'); {
