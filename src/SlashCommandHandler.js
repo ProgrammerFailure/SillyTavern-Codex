@@ -10,6 +10,8 @@ import { warn } from './lib/log.js';
 import { waitForFrame } from './lib/wait.js';
 import { CodexCharList } from './ui/CodexCharList.js';
 import { CodexMap } from './ui/CodexMap.js';
+import { Point } from './ui/map/Point.js';
+import { Zone } from './ui/map/Zone.js';
 
 
 
@@ -173,6 +175,66 @@ export class SlashCommandHandler {
                     <ul>
                         <li><pre><code class="language-stscript">/codex-type-section-wi type=Character section=Notes |\n/echo</code></pre></li>
                         <li><pre><code class="language-stscript">/codex-type-section-wi type=Character section=Notes apply=true false |\n/echo</code></pre></li>
+                    </ul>
+                </div>
+            `,
+        }));
+
+
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-add',
+            callback: async(args, value)=>{
+                const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
+                if (matches.length > 0) {
+                    const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                    const zone = new Zone();
+                    zone.label = args.label;
+                    let poly;
+                    try {
+                        poly = JSON.parse(args.polygon);
+                    } catch {
+                        poly = [];
+                        const numbers = args.polygon.split(',').map(it=>parseInt(it.trim()));
+                        for (let i = 0; i < numbers.length; i += 2) {
+                            poly.push([numbers[i], numbers[i + 1]]);
+                        }
+                    }
+                    zone.polygon = poly.map(it=>Point.from({ x:it[0], y:it[1] }));
+                    map.zoneList.push(zone);
+                    await map.save();
+                    if (this.manager.codex.content.entry == map.entry) {
+                        /**@type {CodexMap}*/(this.manager.codex.content).load();
+                        /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
+                    }
+                    return JSON.stringify(zone);
+                }
+                return '';
+            },
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'entry',
+                    description: 'text / key to find the map entry',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'label',
+                    description: 'zone label',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'polygon',
+                    description: '[[x,y], [x,y], [x,y], ...] or x,y, x,y, x,y, ...',
+                    typeList: [ARGUMENT_TYPE.LIST, ARGUMENT_TYPE.STRING],
+                    isRequired: true,
+                }),
+            ],
+            returns: 'dictionary with the new zone\'s properties',
+            helpString: `
+                <div>
+                    Create a new map zone.
+                </div>
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li><pre><code class="language-stscript">/codex-map-zone-add entry="My Map" label="My New Zone" polygon="[[100,100], [200,100], [200,200], [100,200]]" |\n/echo</code></pre></li>
+                        <li><pre><code class="language-stscript">/codex-map-zone-add entry="My Map" label="My New Zone" polygon="100,100, 200,100, 200,200, 100,200" |\n/echo</code></pre></li>
                     </ul>
                 </div>
             `,

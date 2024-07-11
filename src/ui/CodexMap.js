@@ -51,11 +51,15 @@ export class CodexMap extends CodexBaseEntry {
 
     constructor(entry, settings, matcher, linker) {
         super(entry, settings, matcher, linker);
+        this.load();
+    }
+
+    load() {
         const re = CodexMap.dataRegex;
-        if (re.test(entry.content)) {
-            this.loadNewFormat(re.exec(entry.content)[1]);
+        if (re.test(this.entry.content)) {
+            this.loadNewFormat(re.exec(this.entry.content)[1]);
         } else {
-            this.loadOldFormat(entry.content || '{}');
+            this.loadOldFormat(this.entry.content || '{}');
         }
         // remove "codex-map:" key
         const mapKeyIdx = this.entry.keyList.findIndex(it=>it.startsWith('codex-map:'));
@@ -67,7 +71,6 @@ export class CodexMap extends CodexBaseEntry {
             this.entry.keyList.splice(titleKeyIdx, 1);
         }
     }
-
     loadNewFormat(content) {
         const data = JSON.parse(decodeURIComponent(atob(content)));
         this.url = data.url ?? '';
