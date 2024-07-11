@@ -71,7 +71,7 @@ export class CodexBooksMenu extends CodexBaseEntry {
                 const entries = document.createElement('div'); {
                     entries.classList.add('stcdx--entries');
                     const el = book.entryList
-                        .filter(e=>e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
+                        .filter(e=>e.keyList.length == 0 || e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
                         .filter(e=>!e.keyList.includes('codex-skip:'))
                         .toSorted((a,b)=>a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
                     ;

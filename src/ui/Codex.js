@@ -305,7 +305,7 @@ export class Codex {
             }
             this.bookList.toSorted((a,b)=>a.name.toLowerCase().localeCompare(b.name.toLowerCase())).forEach(book=>{
                 const entries = book.entryList
-                    .filter(e=>e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
+                    .filter(e=>e.keyList.length == 0 || e.keyList.find(k=>!this.settings.requirePrefix || k.startsWith('codex:')))
                     .filter(e=>!e.keyList.includes('codex-skip:'))
                     .map(e=>CodexEntryFactory.create(e, this.settings, this.matcher, this.linker))
                     .toSorted((a,b)=>a.title.localeCompare(b.title))
