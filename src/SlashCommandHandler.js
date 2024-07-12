@@ -1,6 +1,7 @@
 import { getCurrentChatId, sendSystemMessage } from '../../../../../script.js';
 import { SlashCommand } from '../../../../slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument, SlashCommandNamedArgument } from '../../../../slash-commands/SlashCommandArgument.js';
+import { SlashCommandClosure } from '../../../../slash-commands/SlashCommandClosure.js';
 import { SlashCommandEnumValue } from '../../../../slash-commands/SlashCommandEnumValue.js';
 import { SlashCommandParser } from '../../../../slash-commands/SlashCommandParser.js';
 import { delay, isTrueBoolean } from '../../../../utils.js';
@@ -181,6 +182,85 @@ export class SlashCommandHandler {
         }));
 
 
+        const zoneProps = [
+            {
+                prop: 'label',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+                req: true,
+            },
+            {
+                prop: 'polygon',
+                desc: '[[x,y], [x,y], [x,y], ...] or x,y, x,y, x,y, ...',
+                type: [ARGUMENT_TYPE.LIST, ARGUMENT_TYPE.STRING],
+                req: true,
+            },
+            {
+                prop: 'url',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+            },
+            {
+                prop: 'isAlwaysVisible',
+                desc: '',
+                type: ARGUMENT_TYPE.BOOLEAN,
+            },
+            {
+                prop: 'description',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+            },
+            {
+                prop: 'key',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+            },
+            {
+                prop: 'keepZoomed',
+                desc: '',
+                type: ARGUMENT_TYPE.BOOLEAN,
+            },
+            {
+                prop: 'command',
+                desc: '',
+                type: ARGUMENT_TYPE.CLOSURE,
+            },
+            {
+                prop: 'qrSet',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+            },
+            {
+                prop: 'overrideZoom',
+                desc: '',
+                type: ARGUMENT_TYPE.BOOLEAN,
+            },
+            {
+                prop: 'zoom',
+                desc: '',
+                type: ARGUMENT_TYPE.NUMBER,
+            },
+            {
+                prop: 'overrideShadow',
+                desc: '',
+                type: ARGUMENT_TYPE.BOOLEAN,
+            },
+            {
+                prop: 'shadow',
+                desc: '',
+                type: ARGUMENT_TYPE.NUMBER,
+            },
+            {
+                prop: 'overrideShadowColor',
+                desc: '',
+                type: ARGUMENT_TYPE.BOOLEAN,
+            },
+            {
+                prop: 'shadowColor',
+                desc: '',
+                type: ARGUMENT_TYPE.STRING,
+            },
+        ];
         SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-add',
             callback: async(args, value)=>{
                 const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
@@ -238,6 +318,103 @@ export class SlashCommandHandler {
                     </ul>
                 </div>
             `,
+        }));
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-update',
+            callback: async(args, value)=>{
+                const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
+                if (matches.length > 0) {
+                    const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                    const zone = map.zoneList.find(it=>it.label == args.zone);
+                    if (zone) {
+                        let hasChanges = false;
+                        for (const prop of zoneProps) {
+                            if (args[prop.prop] !== undefined) {
+                                const val = args[prop.prop];
+                                switch (prop.prop) {
+                                    case 'polygon': {
+                                        let poly;
+                                        try {
+                                            poly = JSON.parse(/**@type {string} */(val));
+                                        } catch {
+                                            poly = [];
+                                            const numbers = /**@type {string} */(val).split(',').map(it=>parseInt(it.trim()));
+                                            for (let i = 0; i < numbers.length; i += 2) {
+                                                poly.push([numbers[i], numbers[i + 1]]);
+                                            }
+                                        }
+                                        zone.polygon = poly.map(it=>Point.from({ x:it[0], y:it[1] }));
+                                        hasChanges = true;
+                                        break;
+                                    }
+                                    case 'command': {
+                                        zone.command = /**@type {SlashCommandClosure} */(val).rawText;
+                                        break;
+                                    }
+                                    default: {
+                                        switch (prop.type) {
+                                            case ARGUMENT_TYPE.NUMBER: {
+                                                zone[prop.prop] = Number(val);
+                                                break;
+                                            }
+                                            case ARGUMENT_TYPE.BOOLEAN: {
+                                                zone[prop.prop] = isTrueBoolean(val);
+                                                break;
+                                            }
+                                            case ARGUMENT_TYPE.STRING: {
+                                                zone[prop.prop] = val;
+                                                break;
+                                            }
+                                        }
+                                        hasChanges = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (hasChanges) {
+                            await map.save();
+                            if (this.manager.codex.content.entry == map.entry) {
+                                /**@type {CodexMap}*/(this.manager.codex.content).load();
+                                /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
+                            }
+                        }
+                    }
+                }
+                return '';
+            },
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'entry',
+                    description: 'text / key to find the map entry',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'zone',
+                    description: 'zone label (to identify the zone to update)',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        const matches = this.matcher.findMatches(executor.namedArgumentList.find(it=>it.name == 'entry')?.value).filter(it=>CodexMap.test(it.entry));
+                        if (matches.length > 0) {
+                            const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                            return map.zoneList.map(it=>new SlashCommandEnumValue(it.label, it.description));
+                        }
+                        return [];
+                    },
+                }),
+                ...zoneProps.map(prop=>SlashCommandNamedArgument.fromProps({ name: prop.prop,
+                    description: prop.desc,
+                    typeList: prop.type,
+                    isRequired: false,
+                })),
+            ],
         }));
 
 
