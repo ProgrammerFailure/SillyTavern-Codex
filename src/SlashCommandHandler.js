@@ -40,7 +40,7 @@ export class SlashCommandHandler {
                     description: 'suppress warnings when no entries are found',
                     typeList: [ARGUMENT_TYPE.BOOLEAN],
                     enumList: ['true', 'false'],
-                    defaultValue: 'false'
+                    defaultValue: 'false',
                 }),
                 SlashCommandNamedArgument.fromProps({ name: 'first',
                     description: 'only show the first entry if multiple are found',
@@ -50,12 +50,20 @@ export class SlashCommandHandler {
                 }),
                 SlashCommandNamedArgument.fromProps({ name: 'zoom',
                     description: 'zoom the n-th image of the found entry (only works if exactly one match is found or first=true)',
-                    typeList: [ARGUMENT_TYPE.NUMBER]
+                    typeList: [ARGUMENT_TYPE.NUMBER],
                 }),
             ],
             unnamedArgumentList: [
                 SlashCommandArgument.fromProps({ description: 'text / keys',
                     typeList: [ARGUMENT_TYPE.STRING],
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(it=>it.keyList.length)
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
                 }),
             ],
             helpString: 'Toggle codex. Provide text or keys to open a relevant entry (cycles through entries if multiple are found).',
@@ -67,6 +75,15 @@ export class SlashCommandHandler {
                 SlashCommandArgument.fromProps({ description: 'text / keys',
                     typeList: [ARGUMENT_TYPE.STRING],
                     isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(it=>it.keyList.length)
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
                 }),
             ],
             helpString: 'open a map in full screen',
@@ -86,6 +103,14 @@ export class SlashCommandHandler {
                 SlashCommandArgument.fromProps({ description: 'text / keys',
                     typeList: [ARGUMENT_TYPE.STRING],
                     isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(it=>it.keyList.length)
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
                 }),
             ],
             helpString: 'open an entry editor',
@@ -97,6 +122,15 @@ export class SlashCommandHandler {
                 SlashCommandArgument.fromProps({ description: 'text / keys',
                     typeList: [ARGUMENT_TYPE.STRING],
                     isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(it=>it.keyList.length)
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
                 }),
             ],
             helpString: 'open a map editor painter',
@@ -327,6 +361,7 @@ export class SlashCommandHandler {
                     enumProvider: (executor, scope)=>{
                         return this.manager.bookList.map(book=>{
                             return book.entryList
+                                .filter(it=>it.keyList.length)
                                 .filter(entry=>CodexMap.test(entry))
                                 .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
                             ;
@@ -424,6 +459,7 @@ export class SlashCommandHandler {
                     enumProvider: (executor, scope)=>{
                         return this.manager.bookList.map(book=>{
                             return book.entryList
+                                .filter(it=>it.keyList.length)
                                 .filter(entry=>CodexMap.test(entry))
                                 .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
                             ;
@@ -487,6 +523,7 @@ export class SlashCommandHandler {
                     enumProvider: (executor, scope)=>{
                         return this.manager.bookList.map(book=>{
                             return book.entryList
+                                .filter(it=>it.keyList.length)
                                 .filter(entry=>CodexMap.test(entry))
                                 .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
                             ;
