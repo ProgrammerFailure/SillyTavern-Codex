@@ -387,6 +387,59 @@ export class SlashCommandHandler {
                 </div>
             `,
         }));
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-get',
+            callback: async(args, value)=>{
+                const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
+                if (matches.length > 0) {
+                    const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                    const zone = map.zoneList.find(it=>it.label == args.zone);
+                    if (zone) {
+                        return JSON.stringify(zone);
+                    }
+                }
+                return '';
+            },
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'entry',
+                    description: 'text / key to find the map entry',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(it=>it.keyList.length)
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'zone',
+                    description: 'zone label (to identify the zone to update)',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        const matches = this.matcher.findMatches(executor.namedArgumentList.find(it=>it.name == 'entry')?.value).filter(it=>CodexMap.test(it.entry));
+                        if (matches.length > 0) {
+                            const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                            return map.zoneList.map(it=>new SlashCommandEnumValue(it.label, it.description));
+                        }
+                        return [];
+                    },
+                }),
+            ],
+            returns: 'dictionary with the zone\'s properties',
+            helpString: `
+                <div>
+                    Get the properties of an existing map zone.
+                </div>
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li><pre><code class="language-stscript">/codex-map-zone-get entry="My Map" zone="My Zone" |\n/echo</code></pre></li>
+                    </ul>
+                </div>
+            `,
+        }));
         SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-update',
             callback: async(args, value)=>{
                 const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
