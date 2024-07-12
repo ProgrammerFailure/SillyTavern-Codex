@@ -411,6 +411,7 @@ export class SlashCommandHandler {
                                 /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
                             }
                         }
+                        return JSON.stringify(zone);
                     }
                 }
                 return '';
@@ -448,6 +449,74 @@ export class SlashCommandHandler {
                     isRequired: false,
                 })),
             ],
+            returns: 'dictionary with the new zone\'s properties',
+            helpString: `
+                <div>
+                    Update an existing map zone.
+                </div>
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li><pre><code class="language-stscript">/codex-map-zone-update entry="My Map" zone="My Zone" polygon="[[100,100], [200,100], [200,200], [100,200]]" |\n/echo</code></pre></li>
+                        <li><pre><code class="language-stscript">/codex-map-zone-update entry="My Map" zone="My Zone" label="My Renamed Zone" polygon="100,100, 200,100, 200,200, 100,200" |\n/echo</code></pre></li>
+                    </ul>
+                </div>
+            `,
+        }));
+        SlashCommandParser.addCommandObject(SlashCommand.fromProps({ name: 'codex-map-zone-delete',
+            callback: async(args, value)=>{
+                const matches = this.matcher.findMatches(args.entry).filter(it=>CodexMap.test(it.entry));
+                if (matches.length > 0) {
+                    const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                    const zone = map.zoneList.find(it=>it.label == args.zone);
+                    if (zone) {
+                        map.zoneList.splice(map.zoneList.indexOf(zone), 1);
+                        await map.save();
+                        if (this.manager.codex.content.entry == map.entry) {
+                            /**@type {CodexMap}*/(this.manager.codex.content).load();
+                            /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
+                        }
+                    }
+                }
+                return '';
+            },
+            namedArgumentList: [
+                SlashCommandNamedArgument.fromProps({ name: 'entry',
+                    description: 'text / key to find the map entry',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
+                }),
+                SlashCommandNamedArgument.fromProps({ name: 'zone',
+                    description: 'zone label (to identify the zone to delete)',
+                    typeList: ARGUMENT_TYPE.STRING,
+                    isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        const matches = this.matcher.findMatches(executor.namedArgumentList.find(it=>it.name == 'entry')?.value).filter(it=>CodexMap.test(it.entry));
+                        if (matches.length > 0) {
+                            const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
+                            return map.zoneList.map(it=>new SlashCommandEnumValue(it.label, it.description));
+                        }
+                        return [];
+                    },
+                }),
+            ],
+            helpString: `
+                <div>
+                    Delete an existing map zone.
+                </div>
+                    <strong>Examples:</strong>
+                    <ul>
+                        <li><pre><code class="language-stscript">/codex-map-zone-delete entry="My Map" zone="My New Zone"</code></pre></li>
+                    </ul>
+                </div>
+            `,
         }));
 
 
