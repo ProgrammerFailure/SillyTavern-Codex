@@ -349,7 +349,7 @@ export class SlashCommandHandler {
                         /**@type {CodexMap}*/(this.manager.codex.content).load();
                         /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
                     }
-                    return JSON.stringify(zone);
+                    return JSON.stringify(zone.toReadableJSON());
                 }
                 return '';
             },
@@ -394,7 +394,7 @@ export class SlashCommandHandler {
                     const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
                     const zone = map.zoneList.find(it=>it.label == args.zone);
                     if (zone) {
-                        return JSON.stringify(zone);
+                        return JSON.stringify(zone.toReadableJSON());
                     }
                 }
                 return '';
@@ -499,7 +499,7 @@ export class SlashCommandHandler {
                                 /**@type {CodexMap}*/(this.manager.codex.content).renderContent();
                             }
                         }
-                        return JSON.stringify(zone);
+                        return JSON.stringify(zone.toReadableJSON());
                     }
                 }
                 return '';

@@ -60,6 +60,25 @@ export class Zone {
             shadowColor: this.shadowColor,
         };
     }
+    toReadableJSON() {
+        return {
+            label: this.label,
+            url: this.url,
+            isAlwaysVisible: this.isAlwaysVisible,
+            description: this.description,
+            key: this.key,
+            polygon: this.polygon,
+            keepZoomed : this.keepZoomed,
+            command: this.command,
+            qrSet: this.qrSet,
+            overrideZoom: this.overrideZoom,
+            zoom: this.zoom,
+            overrideShadow: this.overrideShadow,
+            shadow: this.shadow,
+            overrideShadowColor: this.overrideShadowColor,
+            shadowColor: this.shadowColor,
+        };
+    }
 
 
 
