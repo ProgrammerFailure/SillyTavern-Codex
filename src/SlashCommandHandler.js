@@ -267,18 +267,48 @@ export class SlashCommandHandler {
                 if (matches.length > 0) {
                     const map = new CodexMap(matches[0].entry, this.manager.settings, this.matcher, this.manager.linker);
                     const zone = new Zone();
-                    zone.label = args.label;
-                    let poly;
-                    try {
-                        poly = JSON.parse(args.polygon);
-                    } catch {
-                        poly = [];
-                        const numbers = args.polygon.split(',').map(it=>parseInt(it.trim()));
-                        for (let i = 0; i < numbers.length; i += 2) {
-                            poly.push([numbers[i], numbers[i + 1]]);
+                    for (const prop of zoneProps) {
+                        if (args[prop.prop] !== undefined) {
+                            const val = args[prop.prop];
+                            switch (prop.prop) {
+                                case 'polygon': {
+                                    let poly;
+                                    try {
+                                        poly = JSON.parse(/**@type {string} */(val));
+                                    } catch {
+                                        poly = [];
+                                        const numbers = /**@type {string} */(val).split(',').map(it=>parseInt(it.trim()));
+                                        for (let i = 0; i < numbers.length; i += 2) {
+                                            poly.push([numbers[i], numbers[i + 1]]);
+                                        }
+                                    }
+                                    zone.polygon = poly.map(it=>Point.from({ x:it[0], y:it[1] }));
+                                    break;
+                                }
+                                case 'command': {
+                                    zone.command = /**@type {SlashCommandClosure} */(val).rawText;
+                                    break;
+                                }
+                                default: {
+                                    switch (prop.type) {
+                                        case ARGUMENT_TYPE.NUMBER: {
+                                            zone[prop.prop] = Number(val);
+                                            break;
+                                        }
+                                        case ARGUMENT_TYPE.BOOLEAN: {
+                                            zone[prop.prop] = isTrueBoolean(val);
+                                            break;
+                                        }
+                                        case ARGUMENT_TYPE.STRING: {
+                                            zone[prop.prop] = val;
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
-                    zone.polygon = poly.map(it=>Point.from({ x:it[0], y:it[1] }));
                     map.zoneList.push(zone);
                     await map.save();
                     if (this.manager.codex.content.entry == map.entry) {
@@ -294,17 +324,20 @@ export class SlashCommandHandler {
                     description: 'text / key to find the map entry',
                     typeList: ARGUMENT_TYPE.STRING,
                     isRequired: true,
+                    enumProvider: (executor, scope)=>{
+                        return this.manager.bookList.map(book=>{
+                            return book.entryList
+                                .filter(entry=>CodexMap.test(entry))
+                                .map(entry=>new SlashCommandEnumValue(entry.keyList[0], entry.keyList.join(', ')))
+                            ;
+                        }).flat();
+                    },
                 }),
-                SlashCommandNamedArgument.fromProps({ name: 'label',
-                    description: 'zone label',
-                    typeList: ARGUMENT_TYPE.STRING,
-                    isRequired: true,
-                }),
-                SlashCommandNamedArgument.fromProps({ name: 'polygon',
-                    description: '[[x,y], [x,y], [x,y], ...] or x,y, x,y, x,y, ...',
-                    typeList: [ARGUMENT_TYPE.LIST, ARGUMENT_TYPE.STRING],
-                    isRequired: true,
-                }),
+                ...zoneProps.map(prop=>SlashCommandNamedArgument.fromProps({ name: prop.prop,
+                    description: prop.desc,
+                    typeList: prop.type,
+                    isRequired: prop.req ?? false,
+                })),
             ],
             returns: 'dictionary with the new zone\'s properties',
             helpString: `
