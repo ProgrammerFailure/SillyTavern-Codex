@@ -101,7 +101,11 @@ export class CodexMap extends CodexBaseEntry {
 
 
     async save() {
-        this.entry.content = `{{//codex-map:${btoa(encodeURIComponent(JSON.stringify({
+        this.entry.content = `{{//codex-map:${btoa(encodeURIComponent(JSON.stringify(this)))}}}`;
+        await this.entry.saveDebounced();
+    }
+    toJSON() {
+        return {
             url: this.url ?? '',
             paintList: this.paintList,
             description: this.description ?? '',
@@ -109,8 +113,7 @@ export class CodexMap extends CodexBaseEntry {
             qrSet: this.qrSet ?? '',
             zoneList: this.zoneList,
             titleField: this.titleField,
-        })))}}}`;
-        await this.entry.saveDebounced();
+        };
     }
 
 
