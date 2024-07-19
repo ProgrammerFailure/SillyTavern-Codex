@@ -119,6 +119,23 @@ body:has(.stcdx--mapEditor) #shadow_popup #stcdx--zoneEditor .stcdx--hoverSettin
   gap: 0.5em;
   justify-content: space-evenly;
 }
+.popup:has(.stcdx--json) {
+  aspect-ratio: unset;
+}
+.popup:has(.stcdx--json) .popup-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.popup:has(.stcdx--json) .stcdx--json {
+  text-align: left;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.popup:has(.stcdx--json) .stcdx--json code {
+  overflow: auto;
+  height: 100%;
+}
 #stcdx--settings .stcdx--templatesContainer,
 #stcdx--settings-v2 .stcdx--templatesContainer {
   flex: 1 1 auto;
@@ -433,12 +450,12 @@ body .stcdx--codex > .stcdx--header > .stcdx--search > .stcdx--results > .stcdx-
   opacity: 1;
 }
 @container (max-width: 500px) {
-  body .stcdx--codex > .stcdx--header {
+  body .stcdx--codex body .stcdx--codex > .stcdx--header {
     flex-wrap: wrap;
     height: auto;
     row-gap: 0;
   }
-  body .stcdx--codex > .stcdx--header > .stcdx--search {
+  body .stcdx--codex body .stcdx--codex > .stcdx--header > .stcdx--search {
     order: 99;
     flex-basis: 100%;
   }
@@ -690,7 +707,7 @@ body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .menu_button {
   white-space: nowrap;
 }
 @container stfe--actions (max-width: 31rem) {
-  .menu_button_icon > span {
+  body .stcdx--root > .stcdx--editor > .stcdx--editor-actionsRow .menu_button_icon > span {
     display: none;
   }
 }

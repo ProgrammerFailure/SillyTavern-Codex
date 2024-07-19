@@ -65,6 +65,23 @@
 		}
 	}
 }
+.popup:has(.stcdx--json) {
+	aspect-ratio: unset;
+	.popup-body {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+	.stcdx--json {
+		text-align: left;
+		flex: 1 1 auto;
+		overflow: hidden;
+		code {
+			overflow: auto;
+			height: 100%;
+		}
+	}
+}
 
 
 #stcdx--settings, #stcdx--settings-v2 {

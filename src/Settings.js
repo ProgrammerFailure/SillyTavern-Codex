@@ -22,6 +22,7 @@ import { Book } from './st/wi/Book.js';
 import { CodexEntryFactory } from './ui/CodexEntryFactory.js';
 import { CodexEntry } from './ui/CodexEntry.js';
 import { POPUP_TYPE, Popup } from '../../../../popup.js';
+import { CodexBaseEntry } from './ui/CodexBaseEntry.js';
 
 
 
@@ -79,6 +80,7 @@ export class Settings {
 
     /**@type {(isForced:true)=>Promise}*/ onRestartRequired;
     /**@type {Function}*/ onRerenderRequired;
+    /**@type {()=>CodexBaseEntry}*/ onRequestCurrentEntry;
 
 
 
@@ -637,6 +639,38 @@ export class Settings {
                                 await entry.saveDebounced();
                             }
                             toastr.success(`updated ${updates.length} entries`, 'updating all entries');
+                        },
+                    }),
+                ],
+            }));
+            this.settingList.push(ActionSetting.fromProps({ id: 'stcdx--viewEntryData',
+                name: 'View entry data',
+                description: 'View the raw data of the current Codex Entry.',
+                category: ['Maintenance'],
+                initialValue: null,
+                actionList: [
+                    SettingAction.fromProps({ label: 'View entry data',
+                        icon: 'fa-file-code',
+                        tooltip: 'View the raw data of the current Codex Entry.',
+                        action: async()=>{
+                            const entry = this.onRequestCurrentEntry?.();
+                            if (!entry) {
+                                toastr.warning('No entry selected');
+                                return;
+                            }
+                            const dom = document.createElement('pre'); {
+                                dom.classList.add('stcdx--json');
+                                const code = document.createElement('code');
+                                code.classList.add('hljs');
+                                code.classList.add('hljs-json');
+                                code.innerHTML = hljs.highlight(
+                                    JSON.stringify(entry.properties ?? entry, null, 4),
+                                    { language:'json', ignoreIllegals:true },
+                                )?.value;
+                                dom.append(code);
+                            }
+                            const dlg = new Popup(dom, POPUP_TYPE.TEXT, null, { okButton:'Close', wide:true, large:true, allowVerticalScrolling:true });
+                            await dlg.show();
                         },
                     }),
                 ],

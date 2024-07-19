@@ -54,6 +54,7 @@ export class CodexManager {
             (isForced)=>this.restartDebounced(isForced),
             ()=>this.codex?.rerender(),
         );
+        this.settings.onRequestCurrentEntry = ()=>this.codex?.content;
 
         this.wiSettings = new WorldInfoSettings();
         this.wiSettings.onSettingsChanged = ()=>this.handleWorldInfoSettingsChange();
