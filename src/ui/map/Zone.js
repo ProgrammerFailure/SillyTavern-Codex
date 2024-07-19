@@ -9,10 +9,10 @@ export class Zone {
     static from(props) {
         const instance = Object.assign(new this(), props);
         instance.polygon = (props.polygon ?? []).map(it => Point.from(it));
-        instance.label = instance.label ? tryDecodeBase64(instance.label) : null;
-        instance.url = instance.url ? tryDecodeBase64(instance.url) : null;
-        instance.description = instance.description ? tryDecodeBase64(instance.description) : null;
-        instance.command = instance.command ? tryDecodeBase64(instance.command) : null;
+        instance.label = props.v == 2 ? instance.label : instance.label ? tryDecodeBase64(instance.label) : null;
+        instance.url = props.v == 2 ? instance.url : instance.url ? tryDecodeBase64(instance.url) : null;
+        instance.description = props.v == 2 ? instance.description : instance.description ? tryDecodeBase64(instance.description) : null;
+        instance.command = props.v == 2 ? instance.command : instance.command ? tryDecodeBase64(instance.command) : null;
         return instance;
     }
 
@@ -43,25 +43,7 @@ export class Zone {
 
     toJSON() {
         return {
-            label: this.label ? window.btoa(this.label) : null,
-            url: this.url ? window.btoa(this.url) : null,
-            isAlwaysVisible: this.isAlwaysVisible,
-            description: this.description ? window.btoa(this.description) : null,
-            key: this.key,
-            polygon: this.polygon,
-            keepZoomed : this.keepZoomed,
-            command: this.command ? window.btoa(this.command) : null,
-            qrSet: this.qrSet,
-            overrideZoom: this.overrideZoom,
-            zoom: this.zoom,
-            overrideShadow: this.overrideShadow,
-            shadow: this.shadow,
-            overrideShadowColor: this.overrideShadowColor,
-            shadowColor: this.shadowColor,
-        };
-    }
-    toReadableJSON() {
-        return {
+            v: 2,
             label: this.label,
             url: this.url,
             isAlwaysVisible: this.isAlwaysVisible,
