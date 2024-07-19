@@ -1,27 +1,12 @@
-import { messageFormatting, setCharacterId, this_chid } from '../../../../../../script.js';
+import { messageFormatting, reloadMarkdownProcessor, setCharacterId, substituteParams, this_chid } from '../../../../../../script.js';
 import { selected_group } from '../../../../../group-chats.js';
 
 export const messageFormattingWithLanding = (messageText, stripCustom = false)=>{
-    const currentChatId = this_chid;
-    let landingHack = false;
-    if ((this_chid ?? selected_group) == null) {
-        landingHack = true;
-        setCharacterId(1);
-    }
-
-    messageText = messageFormatting(
-        messageText,
-        'Codex',
-        false,
-        false,
-        null,
-    );
+    const converter = reloadMarkdownProcessor();
+    messageText = substituteParams(messageText);
+    messageText = converter.makeHtml(messageText);
     if (stripCustom) {
         messageText = messageText.replace(/(custom-)+stcdx--/g, 'stcdx--');
-    }
-
-    if (landingHack) {
-        setCharacterId(currentChatId);
     }
     return messageText;
 };
