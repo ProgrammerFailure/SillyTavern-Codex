@@ -60,12 +60,12 @@ export class CodexManager {
         this.wiSettings.onSettingsChanged = ()=>this.handleWorldInfoSettingsChange();
         this.wiSettings.onBookUpdated = (book, entries)=>this.handleBookUpdate(book, entries);
 
-        eventSource.on(event_types.CHAT_CHANGED, (chatIdx)=>this.handleChatChange(chatIdx));
+        eventSource.on(event_types.CHAT_CHANGED, (chatIdx)=>(this.handleChatChange(chatIdx), null));
 
-        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (idx)=>this.queueMessageAndCycle(idx));
-        eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx)=>this.queueMessageAndCycle(idx));
-        eventSource.on(event_types.MESSAGE_SWIPED, (idx)=>this.queueMessageAndCycle(idx));
-        eventSource.on(event_types.MESSAGE_UPDATED, (idx)=>this.queueMessageAndCycle(idx));
+        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (idx)=>(this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx)=>(this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.MESSAGE_SWIPED, (idx)=>(this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.MESSAGE_UPDATED, (idx)=>(this.queueMessageAndCycle(idx), null));
     }
 
 
