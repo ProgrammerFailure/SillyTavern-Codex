@@ -215,4 +215,4 @@ const init = async()=>{
         }
     }
 };
-eventSource.on(event_types.APP_READY, ()=>init());
+eventSource.on(event_types.APP_READY, ()=>(init(),null));

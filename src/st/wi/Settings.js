@@ -26,12 +26,12 @@ export class WorldInfoSettings {
         eventSource.on(event_types.WORLDINFO_UPDATED, ()=>log('[EVENT]', 'WORLDINFO_UPDATED'));
         eventSource.on(event_types.SETTINGS_UPDATED, ()=>log('[EVENT]', 'SETTINGS_UPDATED'));
         eventSource.on(event_types.CHARACTER_EDITED, ()=>log('[EVENT]', 'CHARACTER_EDITED'));
-        eventSource.on(event_types.WORLDINFO_SETTINGS_UPDATED, ()=>this.loadDebounced());
+        eventSource.on(event_types.WORLDINFO_SETTINGS_UPDATED, ()=>(this.loadDebounced(),null));
         eventSource.on(event_types.WORLDINFO_UPDATED, (book, data)=>{
             if (this.bookNameList.includes(book)) this.onBookUpdated(book, Object.keys(data.entries).map(key=>data.entries[key]));
         });
-        eventSource.on(event_types.SETTINGS_UPDATED, ()=>this.loadDebounced());
-        eventSource.on(event_types.CHARACTER_EDITED, ()=>this.loadDebounced());
+        eventSource.on(event_types.SETTINGS_UPDATED, ()=>(this.loadDebounced(), null));
+        eventSource.on(event_types.CHARACTER_EDITED, ()=>(this.loadDebounced(), null));
     }
 
 
