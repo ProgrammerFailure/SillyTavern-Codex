@@ -315,7 +315,7 @@ export class CodexEntry extends CodexBaseEntry {
                     sec.id = it.id;
                     sec.setAttribute('data-name', it.name);
                     let text = [it.prefix, it.content, it.suffix].filter(it=>it).join('\n');
-                    text = text.replace(/{{get(global)?var::((?:(?!}}).)+)}}/g, '<span class="stcdx--var" data-scope="$1" data-var="$2" title="$1 variable: $2">$&</span>');
+                    text = text.replace(/\(!\)({{get(global)?var::((?:(?!}}).)+)}})/g, '<span class="stcdx--var" data-scope="$2" data-var="$3" title="$2 variable: $3">$1</span>');
                     sec.innerHTML = messageFormattingWithLanding(text);
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');

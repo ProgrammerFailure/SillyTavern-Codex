@@ -23,6 +23,7 @@ export class EntrySection {
     }
 
     toString() {
-        return `${this.prefix}${this.content}${this.suffix}`;
+        const text = this.content.replace(/\(!\)({{get(global)?var::((?:(?!}}).)+)}})/g, '$1');
+        return `${this.prefix}${text}${this.suffix}`;
     }
 }
