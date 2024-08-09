@@ -565,8 +565,10 @@ body .stcdx--root {
 				}
 			}
 			.stcdx--var {
-				color: var(--SmartThemeQuoteColor);
-				cursor: pointer;
+				&[data-edit="(!)"] {
+					color: var(--SmartThemeQuoteColor);
+					cursor: pointer;
+				}
 				&:empty {
 					color: red;
 					&:before { content: "???"; }

@@ -200,6 +200,7 @@ export class CodexEntry extends CodexBaseEntry {
             });
         }
         for (const v of [...dom.querySelectorAll('.stcdx--var')]) {
+            if (!v.getAttribute('data-edit')) continue;
             v.addEventListener('click', ()=>{
                 const name = v.getAttribute('data-var');
                 const scope = v.getAttribute('data-scope');
@@ -315,7 +316,7 @@ export class CodexEntry extends CodexBaseEntry {
                     sec.id = it.id;
                     sec.setAttribute('data-name', it.name);
                     let text = [it.prefix, it.content, it.suffix].filter(it=>it).join('\n');
-                    text = text.replace(/\(!\)({{get(global)?var::((?:(?!}}).)+)}})/g, '<span class="stcdx--var" data-scope="$2" data-var="$3" title="$2 variable: $3">$1</span>');
+                    text = text.replace(/(\(!\))?({{get(global)?var::((?:(?!}}).)+)}})/g, '<span class="stcdx--var" data-edit="$1" data-scope="$3" data-var="$4" title="$3 variable: $4">$2</span>');
                     sec.innerHTML = messageFormattingWithLanding(text);
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');

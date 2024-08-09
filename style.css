@@ -571,7 +571,7 @@ body .stcdx--root > .stcdx--content.stcdx--entry section:hover .stcdx--editSecti
 body .stcdx--root > .stcdx--content.stcdx--entry section:hover .stcdx--editSection:hover {
   opacity: 1;
 }
-body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var {
+body .stcdx--root > .stcdx--content.stcdx--entry .stcdx--var[data-edit="(!)"] {
   color: var(--SmartThemeQuoteColor);
   cursor: pointer;
 }
