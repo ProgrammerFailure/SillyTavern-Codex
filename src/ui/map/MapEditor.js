@@ -1,4 +1,4 @@
-import { log } from '../../lib/log.js';
+import { log, warn } from '../../lib/log.js';
 // eslint-disable-next-line no-unused-vars
 import { CodexMap } from '../CodexMap.js';
 import { HoverCanvas } from './HoverCanvas.js';
@@ -40,6 +40,17 @@ export class MapEditor extends MapBase {
 
     /**@type {Function}*/ handleKeyDownBound;
     /**@type {Function}*/ handleKeyUpBound;
+
+    get statusFlags() {
+        return {
+            isPainting: this.isPainting,
+            isDrawing: this.isDrawing,
+            isRectangling: this.isRectangling,
+            isDragging: this.isDragging,
+            isStartZoneDragging: this.isStartZoneDragging,
+            isZoneDragging: this.isZoneDragging,
+        };
+    }
 
 
 
@@ -195,7 +206,12 @@ export class MapEditor extends MapBase {
     }
 
 
+    /**
+     * @param {PointerEvent} evt
+     */
     async handleMove(evt) {
+        if (!this.dom) return;
+        if (document.activeElement != document.body) return;
         if (this.isPainting) return;
         if (this.isDrawing && this.isRectangling && this.rectangleStart) {
             const p = this.getPoint(evt);
@@ -268,19 +284,23 @@ export class MapEditor extends MapBase {
         }
     }
     /**
-     *
      * @param {PointerEvent} evt
      */
     async handlePointerDown(evt) {
+        if (!this.dom) return;
+        if (document.activeElement != document.body) return;
+        warn('POINTER_DOWN', evt, this.statusFlags);
         if (this.isPainting) return;
         if (this.isDrawing && this.isRectangling) {
             this.rectangleStart = this.getPoint(evt);
+            warn('--', 'rectangleStart', this.statusFlags);
             return;
         }
         if (evt.ctrlKey || evt.altKey) return;
         if (this.hoverPoint) {
             this.isDragging = true;
             this.dragPoint = this.hoverPoint;
+            warn('--', 'isDragging = true', this.statusFlags);
             return;
         }
         if (this.hoverLine) {
@@ -297,15 +317,22 @@ export class MapEditor extends MapBase {
             this.isDragging = true;
             this.dragPoint = p;
             this.hoverLine = null;
+            warn('--', 'split line', this.statusFlags);
             return;
         }
         if (this.zone) {
             this.isStartZoneDragging = true;
             this.zoneDragPoint = this.getPoint(evt);
+            warn('--', 'isStartZoneDragging = true', this.statusFlags);
             return;
         }
     }
+    /**
+     * @param {PointerEvent} evt
+     */
     async handlePointerUp(evt) {
+        if (!this.dom) return;
+        warn('POINTER_UP', evt, this.statusFlags);
         if (this.isPainting) return;
         log('UP');
         if (this.isDrawing && this.isRectangling && this.rectangleStart) {
@@ -319,6 +346,7 @@ export class MapEditor extends MapBase {
             this.zoneList.push(zone);
             await this.save();
             this.updateHover();
+            warn('--', 'isDrawing = false | isRectangling = false | rectangleStart = null', this.statusFlags);
             return;
         }
         if (this.isDragging) {
@@ -326,10 +354,12 @@ export class MapEditor extends MapBase {
             window.addEventListener('click', (evt)=>evt.stopPropagation(), { capture:true, once:true });
             this.updateHover();
             this.save();
+            warn('--', 'isDragging = false', this.statusFlags);
             return;
         }
         if (this.isStartZoneDragging && !this.isZoneDragging) {
             this.isStartZoneDragging = false;
+            warn('--', 'isStartZoneDragging = false', this.statusFlags);
             return;
         }
         if (this.isZoneDragging) {
@@ -339,10 +369,16 @@ export class MapEditor extends MapBase {
             window.addEventListener('click', (evt)=>evt.stopPropagation(), { capture:true, once:true });
             this.updateHover();
             this.save();
+            warn('--', 'isZoneDragging = false | isStartZoneDragging = false', this.statusFlags);
             return;
         }
     }
+    /**
+     * @param {PointerEvent} evt
+     */
     async handleClick(evt) {
+        if (!this.dom) return;
+        warn('CLICK', evt, this.statusFlags);
         if (this.isPainting) return;
         log('CLICK');
         if (this.isDrawing) {
@@ -382,24 +418,47 @@ export class MapEditor extends MapBase {
             return;
         }
     }
+    /**
+     * @param {PointerEvent} evt
+     */
     async handleContext(evt) {}
 
+    /**
+     * @param {KeyboardEvent} evt
+     */
     async handleKeyDown(evt) {
+        if (!this.dom) return;
+        if (evt.repeat) return;
+        if (document.activeElement != document.body) return;
+        warn('KEY_DOWN', evt.key, evt, this.statusFlags);
         if (this.isPainting) return;
         if (!this.editorDom || this.isDragging) return;
         if (!this.isDrawing && evt.key == 'Control') {
             this.isDrawing = true;
             this.newPoly = [];
+            warn('--', 'isDrawing = true', this.statusFlags);
         }
         if (evt.key == 'Shift') {
             this.isRectangling = true;
+            warn('--', 'isRectangling = true', this.statusFlags);
         }
     }
+    /**
+     * @param {KeyboardEvent} evt
+     */
     async handleKeyUp(evt) {
+        if (!this.dom) return;
+        if (evt.repeat) return;
+        warn('KEY_UP', evt.key, evt, this.statusFlags);
         if (this.isPainting) return;
-        if (!this.dom || !this.isDrawing || this.isRectangling) return;
-        if (evt.key == 'Control') {
+        if (evt.key == 'Shift' && this.isRectangling && !this.isDrawing) {
+            this.isRectangling = false;
+            warn('--', 'isRectangling = false', this.statusFlags);
+            return;
+        }
+        if (evt.key == 'Control' && this.isDrawing) {
             this.isDrawing = false;
+            warn('--', 'isDrawing = false', this.statusFlags);
             if (!this.isDragging) {
                 if (this.newPoly.length > 2) {
                     const zone = Zone.from({ polygon:this.newPoly });
@@ -410,6 +469,7 @@ export class MapEditor extends MapBase {
                 this.newPoly = [];
                 this.updateHover();
             }
+            return;
         }
     }
 
