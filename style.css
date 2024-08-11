@@ -304,6 +304,9 @@ body .stcdx--codex.stcdx--maximized {
   left: var(--nav-bar-width, 0px);
   z-index: 4000;
 }
+body .stcdx--codex.stcdx--maximized.stcdx--left {
+  right: 0;
+}
 body .stcdx--codex.stcdx--maximized > .stcdx--editor > .stcdx--editor-tabUi {
   flex-direction: row;
 }
