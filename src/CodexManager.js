@@ -62,8 +62,8 @@ export class CodexManager {
 
         eventSource.on(event_types.CHAT_CHANGED, (chatIdx)=>(this.handleChatChange(chatIdx), null));
 
-        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (idx)=>(this.queueMessageAndCycle(idx), null));
-        eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx)=>(this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (idx, src)=>src == 'codex' ? null : (this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx, src)=>src == 'codex' ? null : (this.queueMessageAndCycle(idx), null));
         eventSource.on(event_types.MESSAGE_SWIPED, (idx)=>(this.queueMessageAndCycle(idx), null));
         eventSource.on(event_types.MESSAGE_UPDATED, (idx)=>(this.queueMessageAndCycle(idx), null));
     }
@@ -233,8 +233,14 @@ export class CodexManager {
     }
     async updateMessage(msg) {
         log('UPDATE MESSAGE', msg);
+        const mes = msg.closest('.mes');
         this.linker.restoreChatMessage(msg);
         this.linker.addCodexLinks(msg);
+        eventSource.emit(
+            mes.getAttribute('is_user') == 'true' ? event_types.USER_MESSAGE_RENDERED : event_types.CHARACTER_MESSAGE_RENDERED,
+            parseInt(mes.getAttribute('mesid')),
+            'codex',
+        );
         log('/UPDATE MESSAGE', msg);
     }
 

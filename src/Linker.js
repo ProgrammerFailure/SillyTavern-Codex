@@ -117,8 +117,16 @@ export class Linker {
      */
     restoreChatMessage(el) {
         if (el.querySelector('[data-codex]')) {
-            let messageText = substituteParams(chat[el.closest('.mes').getAttribute('mesid')].mes);
-            el.innerHTML = messageFormattingWithLanding(messageText);
+            const mesId = parseInt(el.closest('.mes').getAttribute('mesid'));
+            const mes = chat[mesId];
+            let messageText = substituteParams(mes.mes);
+            el.innerHTML = messageFormatting(
+                messageText,
+                mes.name,
+                mes.is_system,
+                mes.is_user,
+                mesId,
+            );
             addCopyToCodeBlocks(el);
         }
     }
