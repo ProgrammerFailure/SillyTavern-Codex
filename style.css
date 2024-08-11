@@ -314,6 +314,10 @@ body .stcdx--codex.stcdx--maximized > .stcdx--editor > .stcdx--editor-tabUi .stc
 body .stcdx--codex.stcdx--maximized > .stcdx--editor > .stcdx--editor-tabUi .stcdx--editor-content {
   height: 100%;
 }
+body .stcdx--codex.stcdx--left {
+  right: unset;
+  left: var(--nav-bar-width, 0px);
+}
 body .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--action,
 body .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--search {
   display: none;

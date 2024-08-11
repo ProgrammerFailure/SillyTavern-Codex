@@ -450,6 +450,17 @@ export class Codex {
                         drag.classList.add('drag-grabber');
                         head.append(drag);
                     }
+                    const toggleSide = document.createElement('div'); {
+                        toggleSide.classList.add('stcdx--action');
+                        toggleSide.classList.add('stcdx--toggleSide');
+                        toggleSide.classList.add('fa-solid');
+                        toggleSide.classList.add('fa-arrow-right-arrow-left');
+                        toggleSide.title = 'Move to other side';
+                        toggleSide.addEventListener('click', ()=>{
+                            root.classList.toggle('stcdx--left');
+                        });
+                        head.append(toggleSide);
+                    }
                     const max = document.createElement('div'); {
                         max.classList.add('stcdx--action');
                         max.classList.add('stcdx--max');
