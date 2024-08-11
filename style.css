@@ -289,9 +289,9 @@ body .stcdx--codex {
   bottom: 0;
   right: 0;
   top: 0;
+  left: calc(100vw - ((100vw - var(--sheldWidth)) / 2));
   max-height: unset;
   max-width: unset;
-  width: calc((100vw - var(--sheldWidth)) / 2);
   transition: calc(1ms * var(--stcdx--transitionTime));
 }
 body .stcdx--codex.stcdx--isReloading {
@@ -301,7 +301,7 @@ body .stcdx--codex.stcdx--isReloading > .stcdx--content {
   display: none;
 }
 body .stcdx--codex.stcdx--maximized {
-  width: calc(100vw - var(--nav-bar-width, 0px));
+  left: var(--nav-bar-width, 0px);
   z-index: 4000;
 }
 body .stcdx--codex.stcdx--maximized > .stcdx--editor > .stcdx--editor-tabUi {
@@ -315,8 +315,19 @@ body .stcdx--codex.stcdx--maximized > .stcdx--editor > .stcdx--editor-tabUi .stc
   height: 100%;
 }
 body .stcdx--codex.stcdx--left {
-  right: unset;
+  right: calc((100vw - var(--sheldWidth)) / 2);
   left: var(--nav-bar-width, 0px);
+  z-index: 2999;
+}
+body .stcdx--codex.stcdx--left > .stcdx--editor > .stcdx--editor-tabUi {
+  flex-direction: row;
+}
+body .stcdx--codex.stcdx--left > .stcdx--editor > .stcdx--editor-tabUi .stcdx--tabs {
+  position: relative;
+  right: 0;
+}
+body .stcdx--codex.stcdx--left > .stcdx--editor > .stcdx--editor-tabUi .stcdx--editor-content {
+  height: 100%;
 }
 body .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--action,
 body .stcdx--codex.stcdx--isEditing > .stcdx--header > .stcdx--search {
