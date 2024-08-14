@@ -3,6 +3,7 @@ import { dragElement } from '../../../../../RossAscends-mods.js';
 import { extension_settings } from '../../../../../extensions.js';
 import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { delay } from '../../../../../utils.js';
+import { createWorldInfoEntry, loadWorldInfo, saveWorldInfo } from '../../../../../world-info.js';
 
 // eslint-disable-next-line no-unused-vars
 import { Linker } from '../Linker.js';
@@ -109,24 +110,27 @@ export class Codex {
             }
             eventSource.once(event_types.WORLDINFO_UPDATED, (...args)=>log('WIUP', ...args));
 
-            const entry = Entry.from(book.name, { uid:null, key:[...`${key}`.split(/\s*,\s*/)], keysecondary:[], selectiveLogic:worldInfoLogic.AND_ANY, comment:'', content:typeContent[type], disable:false });
             this.isCreating = true;
-            executeSlashCommands(`/createentry file="${book.name}" key="${key}" ${typeContent[type]}`).then(async(result)=>{
-                entry.uid = result?.pipe;
-                if (type.startsWith('Custom -')) {
-                    const et = this.settings.entryTypeList.find(it=>`Custom - ${it.name}` == type);
-                    let fields = et.defaultFieldValueList;
-                    const roleValue = fields.find(it=>it.field == 'role');
-                    if (roleValue) {
-                        fields.splice(fields.indexOf(roleValue), 1);
-                        fields.unshift(roleValue);
-                    }
-                    for (const dv of fields) {
-                        log('[SEF]', dv);
-                        await executeSlashCommandsWithOptions(`/setentryfield file="${book.name}" uid=${entry.uid} field="${dv.field}" ${dv.value.replace(/{/g, '\\{')}`);
-                    }
+            const wiData = await loadWorldInfo(book.name);
+            const wiEntry = createWorldInfoEntry(null, wiData);
+            wiEntry.key = [...`${key}`.split(/\s*,\s*/)];
+            wiEntry.comment = wiEntry.key.find(it=>!it.startsWith('codex-')) ?? '';
+            wiEntry.content = typeContent[type];
+            if (type.startsWith('Custom -')) {
+                const et = this.settings.entryTypeList.find(it=>`Custom - ${it.name}` == type);
+                let fields = et.defaultFieldValueList;
+                const roleValue = fields.find(it=>it.field == 'role');
+                if (roleValue) {
+                    fields.splice(fields.indexOf(roleValue), 1);
+                    fields.unshift(roleValue);
                 }
-            });
+                for (const dv of fields) {
+                    log('[SEF]', dv);
+                    wiEntry[dv.field] = dv.value;
+                }
+            }
+            await saveWorldInfo(book.name, wiData);
+            const entry = Entry.from(book.name, wiEntry);
             book.addEntry(entry);
             await this.show(new Match(book.name, entry));
             this.toggleEditor();

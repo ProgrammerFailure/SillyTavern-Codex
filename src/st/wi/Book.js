@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { getRequestHeaders } from '../../../../../../../script.js';
 import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../../slash-commands.js';
+import { createWorldInfoEntry, loadWorldInfo, saveWorldInfo } from '../../../../../../world-info.js';
 
 import { log, warn } from '../../lib/log.js';
 import { Entry } from './Entry.js';
@@ -42,7 +43,7 @@ export class Book {
             body: JSON.stringify({ name:this.name }),
         });
         if (result.ok) {
-            const data = await result.json();
+            const data = await loadWorldInfo(this.name);
             for (const uid of Object.keys(data.entries)) {
                 const entry = Entry.from(this.name, data.entries[uid]);
                 this.addEntry(entry);
@@ -60,13 +61,17 @@ export class Book {
     }
 
     async save(entry, changes) {
+        const data = await loadWorldInfo(this.name);
         const commands = [
-            !changes.includes('content') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=content ${entry.content.replace(/([{}|])/g, '\\$1')}`,
-            !changes.includes('key') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=key ${entry.keyList.map(it=>it.replace(/([{}|])/g, '\\$1')).join(', ')}`,
-            !changes.includes('comment') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=comment ${entry.comment.replace(/([{}|])/g, '\\$1')}`,
-            !changes.includes('disable') ? null : `/setentryfield file="${this.name}" uid=${entry.uid} field=disable ${entry.isDisabled.toString()}`,
-        ];
-        await executeSlashCommands(commands.filter(it=>it).join(' | '));
+            !changes.includes('content') ? null : ()=>data.entries[entry.uid].content = entry.content,
+            !changes.includes('key') ? null : ()=>data.entries[entry.uid].key = entry.keyList,
+            !changes.includes('comment') ? null : ()=>data.entries[entry.uid].comment = entry.comment,
+            !changes.includes('disable') ? null : ()=>data.entries[entry.uid].disable = entry.isDisabled,
+        ].filter(it=>it);
+        if (commands.length) {
+            commands.forEach(it=>it());
+            await saveWorldInfo(this.name, data);
+        }
     }
 
 
@@ -76,11 +81,16 @@ export class Book {
         const props = {
             cover: url,
         };
+        const data = await loadWorldInfo(this.name);
+        let entry;
         if (!propsEntry) {
-            const uid = (await executeSlashCommandsWithOptions(`/createentry file="${this.name}" key="codex-book:, codex-skip:" \\{\\{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`)).pipe;
-            await executeSlashCommandsWithOptions(`/setentryfield file="${this.name}" uid=${uid} field=disable true`);
+            entry = createWorldInfoEntry(null, data);
+            entry.key = ['codex-book:', 'codex-skip:'];
+            entry.disable = true;
         } else {
-            await executeSlashCommandsWithOptions(`/setentryfield file="${this.name}" uid=${propsEntry.uid} field=content \\{\\{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`);
+            entry = data.entries[propsEntry.uid];
         }
+        entry.content = `{{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`;
+        await saveWorldInfo(this.name, data);
     }
 }

@@ -6,6 +6,12 @@ import { warn } from '../../lib/log.js';
 
 
 export class Entry {
+    /**
+     *
+     * @param {string} book
+     * @param {object} props
+     * @returns {Entry}
+     */
     static from(book, props) {
         const instance = Object.assign(new this(book), {
             uid: props.uid,
