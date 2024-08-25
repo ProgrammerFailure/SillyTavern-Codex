@@ -316,7 +316,27 @@ export class CodexEntry extends CodexBaseEntry {
                     sec.id = it.id;
                     sec.setAttribute('data-name', it.name);
                     let text = [it.prefix, it.content, it.suffix].filter(it=>it).join('\n');
-                    text = text.replace(/(\(!\))?({{get(global)?var::((?:(?!}}).)+)}})/g, '<span class="stcdx--var" data-edit="$1" data-scope="$3" data-var="$4" title="$3 variable: $4">$2</span>');
+                    text = text
+                        .replace(/(\(!\))?({{get(global)?var::((?:(?!}}).)+)}})/g, ($0, $1, $2, $3, $4)=>{
+                            '<span class="stcdx--var" data-edit="$1" data-scope="$3" data-var="$4" title="$3 variable: $4">$2</span>';
+                            const span = document.createElement('span'); {
+                                span.classList.add('stcdx--var');
+                                span.dataset.edit = $1;
+                                span.dataset.scope = $3;
+                                span.dataset.var = $4;
+                                span.title = `${$3} variable: $4`.trim();
+                                span.textContent = $2;
+                            }
+                            return span.outerHTML;
+                        })
+                        .replace(/{{\/\/((?:(?!}}).)+)}}/g, ($0, $1)=>{
+                            const span = document.createElement('span'); {
+                                span.classList.add('stcdx--comment');
+                                span.textContent = $1;
+                            }
+                            return span.outerHTML;
+                        })
+                    ;
                     sec.innerHTML = messageFormattingWithLanding(text);
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');
