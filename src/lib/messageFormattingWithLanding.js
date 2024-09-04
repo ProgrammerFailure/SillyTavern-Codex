@@ -1,6 +1,6 @@
 import { substituteParams } from '../../../../../../script.js';
 import { markdownUnderscoreExt } from '../../../../../showdown-underscore.js';
-import { uuidv4 } from '../../../../../utils.js';
+import { escapeRegex, uuidv4 } from '../../../../../utils.js';
 
 export const messageFormattingWithLanding = (messageText, stripCustom = false)=>{
     const converter = new showdown.Converter({
@@ -24,7 +24,7 @@ export const messageFormattingWithLanding = (messageText, stripCustom = false)=>
         for (const el of [...root.children]) {
             subUnknown(el);
         }
-        if (root instanceof HTMLUnknownElement) {
+        if (root instanceof HTMLUnknownElement || root?.tagName?.includes('-')) {
             const match = /^(<.+?>).*(<\/.+?>)$/s.exec(root.outerHTML);
             if (!tags.includes(match[1])) tags.push(match[1]);
             if (!tags.includes(match[2])) tags.push(match[2]);
@@ -34,7 +34,7 @@ export const messageFormattingWithLanding = (messageText, stripCustom = false)=>
     for (const tag of tags) {
         const id = uuidv4();
         tagMap[tag] = id;
-        messageText = messageText.replaceAll(tag, `§§§${id}§§§`);
+        messageText = messageText.replace(new RegExp(escapeRegex(tag), 'ig'), `§§§${id}§§§`);
     }
     messageText = substituteParams(messageText);
     messageText = converter.makeHtml(messageText);
