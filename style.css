@@ -222,6 +222,7 @@ body:has(#stcdx--codex.stcdx--active) #WorldInfo {
   white-space: nowrap;
   position: absolute;
   right: 1em;
+  top: 0.5em;
 }
 .stcdx--link {
   cursor: help;
