@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { getRequestHeaders } from '../../../../../../../script.js';
 import { executeSlashCommands, executeSlashCommandsWithOptions } from '../../../../../../slash-commands.js';
-import { createWorldInfoEntry, loadWorldInfo, saveWorldInfo } from '../../../../../../world-info.js';
+import { createWorldInfoEntry, loadWorldInfo, saveWorldInfo, world_names } from '../../../../../../world-info.js';
 
 import { log, warn } from '../../lib/log.js';
 import { Entry } from './Entry.js';
@@ -71,6 +71,11 @@ export class Book {
         if (commands.length) {
             commands.forEach(it=>it());
             await saveWorldInfo(this.name, data);
+            const currentIndex = Number(/**@type {HTMLSelectElement}*/(document.querySelector('#world_editor_select')).value);
+            const selectedIndex = world_names.indexOf(this.name);
+            if (selectedIndex !== -1 && currentIndex === selectedIndex) {
+                document.querySelector('#world_editor_select').dispatchEvent(new Event('change', { bubbles:true }));
+            }
         }
     }
 
@@ -92,5 +97,10 @@ export class Book {
         }
         entry.content = `{{//codex-book:${btoa(encodeURIComponent(JSON.stringify(props)))}}}`;
         await saveWorldInfo(this.name, data);
+        const currentIndex = Number(/**@type {HTMLSelectElement}*/(document.querySelector('#world_editor_select')).value);
+        const selectedIndex = world_names.indexOf(this.name);
+        if (selectedIndex !== -1 && currentIndex === selectedIndex) {
+            document.querySelector('#world_editor_select').dispatchEvent(new Event('change', { bubbles:true }));
+        }
     }
 }
