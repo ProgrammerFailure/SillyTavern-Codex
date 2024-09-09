@@ -153,9 +153,9 @@ export class CodexEntry extends CodexBaseEntry {
     }
 
 
-    updateEntryContent() {
+    updateEntryContent(checkMacros = false) {
         this.entry.content = [
-            this.properties.type.toString(),
+            this.properties.type.toString(checkMacros),
             this.properties.toString(),
         ].join('');
     }

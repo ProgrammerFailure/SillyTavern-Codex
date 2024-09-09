@@ -1,3 +1,4 @@
+import { substituteParams } from '../../../../../../script.js';
 import { executeSlashCommandsWithOptions } from '../../../../../slash-commands.js';
 import { uuidv4 } from '../../../../../utils.js';
 import { log } from '../lib/log.js';
@@ -39,10 +40,10 @@ export class EntryType {
     }
 
 
-    toString() {
+    toString(checkMacros = false) {
         return [
             this.prefix,
-            ...this.sectionList.filter(it=>it.isIncluded && it.content.length > 0).map(it=>it.toString()).join(''),
+            ...this.sectionList.filter(it=>it.isIncluded && it.content.length > 0 && (!checkMacros || substituteParams(it.content).length > 0)).map(it=>it.toString()).join(''),
             this.suffix,
         ].join('');
     }

@@ -8,12 +8,16 @@ import { Match } from './Match.js';
 import { Matcher } from './Matcher.js';
 import { Settings } from './Settings.js';
 import { debounceAsync } from './lib/debounce.js';
-import { log } from './lib/log.js';
+import { log, warn } from './lib/log.js';
 import { Codex } from './ui/Codex.js';
 import { Book } from './st/wi/Book.js';
 import { Entry } from './st/wi/Entry.js';
 import { WorldInfoSettings } from './st/wi/Settings.js';
 import { Tooltip } from './ui/Tooltip.js';
+import { CodexEntry } from './ui/CodexEntry.js';
+import { CodexBaseEntry } from './ui/CodexBaseEntry.js';
+import { CodexMap } from './ui/CodexMap.js';
+import { CodexCharList } from './ui/CodexCharList.js';
 
 
 
@@ -66,6 +70,31 @@ export class CodexManager {
         eventSource.on(event_types.USER_MESSAGE_RENDERED, (idx, src)=>src == 'codex' ? null : (this.queueMessageAndCycle(idx), null));
         eventSource.on(event_types.MESSAGE_SWIPED, (idx)=>(this.queueMessageAndCycle(idx), null));
         eventSource.on(event_types.MESSAGE_UPDATED, (idx)=>(this.queueMessageAndCycle(idx), null));
+        eventSource.on(event_types.GENERATION_STARTED, async(type, stuff, dryRun)=>{
+            if (dryRun) return;
+            const start = performance.now();
+            let cnt = 0;
+            for (const book of this.bookList) {
+                for (const entry of book.entryList) {
+                    if (!CodexMap.test(entry) && !CodexCharList.test(entry)) {
+                        const ce = new CodexEntry(entry, this.settings, this.matcher, this.linker);
+                        const old = entry.content;
+                        ce.updateEntryContent(true);
+                        log('checking macros in entry', ce);
+                        if (entry.content != old) {
+                            log('updating entry');
+                            await entry.saveDebounced();
+                            log('  ...done');
+                            cnt++;
+                        } else {
+                            log('no update');
+                        }
+                    }
+                }
+            }
+            const dur = performance.now() - start;
+            toastr.info(`Macro check took ${dur}ms (entries updated: ${cnt})`, 'Codex');
+        });
     }
 
 
