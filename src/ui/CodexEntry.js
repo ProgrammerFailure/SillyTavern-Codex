@@ -322,7 +322,7 @@ export class CodexEntry extends CodexBaseEntry {
                             const span = document.createElement('span'); {
                                 span.classList.add('stcdx--var');
                                 span.dataset.edit = $1;
-                                span.dataset.scope = $3;
+                                span.dataset.scope = $3 ?? 'local';
                                 span.dataset.var = $4;
                                 span.title = `${$3} variable: $4`.trim();
                                 span.textContent = $2;
