@@ -1,3 +1,4 @@
+import { extensionNames } from '../../../../../../extensions.js';
 import { delay } from '../../../../../../utils.js';
 import { debounceAsync } from '../../lib/debounce.js';
 import { warn } from '../../lib/log.js';
@@ -106,43 +107,49 @@ export class Entry {
         if (!drawer.classList.contains('openDrawer')) {
             document.querySelector('#WI-SP-button > .drawer-toggle').click();
         }
-        const sel = document.querySelector('#world_editor_select');
-        const bookIndex = Array.from(sel.children).find(it=>it.textContent.trim() == this.book)?.value;
-        const afterBookLoaded = async()=>{
-            const container = document.querySelector('#world_popup_entries_list');
-            let entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
-            if (!entry) {
-                while (!entry && !document.querySelector('#world_info_pagination .paginationjs-prev').classList.contains('disabled')) {
-                    document.querySelector('#world_info_pagination .paginationjs-prev').click();
-                    await delay(100);
-                    entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
-                }
-                while (!entry && !document.querySelector('#world_info_pagination .paginationjs-next').classList.contains('disabled')) {
-                    document.querySelector('#world_info_pagination .paginationjs-next').click();
-                    await delay(100);
-                    entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
-                }
-            }
-            if (!entry) return warn('Cannot find entry in WI panel', this);
-            if (entry.querySelector('.inline-drawer-toggle .inline-drawer-icon.down')) {
-                entry.querySelector('.inline-drawer-toggle').click();
-            }
-            entry.scrollIntoView();
-            entry.classList.add('stcdx--flash');
-            await delay(510);
-            entry.classList.remove('stcdx--flash');
+        if (extensionNames.includes('third-party/SillyTavern-WorldInfoDrawer')) {
+            const stwid = await import('../../../../SillyTavern-WorldInfoDrawer/index.js');
+            await stwid.jumpToEntry(this.book, this.uid);
             this.isOpeningWorldInfoPanel = false;
-        };
-        if (sel.value != bookIndex) {
-            const mo = new MutationObserver(()=>{
-                mo.disconnect();
-                afterBookLoaded();
-            });
-            mo.observe(document.querySelector('#world_popup_entries_list'), { childList:true });
-            sel.value = bookIndex;
-            sel.dispatchEvent(new Event('change'));
         } else {
-            afterBookLoaded();
+            const sel = document.querySelector('#world_editor_select');
+            const bookIndex = Array.from(sel.children).find(it=>it.textContent.trim() == this.book)?.value;
+            const afterBookLoaded = async()=>{
+                const container = document.querySelector('#world_popup_entries_list');
+                let entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+                if (!entry) {
+                    while (!entry && !document.querySelector('#world_info_pagination .paginationjs-prev').classList.contains('disabled')) {
+                        document.querySelector('#world_info_pagination .paginationjs-prev').click();
+                        await delay(100);
+                        entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+                    }
+                    while (!entry && !document.querySelector('#world_info_pagination .paginationjs-next').classList.contains('disabled')) {
+                        document.querySelector('#world_info_pagination .paginationjs-next').click();
+                        await delay(100);
+                        entry = container.querySelector(`.world_entry[uid="${this.uid}"]`);
+                    }
+                }
+                if (!entry) return warn('Cannot find entry in WI panel', this);
+                if (entry.querySelector('.inline-drawer-toggle .inline-drawer-icon.down')) {
+                    entry.querySelector('.inline-drawer-toggle').click();
+                }
+                entry.scrollIntoView();
+                entry.classList.add('stcdx--flash');
+                await delay(510);
+                entry.classList.remove('stcdx--flash');
+                this.isOpeningWorldInfoPanel = false;
+            };
+            if (sel.value != bookIndex) {
+                const mo = new MutationObserver(()=>{
+                    mo.disconnect();
+                    afterBookLoaded();
+                });
+                mo.observe(document.querySelector('#world_popup_entries_list'), { childList:true });
+                sel.value = bookIndex;
+                sel.dispatchEvent(new Event('change'));
+            } else {
+                afterBookLoaded();
+            }
         }
     }
 

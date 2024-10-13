@@ -93,7 +93,7 @@ export class CodexManager {
                 }
             }
             const dur = performance.now() - start;
-            toastr.info(`Macro check took ${dur}ms (entries updated: ${cnt})`, 'Codex');
+            // toastr.info(`Macro check took ${dur}ms (entries updated: ${cnt})`, 'Codex');
         });
     }
 
