@@ -152,7 +152,7 @@ export class CodexManager {
             this.wiButton.addEventListener('click', ()=>{
                 this.toggleCodex();
             });
-            document.querySelector('#WI_panel_pin_div').append(this.wiButton);
+            document.querySelector('#WorldInfo > div > h3').closest('div').append(this.wiButton);
         }
 
         document.body.style.setProperty('--stcdx--color', this.settings.color);
