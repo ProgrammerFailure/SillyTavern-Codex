@@ -262,7 +262,6 @@ export class CodexManager {
     async updateMessageIdx(idx) {
         const message = chat[idx];
         const newHash = createHash(message.mes);
-        debug("Processing message", message.mes)
 
         if (this.messageHashes[idx] !== newHash) {
             this.messageHashes[idx] = newHash;
