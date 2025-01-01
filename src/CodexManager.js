@@ -265,11 +265,6 @@ export class CodexManager {
         const mes = msg.closest('.mes');
         this.linker.restoreChatMessage(msg);
         this.linker.addCodexLinks(msg);
-        eventSource.emit(
-            mes.getAttribute('is_user') == 'true' ? event_types.USER_MESSAGE_RENDERED : event_types.CHARACTER_MESSAGE_RENDERED,
-            parseInt(mes.getAttribute('mesid')),
-            'codex',
-        );
         log('/UPDATE MESSAGE', msg);
     }
 
