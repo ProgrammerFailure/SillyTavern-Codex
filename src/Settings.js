@@ -196,7 +196,7 @@ export class Settings {
                 category: ['Matching'],
                 initialValue: this.requirePrefix,
                 onChange: (it)=>{
-                    this.skipCodeBlocks = it.value;
+                    this.requirePrefix = it.value;
                     this.save();
                     this.restartDebounced();
                 },
