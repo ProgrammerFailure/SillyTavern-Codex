@@ -46,6 +46,9 @@ export class CodexBookMenu extends CodexBaseEntry {
         this.mesWrapper.innerHTML = '';
         const book = this.bookList.find(it=>it.name == this.book);
         if (book) {
+            if (book.cover) {
+                this.dom.style.setProperty('--cover', `url('${encodeURI(book.cover)}')`);
+            }
             const item = document.createElement('div'); {
                 item.classList.add('stcdx--book');
                 const head = document.createElement('div'); {

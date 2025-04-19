@@ -1349,6 +1349,28 @@ body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--entries .
 body .stcdx--root > .stcdx--content.stcdx--booksMenu .mes_text .stcdx--entries .stcdx--item:hover {
   opacity: 1;
 }
+body .stcdx--root > .stcdx--content.stcdx--bookMenu {
+  --cover: '';
+  height: calc(100% + 2.4em);
+  margin: -2.4em -10px 0px -10px;
+  padding-top: 2.4em;
+  width: calc(100% + 20px);
+}
+body .stcdx--root > .stcdx--content.stcdx--bookMenu::before {
+  content: '';
+  background-image: var(--cover);
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.5);
+  inset: 0;
+  --maskSize: 2em;
+  mask-image: linear-gradient(to top, black, black var(--maskSize), black calc(100% - var(--maskSize)), transparent calc(100% + 5px));
+  mask-composite: intersect;
+  mask-mode: alpha;
+  opacity: 0.125;
+  position: absolute;
+  z-index: -1;
+}
 body .stcdx--root > .stcdx--content.stcdx--bookMenu .mes_text .stcdx--head {
   display: flex;
   gap: 1em;
