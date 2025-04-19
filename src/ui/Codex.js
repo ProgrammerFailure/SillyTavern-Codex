@@ -371,11 +371,15 @@ export class Codex {
                         this.menuTrigger = menuTrigger;
                         menuTrigger.classList.add('stcdx--action');
                         menuTrigger.classList.add('stcdx--menu');
-                        menuTrigger.textContent = '≡';
                         menuTrigger.title = 'Entries';
                         menuTrigger.addEventListener('click', ()=>{
                             this.menu.classList.toggle('stcdx--active');
                         });
+                        const icon = document.createElement('div'); {
+                            icon.classList.add('fa-solid');
+                            icon.classList.add('fa-bars');
+                            menuTrigger.append(icon);
+                        }
                         this.renderMenu();
                         head.append(menuTrigger);
                     }
@@ -394,7 +398,8 @@ export class Codex {
                         back.classList.add('stcdx--action');
                         back.classList.add('stcdx--back');
                         back.classList.add('stcdx--disabled');
-                        back.textContent = '↩';
+                        back.classList.add('fa-solid');
+                        back.classList.add('fa-rotate-left');
                         back.title = 'Back';
                         back.addEventListener('click', ()=>this.goBack());
                         head.append(back);
@@ -404,7 +409,8 @@ export class Codex {
                         forward.classList.add('stcdx--action');
                         forward.classList.add('stcdx--forward');
                         forward.classList.add('stcdx--disabled');
-                        forward.textContent = '↪';
+                        forward.classList.add('fa-solid');
+                        forward.classList.add('fa-rotate-right');
                         forward.title = 'Forward';
                         forward.addEventListener('click', ()=>this.goForward());
                         head.append(forward);
@@ -468,10 +474,13 @@ export class Codex {
                     const max = document.createElement('div'); {
                         max.classList.add('stcdx--action');
                         max.classList.add('stcdx--max');
-                        max.textContent = '◱';
+                        max.classList.add('fa-solid');
+                        max.classList.add('fa-expand');
                         max.title = 'Maximize';
                         max.addEventListener('click', ()=>{
                             root.classList.toggle('stcdx--maximized');
+                            max.classList.toggle('fa-expand');
+                            max.classList.toggle('fa-compress');
                         });
                         head.append(max);
                     }

@@ -362,7 +362,8 @@ body .stcdx--codex > .stcdx--header > .stcdx--action {
   opacity: 0.5;
   transition: 200ms;
 }
-body .stcdx--codex > .stcdx--header > .stcdx--action.fa-solid {
+body .stcdx--codex > .stcdx--header > .stcdx--action.fa-solid,
+body .stcdx--codex > .stcdx--header > .stcdx--action .fa-solid {
   font-size: calc(1em * var(--stcdx--headerFontSize) / 1.5);
 }
 body .stcdx--codex > .stcdx--header > .stcdx--action:hover {
