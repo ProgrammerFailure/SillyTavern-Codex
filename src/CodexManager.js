@@ -321,8 +321,9 @@ export class CodexManager {
      */
     async toggleCodex(match = null) {
         if (!this.codex) {
-            toastr.warning('hold on one second...', 'Codex is not ready yet');
+            const toast = toastr.warning('hold on one second...', 'Codex is not ready yet', { timeOut:0, extendedTimeOut:0 });
             while (!this.codex) await delay(100);
+            toastr.clear(toast);
         }
         await this.codex.toggle(match);
     }

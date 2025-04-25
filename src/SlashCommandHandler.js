@@ -634,8 +634,9 @@ export class SlashCommandHandler {
     async handleCodex(args, value) {
         if (value && value.length > 0) {
             if (!this.matcher) {
-                toastr.warning('hold on one second...', 'Codex is not ready yet');
+                const toast = toastr.warning('hold on one second...', 'Codex is not ready yet', { timeOut:0, extendedTimeOut:0 });
                 while (!this.matcher) await delay(100);
+                toastr.clear(toast);
             }
             const matches = this.matcher.findMatches(value);
             if (matches.length > 0) {
