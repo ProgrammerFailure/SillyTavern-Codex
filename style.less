@@ -1497,3 +1497,58 @@ body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu {
 		}
 	}
 }
+
+
+
+
+
+// XML entry display (key: "codex-xml:")
+.stcdx--xml-head {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    background-color: var(--lat--color-bgSecondary);
+    border: 1px solid var(--lat--color-borderSecondary);
+    padding: 0 0.5em;
+}
+.stcdx--xml-tag {
+    font-weight: bold;
+    color: var(--lat--color-accent);
+}
+.stcdx--xml-attributes {
+    display: flex;
+    gap: 0.5em;
+    font-size: smaller
+}
+.stcdx--xml-attribute {
+    display: flex;
+    .stcdx--xml-name {
+        color: var(--lat--color-textEm);
+        &::after {
+            content: "=";
+            color: var(--lat--color-text);
+            margin: 0 0.25em;
+        }
+    }
+    .stcdx--xml-value {
+        color: var(--lat--color-textString);
+    }
+}
+.stcdx--xml-body {
+    margin-left: 1em;
+}
+
+.stcdx--xml-body:has(> .stcdx--xml-text, > .stcdx--xml-comment) {
+    background-color: var(--lat--color-bgSecondary);
+    border: 1px solid var(--lat--color-borderSecondary);
+}
+.stcdx--xml-text, .stcdx--xml-comment {
+    :last-child {
+        margin-bottom: 0;
+    }
+}
+.stcdx--xml-comment {
+    background-color: rgb(from var(--lat--color-accent) r g b / 0.25);
+    font-size: small;
+    padding: 0.5eM
+}

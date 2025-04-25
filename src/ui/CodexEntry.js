@@ -337,7 +337,86 @@ export class CodexEntry extends CodexBaseEntry {
                             return span.outerHTML;
                         })
                     ;
-                    sec.innerHTML = messageFormattingWithLanding(text);
+                    if (this.entry.keyList.includes('codex-xml:')) {
+                        const xml = document.createRange().createContextualFragment(text);
+                        const html = document.createElement('div');
+                        const trimLines = (text)=>{
+                            text = text.replace(/^\n+/, '').replace(/\n+$/, '');
+                            const indent = /^\s+/.exec(text)?.[0];
+                            if (!indent) return text;
+                            return text
+                                .split('\n')
+                                .map(line=>line.startsWith(indent) ? line.slice(indent.length) : line)
+                                .join('\n')
+                            ;
+                        };
+                        /**
+                         * @param {HTMLElement} parent
+                         * @param {(HTMLElement|Text|Comment)[]} children
+                         */
+                        const renderChildren = (parent, children)=>{
+                            for (const root of children) {
+                                if (root instanceof Text) {
+                                    if (root.textContent.trim().length == 0) continue;
+                                    const text = document.createElement('div'); {
+                                        text.classList.add('stcdx--xml-text');
+                                        text.innerHTML = messageFormattingWithLanding(trimLines(root.textContent));
+                                        parent.append(text);
+                                    }
+                                } else if (root instanceof Comment) {
+                                    if (root.textContent.trim().length == 0) continue;
+                                    const comment = document.createElement('div'); {
+                                        comment.classList.add('stcdx--xml-comment');
+                                        comment.innerHTML = messageFormattingWithLanding(trimLines(root.textContent));
+                                        parent.append(comment);
+                                    }
+                                } else if (root instanceof HTMLElement) {
+                                    const el = document.createElement('div'); {
+                                        el.classList.add('stcdx--xml-element');
+                                        const head = document.createElement('div'); {
+                                            head.classList.add('stcdx--xml-head');
+                                            const tag = document.createElement('div'); {
+                                                tag.classList.add('stcdx--xml-tag');
+                                                tag.textContent = root.tagName;
+                                                head.append(tag);
+                                            }
+                                            const attributes = document.createElement('div'); {
+                                                attributes.classList.add('stcdx--xml-attributes');
+                                                for (const a of root.getAttributeNames()) {
+                                                    const attribute = document.createElement('div'); {
+                                                        attribute.classList.add('stcdx--xml-attribute');
+                                                        const name = document.createElement('div'); {
+                                                            name.classList.add('stcdx--xml-name');
+                                                            name.textContent = a;
+                                                            attribute.append(name);
+                                                        }
+                                                        const value = document.createElement('div'); {
+                                                            value.classList.add('stcdx--xml-value');
+                                                            value.textContent = root.getAttribute(a);
+                                                            attribute.append(value);
+                                                        }
+                                                        attributes.append(attribute);
+                                                    }
+                                                }
+                                                head.append(attributes);
+                                            }
+                                            el.append(head);
+                                        }
+                                        const body = document.createElement('div'); {
+                                            body.classList.add('stcdx--xml-body');
+                                            renderChildren(body, /**@type {(HTMLElement|Text|Comment)[]}*/([...root.childNodes]));
+                                            el.append(body);
+                                        }
+                                        parent.append(el);
+                                    }
+                                }
+                            }
+                        };
+                        renderChildren(html, /**@type {(HTMLElement|Text|Comment)[]}*/([...xml.childNodes]));
+                        sec.innerHTML = html.innerHTML;
+                    } else {
+                        sec.innerHTML = messageFormattingWithLanding(text);
+                    }
                     const btn = document.createElement('div'); {
                         btn.classList.add('stcdx--editSection');
                         btn.classList.add('menu_icon');
