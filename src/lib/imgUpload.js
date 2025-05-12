@@ -1,4 +1,5 @@
 import { getRequestHeaders } from '../../../../../../script.js';
+import { FilesPluginApi } from '../../../SillyTavern-FilesPluginApi/api.js';
 
 /**
  * @param {ClipboardEvent} evt
@@ -11,18 +12,13 @@ export const imgUpload = async(evt)=>{
     reader.readAsDataURL(file);
     await prom;
     const dataUrl = reader.result;
-    const response = await fetch('/api/plugins/files/put', {
-        method: 'POST',
-        headers: getRequestHeaders(),
-        body: JSON.stringify({
-            path: `~/user/images/codex/${file.name}`,
-            file: dataUrl,
-        }),
-    });
-    if (!response.ok) {
-        alert('something went wrong');
+    try {
+        const data = await FilesPluginApi.put(`~/user/images/codex/${file.name}`, {
+            file: /**@type {string}*/(dataUrl),
+        });
+        return { ok:true, name:data.name };
+    } catch (ex) {
+        alert(ex?.message ?? 'Something went wrong');
         return { ok:false, name:null };
     }
-    const data = await response.json();
-    return { ok:true, name:data.name };
 };

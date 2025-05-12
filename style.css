@@ -1481,6 +1481,25 @@ body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--a
   background-color: var(--lat--color-bgSecondary);
   border: 1px solid var(--lat--color-borderSecondary);
   padding: 0 0.5em;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.stcdx--xml-head:is(.stcdx--xml-body *) {
+  top: 1.6em;
+  z-index: 90;
+}
+.stcdx--xml-head:is(.stcdx--xml-body .stcdx--xml-body *) {
+  top: 3.2em;
+  z-index: 80;
+}
+.stcdx--xml-head:is(.stcdx--xml-body .stcdx--xml-body .stcdx--xml-body *) {
+  top: 4.8em;
+  z-index: 70;
+}
+.stcdx--xml-head:is(.stcdx--xml-body .stcdx--xml-body .stcdx--xml-body .stcdx--xml-body *) {
+  top: 6.4em;
+  z-index: 60;
 }
 .stcdx--xml-tag {
   font-weight: bold;
@@ -1519,5 +1538,5 @@ body .stcdx--root > .stcdx--content.stcdx--activateBooksMenu .mes_text .stcdx--a
 .stcdx--xml-comment {
   background-color: rgb(from var(--lat--color-accent) r g b / 0.25);
   font-size: small;
-  padding: 0.5eM;
+  padding: 0.5em;
 }

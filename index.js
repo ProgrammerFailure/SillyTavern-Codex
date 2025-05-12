@@ -165,9 +165,9 @@ const checkDependencies = async()=>{
     }
 
     // check Files plugin
-    const response = await fetch('/api/plugins/files/', { method:'HEAD' });
+    const response = await fetch('/api/plugins/files-v2/', { method:'HEAD' });
     if (!response.ok) {
-        log('[DEP]', 'File plugin missing');
+        log('[DEP]', 'Files plugin missing');
         result = false;
         hasInstalledPlugins = await askInstallPlugins(['https://github.com/LenAnderson/SillyTavern-Files']);
     }
