@@ -161,7 +161,10 @@ const checkDependencies = async()=>{
     } catch {
         log('[DEP]', 'FileExplorer extension missing');
         result = false;
-        hasInstalledExtensions = await askInstallExtensions(['https://github.com/LenAnderson/SillyTavern-FileExplorer']);
+        hasInstalledExtensions = await askInstallExtensions([
+            'https://github.com/LenAnderson/SillyTavern-FilesPluginApi',
+            'https://github.com/LenAnderson/SillyTavern-FileExplorer',
+        ]);
     }
 
     // check Files plugin
